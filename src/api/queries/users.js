@@ -49,7 +49,7 @@ export const useAcceptInvite = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ token, password }) => {
-      const { access_token: sessionToken, user } = await api.users.acceptInvite(
+      const { access_token: sessionToken, user } = await api.auth.acceptInvite(
         token,
         { password },
       );

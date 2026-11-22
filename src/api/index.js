@@ -20,6 +20,8 @@ export const auth = {
   login: ({ email, password }) =>
     http.post(ENDPOINTS.auth.login, { email, password }),
   me: () => http.get(ENDPOINTS.users.me),
+  acceptInvite: (token, { password }) =>
+    http.post(ENDPOINTS.auth.acceptInvite(token), { password }),
 };
 
 // ============================== usuários ==============================
@@ -34,8 +36,6 @@ export const users = {
   update: (id, { name, role }) =>
     http.patch(ENDPOINTS.users.byId(id), { name, role }),
   deactivate: (id) => http.post(ENDPOINTS.users.deactivate(id)),
-  acceptInvite: (token, { password }) =>
-    http.post(ENDPOINTS.users.acceptInvite(token), { password }),
 };
 
 // ============================== tutores e pacientes ==============================

@@ -1,10 +1,12 @@
 export const ENDPOINTS = {
-  auth: { login: "/auth/login" },
+  auth: {
+    login: "/auth/login",
+    acceptInvite: (token) => `/auth/invite/${token}/accept`,
+  },
   users: {
     me: "/users/me",
     list: "/users",
     invite: "/users/invite",
-    acceptInvite: (token) => `/auth/invite/${token}/accept`,
     deactivate: (id) => `/users/${id}/deactivate`,
     byId: (id) => `/users/${id}`,
   },

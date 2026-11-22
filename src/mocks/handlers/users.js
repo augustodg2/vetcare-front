@@ -160,7 +160,7 @@ export const userHandlers = [
   }),
 
   http.post(
-    `${API_URL}${ENDPOINTS.users.acceptInvite(":token")}`,
+    `${API_URL}${ENDPOINTS.auth.acceptInvite(":token")}`,
     async ({ request, params }) => {
       const user = store.users.find(
         (u) => u.inviteToken === params.token && u.status === "PENDING_INVITE",
