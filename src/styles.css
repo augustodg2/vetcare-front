@@ -1019,6 +1019,10 @@ button.mrow {
   border-left: 1px dashed var(--vc-line);
 }
 .ag-block {
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
   position: absolute;
   top: calc(4px + var(--lane) * 54px);
   height: 48px;

@@ -13,6 +13,7 @@ export const ENDPOINTS = {
   appointments: {
     list: "/appointments",
     create: "/appointments",
+    cancel: (id) => `/appointments/${id}/cancel`,
   },
   vets: {
     list: "/vets",

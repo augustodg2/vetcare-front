@@ -114,6 +114,8 @@ export const appointments = {
     });
     return res.data.map(fromApiAppointment);
   },
+  cancel: async (id) =>
+    fromApiAppointment(await http.patch(ENDPOINTS.appointments.cancel(id))),
   create: async (data) =>
     fromApiAppointment(
       await http.post(

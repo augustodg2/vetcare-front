@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useAppointments } from "../../api/queries/appointments";
 import { useAllVets } from "../../api/queries/vets";
 import { AppointmentModal } from "../../components/agenda/AppointmentModal";
+import { AppointmentDrawer } from "../../components/agenda/AppointmentDrawer";
 import DayAgenda from "../../components/agenda/DayAgenda";
 import { Async, Block, PageHeader } from "../../components/ui";
 import { ISO, todayISO } from "../../lib/format";
@@ -35,6 +36,9 @@ export default function Agenda() {
   });
 
   const [creating, setCreating] = useState(false);
+  // keep only the id, so the drawer always shows the freshest cached data
+  const [selectedId, setSelectedId] = useState(null);
+  const selected = appointments.data?.find((a) => a.id === selectedId);
 
   const go = (d) => setDate(dayjs(d).format(ISO));
 
@@ -61,6 +65,10 @@ export default function Agenda() {
         date={day.toDate()}
         vetId={vetId}
         onCreated={(a) => go(a.dateTime)}
+      />
+      <AppointmentDrawer
+        appointment={selected}
+        onClose={() => setSelectedId(null)}
       />
       <Block
         title="Horários"
@@ -105,7 +113,12 @@ export default function Agenda() {
         }
       >
         <Async q={appointments} rows={3}>
-          {(rows) => <DayAgenda appointments={rows} />}
+          {(rows) => (
+            <DayAgenda
+              appointments={rows}
+              onSelect={(a) => setSelectedId(a.id)}
+            />
+          )}
         </Async>
       </Block>
     </>

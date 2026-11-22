@@ -26,7 +26,7 @@ function withLanes(appointments) {
 
 // One timeline with every vet's appointments together. CANCELLED appointments
 // free the slot, so they are not drawn.
-export default function DayAgenda({ appointments }) {
+export default function DayAgenda({ appointments, onSelect }) {
   const visible = appointments
     .filter((a) => a.status !== "CANCELLED")
     .sort((a, b) => a.dateTime.localeCompare(b.dateTime));
@@ -67,8 +67,10 @@ export default function DayAgenda({ appointments }) {
           {placed.map((a) => {
             const d = dayjs(a.dateTime);
             return (
-              <div
+              <button
+                type="button"
                 key={a.id}
+                onClick={() => onSelect?.(a)}
                 className={`ag-block ${a.status}`}
                 style={{
                   left: pct(minutesOfDay(d)),
@@ -81,7 +83,7 @@ export default function DayAgenda({ appointments }) {
                   {d.format("HH:mm")} {a.pet.name}
                 </span>
                 <span className="ag-vet-name">{a.vet.name}</span>
-              </div>
+              </button>
             );
           })}
         </div>

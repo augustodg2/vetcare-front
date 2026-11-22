@@ -105,6 +105,34 @@ export const appointmentHandlers = [
     return HttpResponse.json({ data, total: data.length });
   }),
 
+  http.patch(
+    `${API_URL}${ENDPOINTS.appointments.cancel(":id")}`,
+    ({ params }) => {
+      const found = appointmentStore.appointments.find(
+        (a) => a.id === params.id,
+      );
+      if (!found) {
+        return HttpResponse.json(
+          { message: "Consulta não encontrada" },
+          { status: STATUS.NOT_FOUND },
+        );
+      }
+      if (found.status !== "ACTIVE") {
+        return HttpResponse.json(
+          {
+            message:
+              found.status === "CANCELLED"
+                ? "A consulta já está cancelada"
+                : "Uma consulta concluída não pode ser cancelada",
+          },
+          { status: STATUS.BAD_REQUEST },
+        );
+      }
+      found.status = "CANCELLED";
+      return HttpResponse.json(found);
+    },
+  ),
+
   http.post(
     `${API_URL}${ENDPOINTS.appointments.create}`,
     async ({ request }) => {

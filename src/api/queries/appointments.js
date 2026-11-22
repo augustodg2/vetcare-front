@@ -20,14 +20,20 @@ export const useAppointments = ({ from, to, vetId, enabled = true }) =>
   });
 
 // `options.onSuccess` runs after the appointment lists are invalidated
-export const useCreateAppointment = ({ onSuccess, ...options } = {}) => {
+const useAppointmentMutation = (mutationFn, { onSuccess, ...options } = {}) => {
   const queryClient = useQueryClient();
   return useMutation({
     ...options,
-    mutationFn: api.appointments.create,
+    mutationFn,
     onSuccess: async (...args) => {
       await queryClient.invalidateQueries({ queryKey: appointmentKeys.all });
       return onSuccess?.(...args);
     },
   });
 };
+
+export const useCreateAppointment = (options) =>
+  useAppointmentMutation(api.appointments.create, options);
+
+export const useCancelAppointment = (options) =>
+  useAppointmentMutation(api.appointments.cancel, options);
