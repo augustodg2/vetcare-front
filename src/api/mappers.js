@@ -97,6 +97,21 @@ export const fromApiAppointment = (a) => ({
   vet: { id: a.vet.id, name: a.vet.name },
 });
 
+// `dateTime` is a Date (or ISO string); the API wants an ISO 8601 UTC string
+export const toApiCreateAppointment = ({
+  dateTime,
+  type,
+  obs,
+  petId,
+  vetId,
+}) => ({
+  dateTime: new Date(dateTime).toISOString(),
+  type,
+  obs: obs?.trim() || undefined,
+  petId,
+  vetId,
+});
+
 export const fromApiPage = (res, map) => ({
   rows: res.data.map(map),
   total: res.total,

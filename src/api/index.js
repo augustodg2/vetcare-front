@@ -8,6 +8,7 @@ import {
   fromApiPet,
   fromApiPetOwner,
   fromApiUser,
+  toApiCreateAppointment,
   toApiCreatePet,
   toApiCreatePetOwner,
   toApiUpdatePet,
@@ -113,6 +114,13 @@ export const appointments = {
     });
     return res.data.map(fromApiAppointment);
   },
+  create: async (data) =>
+    fromApiAppointment(
+      await http.post(
+        ENDPOINTS.appointments.create,
+        toApiCreateAppointment(data),
+      ),
+    ),
 };
 
 export const api = {

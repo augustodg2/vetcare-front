@@ -1,4 +1,9 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { api } from "..";
 
 export const appointmentKeys = {
@@ -13,3 +18,16 @@ export const useAppointments = ({ from, to, vetId, enabled = true }) =>
     queryFn: () => api.appointments.list({ from, to, vetId }),
     placeholderData: keepPreviousData,
   });
+
+// `options.onSuccess` runs after the appointment lists are invalidated
+export const useCreateAppointment = ({ onSuccess, ...options } = {}) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    ...options,
+    mutationFn: api.appointments.create,
+    onSuccess: async (...args) => {
+      await queryClient.invalidateQueries({ queryKey: appointmentKeys.all });
+      return onSuccess?.(...args);
+    },
+  });
+};

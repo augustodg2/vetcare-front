@@ -12,6 +12,7 @@ export const ENDPOINTS = {
   },
   appointments: {
     list: "/appointments",
+    create: "/appointments",
   },
   vets: {
     list: "/vets",

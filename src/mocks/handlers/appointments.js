@@ -1,6 +1,8 @@
 import dayjs from "dayjs";
 import { http, HttpResponse } from "msw";
 import { ENDPOINTS } from "../../api/endpoints";
+import { STATUS } from "../../api/statusCodes";
+import { store as petOwnerStore } from "./petOwners";
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 const VET_PAGE_SIZE = 10;
@@ -102,4 +104,51 @@ export const appointmentHandlers = [
 
     return HttpResponse.json({ data, total: data.length });
   }),
+
+  http.post(
+    `${API_URL}${ENDPOINTS.appointments.create}`,
+    async ({ request }) => {
+      const { dateTime, type, obs, petId, vetId } = await request.json();
+      const fail = (status, message) =>
+        HttpResponse.json({ message }, { status });
+
+      const when = new Date(dateTime);
+      if (when.getTime() <= Date.now()) {
+        return fail(STATUS.BAD_REQUEST, "A data da consulta deve ser futura");
+      }
+      const pet = petOwnerStore.petOwners
+        .filter((o) => !o.deletedAt)
+        .flatMap((o) => o.pets)
+        .find((p) => p.id === petId);
+      if (!pet) return fail(STATUS.NOT_FOUND, "Pet não encontrado");
+      const vet = vetStore.find((v) => v.id === vetId);
+      if (!vet) return fail(STATUS.NOT_FOUND, "Veterinário não encontrado");
+
+      const taken = appointmentStore.appointments.some(
+        (a) =>
+          a.vet.id === vetId &&
+          a.status === "ACTIVE" &&
+          new Date(a.dateTime).getTime() === when.getTime(),
+      );
+      if (taken) {
+        return fail(
+          STATUS.CONFLICT,
+          "O veterinário já possui uma consulta nesse horário",
+        );
+      }
+
+      const created = {
+        id: `a${Date.now()}`,
+        dateTime: when.toISOString(),
+        createdAt: new Date().toISOString(),
+        obs: obs ?? null,
+        status: "ACTIVE",
+        type,
+        pet: { id: pet.id, name: pet.name, species: pet.species },
+        vet: { id: vet.id, name: vet.user.name },
+      };
+      appointmentStore.appointments.push(created);
+      return HttpResponse.json(created, { status: STATUS.CREATED });
+    },
+  ),
 ];

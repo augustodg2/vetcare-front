@@ -1,10 +1,16 @@
-import { ActionIcon, Group, Select } from "@mantine/core";
+import { ActionIcon, Button, Group, Select } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconPlus,
+} from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { parseAsString, useQueryState } from "nuqs";
+import { useState } from "react";
 import { useAppointments } from "../../api/queries/appointments";
 import { useAllVets } from "../../api/queries/vets";
+import { AppointmentModal } from "../../components/agenda/AppointmentModal";
 import DayAgenda from "../../components/agenda/DayAgenda";
 import { Async, Block, PageHeader } from "../../components/ui";
 import { ISO, todayISO } from "../../lib/format";
@@ -28,6 +34,8 @@ export default function Agenda() {
     to: day.add(1, "day").startOf("day").toISOString(),
   });
 
+  const [creating, setCreating] = useState(false);
+
   const go = (d) => setDate(dayjs(d).format(ISO));
 
   return (
@@ -39,6 +47,20 @@ export default function Agenda() {
             ? ` · ${appointments.data.filter((a) => a.status !== "CANCELLED").length} consultas`
             : ""
         }`}
+      >
+        <Button
+          leftSection={<IconPlus size={16} />}
+          onClick={() => setCreating(true)}
+        >
+          Novo agendamento
+        </Button>
+      </PageHeader>
+      <AppointmentModal
+        opened={creating}
+        onClose={() => setCreating(false)}
+        date={day.toDate()}
+        vetId={vetId}
+        onCreated={(a) => go(a.dateTime)}
       />
       <Block
         title="Horários"
