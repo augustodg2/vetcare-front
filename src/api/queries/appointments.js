@@ -35,5 +35,11 @@ const useAppointmentMutation = (mutationFn, { onSuccess, ...options } = {}) => {
 export const useCreateAppointment = (options) =>
   useAppointmentMutation(api.appointments.create, options);
 
+export const useUpdateAppointment = (options) =>
+  useAppointmentMutation(
+    ({ id, ...data }) => api.appointments.update(id, data),
+    options,
+  );
+
 export const useCancelAppointment = (options) =>
   useAppointmentMutation(api.appointments.cancel, options);

@@ -69,6 +69,7 @@ export default function Agenda() {
       <AppointmentDrawer
         appointment={selected}
         onClose={() => setSelectedId(null)}
+        onRescheduled={(a) => go(a.dateTime)}
       />
       <Block
         title="Horários"

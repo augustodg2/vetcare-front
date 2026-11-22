@@ -112,6 +112,13 @@ export const toApiCreateAppointment = ({
   vetId,
 });
 
+// the API accepts only the day/time, type and notes of an existing appointment
+export const toApiUpdateAppointment = ({ dateTime, type, obs }) => ({
+  dateTime: new Date(dateTime).toISOString(),
+  type,
+  obs: obs?.trim(),
+});
+
 export const fromApiPage = (res, map) => ({
   rows: res.data.map(map),
   total: res.total,

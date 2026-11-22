@@ -1,10 +1,20 @@
-import { Modal, Select, SimpleGrid, Stack, Textarea } from "@mantine/core";
+import {
+  Modal,
+  Select,
+  SimpleGrid,
+  Stack,
+  TextInput,
+  Textarea,
+} from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDebouncedValue } from "@mantine/hooks";
 import dayjs from "dayjs";
 import { useState } from "react";
-import { useCreateAppointment } from "../../api/queries/appointments";
+import {
+  useCreateAppointment,
+  useUpdateAppointment,
+} from "../../api/queries/appointments";
 import { usePets } from "../../api/queries/pets";
 import { useAllVets } from "../../api/queries/vets";
 import { toast } from "../../lib/notify";
@@ -32,32 +42,67 @@ const toDateTime = (date, time) => {
   return dayjs(date).hour(h).minute(m).second(0).millisecond(0).toDate();
 };
 
-export function AppointmentModal({ opened, onClose, date, vetId, onCreated }) {
+// With `appointment` the modal reschedules it: only the day, time, type and
+// notes change, because the API cannot move an appointment to another pet or vet.
+export function AppointmentModal({
+  opened,
+  onClose,
+  appointment,
+  date,
+  vetId,
+  onCreated,
+  onSaved,
+}) {
   return (
-    <Modal opened={opened} onClose={onClose} title="Novo agendamento" size="lg">
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title={appointment ? "Remarcar consulta" : "Novo agendamento"}
+      size="lg"
+    >
       {opened && (
         <AppointmentForm
           onClose={onClose}
+          appointment={appointment}
           date={date}
           vetId={vetId}
           onCreated={onCreated}
+          onSaved={onSaved}
         />
       )}
     </Modal>
   );
 }
 
-function AppointmentForm({ onClose, date, vetId, onCreated }) {
+function AppointmentForm({
+  onClose,
+  appointment,
+  date,
+  vetId,
+  onCreated,
+  onSaved,
+}) {
+  const when = appointment && dayjs(appointment.dateTime);
   const form = useForm({
-    initialValues: {
-      petId: null,
-      vetId: vetId ?? null,
-      type: "CONSULTATION",
-      // past days cannot be booked
-      date: date && !dayjs(date).isBefore(dayjs(), "day") ? date : new Date(),
-      time: null,
-      obs: "",
-    },
+    initialValues: appointment
+      ? {
+          petId: appointment.pet.id,
+          vetId: appointment.vet.id,
+          type: appointment.type,
+          date: when.toDate(),
+          time: when.format("HH:mm"),
+          obs: appointment.obs ?? "",
+        }
+      : {
+          petId: null,
+          vetId: vetId ?? null,
+          type: "CONSULTATION",
+          // past days cannot be booked
+          date:
+            date && !dayjs(date).isBefore(dayjs(), "day") ? date : new Date(),
+          time: null,
+          obs: "",
+        },
     validate: {
       petId: (v) => (v ? null : "Escolha o pet"),
       vetId: (v) => (v ? null : "Escolha o veterinário"),
@@ -79,7 +124,7 @@ function AppointmentForm({ onClose, date, vetId, onCreated }) {
   const [search, setSearch] = useState("");
   const [debounced] = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
   const [chosenPet, setChosenPet] = useState(null);
-  const pets = usePets({ search: debounced });
+  const pets = usePets({ search: debounced, enabled: !appointment });
   const vets = useAllVets();
 
   const petOptions = [
@@ -98,55 +143,90 @@ function AppointmentForm({ onClose, date, vetId, onCreated }) {
     },
   });
 
-  const onSubmit = form.onSubmit((v) =>
+  const update = useUpdateAppointment({
+    onSuccess: (saved) => {
+      toast.ok(`Consulta de ${saved.pet.name} remarcada.`);
+      onSaved?.(saved);
+      onClose();
+    },
+  });
+
+  // an appointment saved off the 30-minute grid keeps its own time as an option
+  const slots =
+    form.values.time && !SLOTS.includes(form.values.time)
+      ? [...SLOTS, form.values.time].sort()
+      : SLOTS;
+
+  const onSubmit = form.onSubmit((v) => {
+    if (appointment) {
+      return update.mutate({
+        id: appointment.id,
+        type: v.type,
+        obs: v.obs,
+        dateTime: toDateTime(v.date, v.time),
+      });
+    }
     create.mutate({
       petId: v.petId,
       vetId: v.vetId,
       type: v.type,
       obs: v.obs,
       dateTime: toDateTime(v.date, v.time),
-    }),
-  );
+    });
+  });
 
   return (
     <form onSubmit={onSubmit} noValidate>
       <Stack gap="sm">
-        <Select
-          label="Pet"
-          placeholder="Busque pelo nome do pet ou do tutor"
-          searchable
-          data={petOptions}
-          filter={({ options }) => options}
-          onSearchChange={setSearch}
-          nothingFoundMessage={
-            pets.isFetching ? "Buscando..." : "Nenhum pet encontrado"
-          }
-          onChange={(id) => {
-            form.setFieldValue("petId", id);
-            setChosenPet(
-              id
-                ? (pets.data?.rows.find((p) => p.id === id) ?? chosenPet)
-                : null,
-            );
-          }}
-          value={form.values.petId}
-          error={form.errors.petId}
-          required
-          withAsterisk
-        />
-        <SimpleGrid cols={{ base: 1, sm: 2 }}>
+        {appointment ? (
+          <SimpleGrid cols={{ base: 1, sm: 2 }}>
+            <TextInput label="Pet" value={appointment.pet.name} readOnly />
+            <TextInput
+              label="Veterinário"
+              value={appointment.vet.name}
+              readOnly
+            />
+          </SimpleGrid>
+        ) : (
           <Select
-            label="Veterinário"
-            placeholder="Escolha o veterinário"
-            data={(vets.data ?? []).map((v) => ({
-              value: v.id,
-              label: v.name,
-            }))}
-            disabled={!vets.data}
+            label="Pet"
+            placeholder="Busque pelo nome do pet ou do tutor"
+            searchable
+            data={petOptions}
+            filter={({ options }) => options}
+            onSearchChange={setSearch}
+            nothingFoundMessage={
+              pets.isFetching ? "Buscando..." : "Nenhum pet encontrado"
+            }
+            onChange={(id) => {
+              form.setFieldValue("petId", id);
+              setChosenPet(
+                id
+                  ? (pets.data?.rows.find((p) => p.id === id) ?? chosenPet)
+                  : null,
+              );
+            }}
+            value={form.values.petId}
+            error={form.errors.petId}
             required
             withAsterisk
-            {...form.getInputProps("vetId")}
           />
+        )}
+        <SimpleGrid cols={{ base: 1, sm: 2 }}>
+          {!appointment && (
+            <Select
+              label="Veterinário"
+              placeholder="Escolha o veterinário"
+              data={(vets.data ?? []).map((v) => ({
+                value: v.id,
+                label: v.name,
+              }))}
+              disabled={!vets.data}
+              required
+              withAsterisk
+              {...form.getInputProps("vetId")}
+            />
+          )}
           <Select
             label="Tipo"
             data={TYPE_OPTIONS}
@@ -166,7 +246,7 @@ function AppointmentForm({ onClose, date, vetId, onCreated }) {
           <Select
             label="Horário"
             placeholder="Escolha o horário"
-            data={SLOTS}
+            data={slots}
             required
             withAsterisk
             {...form.getInputProps("time")}
@@ -182,8 +262,8 @@ function AppointmentForm({ onClose, date, vetId, onCreated }) {
       </Stack>
       <FormActions
         onCancel={onClose}
-        loading={create.isPending}
-        submitLabel="Agendar"
+        loading={create.isPending || update.isPending}
+        submitLabel={appointment ? "Salvar" : "Agendar"}
       />
     </form>
   );

@@ -9,6 +9,7 @@ import {
   fromApiPetOwner,
   fromApiUser,
   toApiCreateAppointment,
+  toApiUpdateAppointment,
   toApiCreatePet,
   toApiCreatePetOwner,
   toApiUpdatePet,
@@ -114,6 +115,13 @@ export const appointments = {
     });
     return res.data.map(fromApiAppointment);
   },
+  update: async (id, data) =>
+    fromApiAppointment(
+      await http.patch(
+        ENDPOINTS.appointments.byId(id),
+        toApiUpdateAppointment(data),
+      ),
+    ),
   cancel: async (id) =>
     fromApiAppointment(await http.patch(ENDPOINTS.appointments.cancel(id))),
   create: async (data) =>

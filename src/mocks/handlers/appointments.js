@@ -133,6 +133,49 @@ export const appointmentHandlers = [
     },
   ),
 
+  http.patch(
+    `${API_URL}${ENDPOINTS.appointments.byId(":id")}`,
+    async ({ params, request }) => {
+      const { dateTime, type, obs } = await request.json();
+      const fail = (status, message) =>
+        HttpResponse.json({ message }, { status });
+
+      const found = appointmentStore.appointments.find(
+        (a) => a.id === params.id,
+      );
+      if (!found) return fail(STATUS.NOT_FOUND, "Consulta não encontrada");
+      if (found.status !== "ACTIVE") {
+        return fail(
+          STATUS.BAD_REQUEST,
+          "Apenas consultas ativas podem ser alteradas",
+        );
+      }
+      if (dateTime !== undefined) {
+        const when = new Date(dateTime);
+        if (when.getTime() <= Date.now()) {
+          return fail(STATUS.BAD_REQUEST, "A data da consulta deve ser futura");
+        }
+        const taken = appointmentStore.appointments.some(
+          (a) =>
+            a.id !== found.id &&
+            a.vet.id === found.vet.id &&
+            a.status === "ACTIVE" &&
+            new Date(a.dateTime).getTime() === when.getTime(),
+        );
+        if (taken) {
+          return fail(
+            STATUS.CONFLICT,
+            "O veterinário já possui uma consulta nesse horário",
+          );
+        }
+        found.dateTime = when.toISOString();
+      }
+      if (type !== undefined) found.type = type;
+      if (obs !== undefined) found.obs = obs || null;
+      return HttpResponse.json(found);
+    },
+  ),
+
   http.post(
     `${API_URL}${ENDPOINTS.appointments.create}`,
     async ({ request }) => {
