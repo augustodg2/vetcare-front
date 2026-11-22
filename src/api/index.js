@@ -27,9 +27,13 @@ export const auth = {
 
 // ============================== usuários ==============================
 export const users = {
-  list: async ({ search, page } = {}) =>
+  list: async ({ search, page, status } = {}) =>
     fromApiPage(
-      await http.get(ENDPOINTS.users.list, { search, page }),
+      await http.get(ENDPOINTS.users.list, {
+        search,
+        page,
+        status: status?.join(","),
+      }),
       fromApiUser,
     ),
   invite: ({ name, email, role }) =>

@@ -61,6 +61,20 @@ const STAFF_ROLES = ["RECEP", "VET", "ADMIN"].map((value) => ({
 // a vet has a CPF/CRMV record, so the role can't move to or from VET on edit
 const NON_VET_ROLES = STAFF_ROLES.filter((r) => r.value !== "VET");
 
+// deactivated users are hidden by default; "todos" lists everyone
+const STATUS_FILTERS = [
+  {
+    value: "abertos",
+    label: "Ativos e convites",
+    status: ["ACTIVE", "PENDING_INVITE"],
+  },
+  { value: "ativo", label: "Ativos", status: ["ACTIVE"] },
+  { value: "convite", label: "Convite pendente", status: ["PENDING_INVITE"] },
+  { value: "inativo", label: "Desativados", status: ["DEACTIVATED"] },
+  { value: "todos", label: "Todos", status: undefined },
+];
+const DEFAULT_STATUS_FILTER = STATUS_FILTERS[0].value;
+
 const SEARCH_DEBOUNCE_MS = 500;
 
 export default function Usuarios() {
@@ -79,7 +93,19 @@ export default function Usuarios() {
   );
   const [debounced] = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  const q = useUsers({ search: debounced, page });
+  const [statusFilter, setStatusFilter] = useQueryState(
+    "status",
+    parseAsString
+      .withDefault(DEFAULT_STATUS_FILTER)
+      .withOptions({ history: "replace" }),
+  );
+  const activeFilter =
+    STATUS_FILTERS.find((f) => f.value === statusFilter) ?? STATUS_FILTERS[0];
+  const q = useUsers({
+    search: debounced,
+    page,
+    status: activeFilter.status,
+  });
 
   const total = q.data?.total ?? 0;
   const pageSize = q.data?.pageSize;
@@ -121,17 +147,33 @@ export default function Usuarios() {
             wrap="nowrap"
             style={{ borderBottom: "1px solid var(--vc-line)" }}
           >
-            <TextInput
-              leftSection={<IconSearch size={15} />}
-              placeholder="Nome ou e-mail"
-              value={search}
-              onChange={(e) => {
-                setSearch(e.currentTarget.value);
-                setPage(1);
-              }}
-              w={{ base: "100%", sm: 300 }}
-              aria-label="Buscar"
-            />
+            <Group gap="xs" wrap="nowrap" style={{ flex: 1 }}>
+              <TextInput
+                leftSection={<IconSearch size={15} />}
+                placeholder="Nome ou e-mail"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.currentTarget.value);
+                  setPage(1);
+                }}
+                w={{ base: "100%", sm: 300 }}
+                aria-label="Buscar"
+              />
+              <Select
+                aria-label="Filtrar por situação"
+                data={STATUS_FILTERS.map(({ value, label }) => ({
+                  value,
+                  label,
+                }))}
+                value={activeFilter.value}
+                onChange={(v) => {
+                  setStatusFilter(v);
+                  setPage(1);
+                }}
+                allowDeselect={false}
+                w={{ base: 150, sm: 190 }}
+              />
+            </Group>
             {(q.isLoading || q.isPlaceholderData) && (
               <Loader size="xs" aria-label="Carregando" />
             )}
@@ -143,7 +185,9 @@ export default function Usuarios() {
                 empty={
                   search
                     ? `Nenhum usuário encontrado para "${search}".`
-                    : "Nenhum usuário cadastrado."
+                    : activeFilter.status
+                      ? "Nenhum usuário nesta situação."
+                      : "Nenhum usuário cadastrado."
                 }
                 columns={[
                   {

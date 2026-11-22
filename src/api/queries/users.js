@@ -13,10 +13,10 @@ export const userKeys = {
   list: (params) => [...userKeys.all, "list", params],
 };
 
-export const useUsers = ({ search = "", page = 1 } = {}) =>
+export const useUsers = ({ search = "", page = 1, status } = {}) =>
   useQuery({
-    queryKey: userKeys.list({ search, page }),
-    queryFn: () => api.users.list({ search, page }),
+    queryKey: userKeys.list({ search, page, status }),
+    queryFn: () => api.users.list({ search, page, status }),
     placeholderData: keepPreviousData,
   });
 

@@ -115,7 +115,9 @@ export const userHandlers = [
     const url = new URL(request.url);
     const search = url.searchParams.get("search") ?? "";
     const page = Math.max(1, Number(url.searchParams.get("page")) || 1);
+    const status = url.searchParams.get("status")?.split(",");
     const found = store.users
+      .filter((u) => !status || status.includes(u.status))
       .filter((u) => matches(search, u.name, u.email))
       .sort((a, b) => a.name.localeCompare(b.name));
 
