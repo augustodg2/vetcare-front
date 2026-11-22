@@ -58,6 +58,9 @@ const STAFF_ROLES = ["RECEP", "VET", "ADMIN"].map((value) => ({
   label: ROLE_LABEL[value],
 }));
 
+// a vet has a CPF/CRMV record, so the role can't move to or from VET on edit
+const NON_VET_ROLES = STAFF_ROLES.filter((r) => r.value !== "VET");
+
 const SEARCH_DEBOUNCE_MS = 500;
 
 export default function Usuarios() {
@@ -424,6 +427,7 @@ function EditUserForm({ user, onClose }) {
     },
   });
   const updateUser = useUpdateUser();
+  const isVet = user.role === "VET";
   return (
     <form
       noValidate
@@ -446,8 +450,14 @@ function EditUserForm({ user, onClose }) {
         <TextInput label="E-mail" value={user.email} disabled readOnly />
         <Select
           label="Perfil de acesso"
-          data={STAFF_ROLES}
+          data={isVet ? STAFF_ROLES : NON_VET_ROLES}
           allowDeselect={false}
+          disabled={isVet}
+          description={
+            isVet
+              ? "Perfil de veterinário não pode ser alterado."
+              : "Para criar um veterinário, envie um novo convite."
+          }
           {...form.getInputProps("role")}
         />
         {user.vet && (
