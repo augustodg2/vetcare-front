@@ -35,6 +35,8 @@ Erros: se a API devolver `{ "message": "..." }`, o texto aparece no aviso vermel
 | `users.invite({ name, email, role })`                  | `POST /users/invite` (só admin; 409 se o e-mail já existir)                          | Admin › Convidar usuário     |
 | `users.update(id, { name, role })`                     | `PATCH /users/:id` (só admin; e-mail não é editável)                                 | Admin › Editar usuário       |
 | `users.deactivate(id)`                                 | `POST /users/:id/deactivate` (só admin)                                              | Admin › Desativar acesso     |
+| `vets.create({ userId, cpf, crmv })`                   | `POST /vets` (chamado após o convite de um usuário VET; `cpf` só dígitos)            | Admin › Convidar usuário     |
+| `vets.remove(id)`                                      | `DELETE /vets/:id` (chamado ao desativar um usuário VET; `user.vet.id`)              | Admin › Desativar acesso     |
 | `users.acceptInvite(token, { password })`              | `POST /users/invite/:token/accept` → `{ token }` (pública)                           | Página `/convite/:token`     |
 | `petOwners.list({ search, page })`                     | `GET /pet-owners?search=&page=` → `{ data, total, page, pageSize }` (com `pets[]`)   | Recepção › Pacientes         |
 | `petOwners.get(id)`                                    | `GET /pet-owners/:id` (com `pets[]`; 404 se não existir ou foi excluído)             | Ficha do tutor               |

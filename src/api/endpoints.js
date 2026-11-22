@@ -10,6 +10,10 @@ export const ENDPOINTS = {
     deactivate: (id) => `/users/${id}/deactivate`,
     byId: (id) => `/users/${id}`,
   },
+  vets: {
+    create: "/vets",
+    byId: (id) => `/vets/${id}`,
+  },
   petOwners: {
     list: "/pet-owners",
     create: "/pet-owners",

@@ -76,6 +76,9 @@ export const fromApiUser = (u) => ({
   status: USER_STATUS_FROM_API[u.status] ?? u.status,
   lastSeen: u.lastAccessAt,
   invitedAt: u.inviteSentAt,
+  vet: u.vet
+    ? { id: u.vet.id, cpf: maskCpf(u.vet.cpf), crmv: u.vet.crmv }
+    : null,
 });
 
 export const fromApiPage = (res, map) => ({

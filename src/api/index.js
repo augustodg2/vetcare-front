@@ -1,4 +1,5 @@
 import { ENDPOINTS } from "./endpoints";
+import { onlyDigits } from "../lib/format";
 import { http } from "./http";
 import {
   fromApiPage,
@@ -38,6 +39,13 @@ export const users = {
   deactivate: (id) => http.post(ENDPOINTS.users.deactivate(id)),
 };
 
+// ============================== veterinários ==============================
+export const vets = {
+  create: ({ userId, cpf, crmv }) =>
+    http.post(ENDPOINTS.vets.create, { userId, cpf: onlyDigits(cpf), crmv }),
+  remove: (id) => http.delete(ENDPOINTS.vets.byId(id)),
+};
+
 // ============================== tutores e pacientes ==============================
 export const petOwners = {
   list: async ({ search, page } = {}) =>
@@ -75,6 +83,7 @@ export const pets = {
 export const api = {
   auth,
   users,
+  vets,
   petOwners,
   pets,
 };

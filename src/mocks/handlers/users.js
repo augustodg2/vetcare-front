@@ -159,6 +159,33 @@ export const userHandlers = [
     return HttpResponse.json(publicUser(user), { status: 201 });
   }),
 
+  http.post(`${API_URL}${ENDPOINTS.vets.create}`, async ({ request }) => {
+    const denied = requireAdmin(request);
+    if (denied) return denied;
+
+    const { userId, cpf, crmv } = await request.json();
+    const user = store.users.find((u) => u.id === userId);
+    if (!user) return err(404, "Usuário não encontrado.");
+    if (!cpf || !crmv) return err(400, "Dados do veterinário incompletos.");
+    if (user.vet) return err(409, "Esse usuário já é veterinário.");
+
+    user.vet = { id: `v${++nextId}`, cpf, crmv };
+    return HttpResponse.json({ ...user.vet, userId }, { status: 201 });
+  }),
+
+  http.delete(
+    `${API_URL}${ENDPOINTS.vets.byId(":id")}`,
+    ({ request, params }) => {
+      const denied = requireAdmin(request);
+      if (denied) return denied;
+
+      const user = store.users.find((u) => u.vet?.id === params.id);
+      if (!user) return err(404, "Veterinário não encontrado.");
+      delete user.vet;
+      return new HttpResponse(null, { status: 204 });
+    },
+  ),
+
   http.post(
     `${API_URL}${ENDPOINTS.auth.acceptInvite(":token")}`,
     async ({ request, params }) => {

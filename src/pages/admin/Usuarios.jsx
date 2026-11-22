@@ -31,7 +31,16 @@ import {
 } from "../../api/queries/users";
 import { useSession } from "../../auth/session";
 import { toast } from "../../lib/notify";
-import { fmtDateTime, isEmail, relDay } from "../../lib/format";
+import {
+  fmtDateTime,
+  formatCrmv,
+  isCpf,
+  isEmail,
+  maskCpf,
+  onlyDigits,
+  relDay,
+  UFS,
+} from "../../lib/format";
 import { ROLE_LABEL, USER_STATUS } from "../../lib/status";
 import {
   Async,
@@ -44,7 +53,7 @@ import {
   Pill,
 } from "../../components/ui";
 
-const STAFF_ROLES = ["RECEP", "ADMIN"].map((value) => ({
+const STAFF_ROLES = ["RECEP", "VET", "ADMIN"].map((value) => ({
   value,
   label: ROLE_LABEL[value],
 }));
@@ -81,7 +90,7 @@ export default function Usuarios() {
 
   const confirmDeactivate = async () => {
     try {
-      await deactivateUser.mutateAsync(deactivate.id);
+      await deactivateUser.mutateAsync(deactivate);
     } catch {
       return; // the global handler already showed the error
     }
@@ -275,13 +284,29 @@ function InviteModal({ opened, onClose }) {
 
 function InviteForm({ onClose }) {
   const form = useForm({
-    initialValues: { name: "", email: "", role: "RECEP" },
+    initialValues: {
+      name: "",
+      email: "",
+      role: "RECEP",
+      cpf: "",
+      crmv: "",
+      crmvUf: null,
+    },
     validate: {
       name: (v) =>
         v.trim().split(" ").length < 2 ? "Informe nome e sobrenome" : null,
       email: (v) => (isEmail(v) ? null : "E-mail inválido"),
+      cpf: (v, values) =>
+        values.role === "VET" && !isCpf(v) ? "CPF inválido" : null,
+      crmv: (v, values) =>
+        values.role === "VET" && v.length < 1
+          ? "Informe o número do CRMV"
+          : null,
+      crmvUf: (v, values) =>
+        values.role === "VET" && !v ? "Selecione a UF" : null,
     },
   });
+  const isVet = form.values.role === "VET";
   const invite = useInviteUser();
   return (
     <form
@@ -292,6 +317,9 @@ function InviteForm({ onClose }) {
             name: v.name.trim(),
             email: v.email.trim().toLowerCase(),
             role: v.role,
+            ...(v.role === "VET" && {
+              vet: { cpf: v.cpf, crmv: formatCrmv(v.crmv, v.crmvUf) },
+            }),
           });
         } catch {
           return; // the global handler already showed the error
@@ -313,6 +341,57 @@ function InviteForm({ onClose }) {
           allowDeselect={false}
           {...form.getInputProps("role")}
         />
+        {isVet && (
+          <>
+            <TextInput
+              label="CPF"
+              placeholder="000.000.000-00"
+              inputMode="numeric"
+              {...form.getInputProps("cpf")}
+              onChange={(e) =>
+                form.setFieldValue("cpf", maskCpf(e.currentTarget.value))
+              }
+            />
+            <div>
+              <Text size="sm" fw={500} mb={4}>
+                CRMV
+              </Text>
+              <Group gap="xs" wrap="nowrap">
+                <Select
+                  aria-label="UF do CRMV"
+                  placeholder="UF"
+                  data={UFS}
+                  searchable
+                  w={85}
+                  {...form.getInputProps("crmvUf")}
+                  error={!!form.errors.crmvUf}
+                />
+                <TextInput
+                  aria-label="Número do CRMV"
+                  placeholder="Número"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  leftSection={<Text size="sm">Nº</Text>}
+                  leftSectionWidth={32}
+                  style={{ flex: 1 }}
+                  {...form.getInputProps("crmv")}
+                  error={!!form.errors.crmv}
+                  onChange={(e) =>
+                    form.setFieldValue(
+                      "crmv",
+                      onlyDigits(e.currentTarget.value).slice(0, 6),
+                    )
+                  }
+                />
+              </Group>
+              {(form.errors.crmvUf || form.errors.crmv) && (
+                <Text size="xs" c="red" mt={4}>
+                  Informe a UF e o número do CRMV
+                </Text>
+              )}
+            </div>
+          </>
+        )}
       </SimpleGrid>
       <FormActions
         onCancel={onClose}
@@ -371,6 +450,12 @@ function EditUserForm({ user, onClose }) {
           allowDeselect={false}
           {...form.getInputProps("role")}
         />
+        {user.vet && (
+          <SimpleGrid cols={2}>
+            <TextInput label="CPF" value={user.vet.cpf} disabled readOnly />
+            <TextInput label="CRMV" value={user.vet.crmv} disabled readOnly />
+          </SimpleGrid>
+        )}
       </Stack>
       <FormActions
         onCancel={onClose}

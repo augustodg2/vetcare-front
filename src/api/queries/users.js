@@ -23,8 +23,13 @@ export const useUsers = ({ search = "", page = 1 } = {}) =>
 export const useInviteUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: api.users.invite,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: userKeys.all }),
+    mutationFn: async ({ vet, ...data }) => {
+      const user = await api.users.invite(data);
+      if (vet) await api.vets.create({ userId: user.id, ...vet });
+      return user;
+    },
+    // also refresh when the vet step fails: the user was already invited
+    onSettled: () => queryClient.invalidateQueries({ queryKey: userKeys.all }),
   });
 };
 
@@ -39,8 +44,11 @@ export const useUpdateUser = () => {
 export const useDeactivateUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: api.users.deactivate,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: userKeys.all }),
+    mutationFn: async (user) => {
+      await api.users.deactivate(user.id);
+      if (user.vet) await api.vets.remove(user.vet.id);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: userKeys.all }),
   });
 };
 
