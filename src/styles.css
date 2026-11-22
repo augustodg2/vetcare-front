@@ -988,39 +988,29 @@ button.mrow {
   --badge-fz-md: 12px;
 }
 
-/* agenda: linha do tempo por veterinário */
+/* agenda: linha do tempo do dia, todos os veterinários juntos */
 .ag-scroll {
   overflow-x: auto;
+  padding: 0 20px 16px;
 }
 .ag {
   min-width: 760px;
 }
-.ag-row {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  border-top: 1px solid var(--vc-line);
-}
-.ag-vet {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 20px;
-  min-width: 0;
-}
-.ag-track {
+.ag-head {
   position: relative;
-  min-height: 64px;
-  margin-right: 12px;
-}
-.ag-head .ag-track {
-  min-height: 36px;
+  height: 28px;
+  border-top: 1px solid var(--vc-line);
 }
 .ag-hour {
   position: absolute;
-  top: 10px;
+  top: 8px;
   transform: translateX(-50%);
   font-size: 12px;
   color: var(--vc-muted);
+}
+.ag-track {
+  position: relative;
+  height: calc(var(--lanes) * 54px + 8px);
 }
 .ag-gridline {
   position: absolute;
@@ -1030,16 +1020,16 @@ button.mrow {
 }
 .ag-block {
   position: absolute;
-  top: 10px;
-  bottom: 10px;
-  min-width: 56px;
+  top: calc(4px + var(--lane) * 54px);
+  height: 48px;
+  min-width: 84px;
   padding: 4px 8px;
   border-left: 3px solid var(--mantine-color-blue-6);
   border-radius: 4px;
   background: var(--mantine-color-blue-0);
   color: var(--mantine-color-blue-9);
   font-size: 12px;
-  line-height: 1.25;
+  line-height: 1.3;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -1049,12 +1039,15 @@ button.mrow {
   background: var(--mantine-color-gray-1);
   color: var(--mantine-color-gray-8);
 }
-.ag-time {
-  opacity: 0.8;
-}
 .ag-pet {
   font-weight: 600;
+}
+.ag-pet,
+.ag-vet-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.ag-vet-name {
+  opacity: 0.8;
 }

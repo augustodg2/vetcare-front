@@ -1,4 +1,4 @@
-import { ActionIcon, Group } from "@mantine/core";
+import { ActionIcon, Group, Select } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import dayjs from "dayjs";
@@ -16,8 +16,14 @@ export default function Agenda() {
   );
   const day = dayjs(dateParam, ISO).isValid() ? dayjs(dateParam, ISO) : dayjs();
 
+  const [vetId, setVetId] = useQueryState(
+    "vet",
+    parseAsString.withOptions({ history: "replace" }),
+  );
+
   const vets = useAllVets();
   const appointments = useAppointments({
+    vetId,
     from: day.startOf("day").toISOString(),
     to: day.add(1, "day").startOf("day").toISOString(),
   });
@@ -35,10 +41,23 @@ export default function Agenda() {
         }`}
       />
       <Block
-        title="Horários por veterinário"
+        title="Horários"
         flush
         actions={
-          <Group gap={6} wrap="nowrap">
+          <Group gap={6} wrap="wrap">
+            <Select
+              aria-label="Veterinário"
+              placeholder="Todos os veterinários"
+              clearable
+              data={(vets.data ?? []).map((v) => ({
+                value: v.id,
+                label: v.name,
+              }))}
+              value={vetId}
+              onChange={setVetId}
+              disabled={!vets.data}
+              w={220}
+            />
             <ActionIcon
               variant="default"
               aria-label="Dia anterior"
@@ -63,12 +82,8 @@ export default function Agenda() {
           </Group>
         }
       >
-        <Async q={vets} rows={3}>
-          {(vetRows) => (
-            <Async q={appointments} rows={3}>
-              {(rows) => <DayAgenda vets={vetRows} appointments={rows} />}
-            </Async>
-          )}
+        <Async q={appointments} rows={3}>
+          {(rows) => <DayAgenda appointments={rows} />}
         </Async>
       </Block>
     </>
