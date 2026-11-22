@@ -12,4 +12,18 @@ export const ROLE_LABEL = {
   ADMIN: "Administrador",
 };
 
+export const APPOINTMENT_STATUS = {
+  ACTIVE: { label: "Agendada", color: "blue" },
+  DONE: { label: "Concluída", color: "gray" },
+  CANCELLED: { label: "Cancelada", color: "red" },
+};
+
+export const PROCEDURE_LABEL = {
+  CONSULTATION: "Consulta",
+  RETURN: "Retorno",
+  VACCINATION: "Vacinação",
+  SURGERY: "Cirurgia",
+  EXAM: "Exame",
+};
+
 export const SPECIES_LABEL = { DOG: "Cão", CAT: "Gato" };

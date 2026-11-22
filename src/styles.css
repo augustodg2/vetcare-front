@@ -987,3 +987,74 @@ button.mrow {
   --badge-fz-sm: 11px;
   --badge-fz-md: 12px;
 }
+
+/* agenda: linha do tempo por veterinário */
+.ag-scroll {
+  overflow-x: auto;
+}
+.ag {
+  min-width: 760px;
+}
+.ag-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  border-top: 1px solid var(--vc-line);
+}
+.ag-vet {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  min-width: 0;
+}
+.ag-track {
+  position: relative;
+  min-height: 64px;
+  margin-right: 12px;
+}
+.ag-head .ag-track {
+  min-height: 36px;
+}
+.ag-hour {
+  position: absolute;
+  top: 10px;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--vc-muted);
+}
+.ag-gridline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed var(--vc-line);
+}
+.ag-block {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  min-width: 56px;
+  padding: 4px 8px;
+  border-left: 3px solid var(--mantine-color-blue-6);
+  border-radius: 4px;
+  background: var(--mantine-color-blue-0);
+  color: var(--mantine-color-blue-9);
+  font-size: 12px;
+  line-height: 1.25;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.ag-block.DONE {
+  border-left-color: var(--mantine-color-gray-7);
+  background: var(--mantine-color-gray-1);
+  color: var(--mantine-color-gray-8);
+}
+.ag-time {
+  opacity: 0.8;
+}
+.ag-pet {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

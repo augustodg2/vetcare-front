@@ -81,6 +81,22 @@ export const fromApiUser = (u) => ({
     : null,
 });
 
+export const fromApiVet = (v) => ({
+  id: v.id,
+  name: v.user.name,
+  crmv: v.crmv,
+});
+
+export const fromApiAppointment = (a) => ({
+  id: a.id,
+  dateTime: a.dateTime,
+  type: a.type,
+  status: a.status,
+  obs: a.obs,
+  pet: { id: a.pet.id, name: a.pet.name, species: a.pet.species },
+  vet: { id: a.vet.id, name: a.vet.name },
+});
+
 export const fromApiPage = (res, map) => ({
   rows: res.data.map(map),
   total: res.total,

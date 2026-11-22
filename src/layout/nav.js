@@ -1,9 +1,13 @@
-import { IconUsers, IconUserShield } from "@tabler/icons-react";
+import { IconCalendar, IconUsers, IconUserShield } from "@tabler/icons-react";
 
 // Mesmas páginas por perfil do protótipo do Figma
 export const NAV = {
-  RECEP: [{ to: "/recepcao/pacientes", label: "Pacientes", icon: IconUsers }],
+  RECEP: [
+    { to: "/recepcao/agenda", label: "Agenda", icon: IconCalendar },
+    { to: "/recepcao/pacientes", label: "Pacientes", icon: IconUsers },
+  ],
   ADMIN: [
+    { to: "/admin/agenda", label: "Agenda", icon: IconCalendar },
     { to: "/admin/pacientes", label: "Pacientes", icon: IconUsers },
     { to: "/admin/usuarios", label: "Usuários", icon: IconUserShield },
   ],

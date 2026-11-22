@@ -10,7 +10,11 @@ export const ENDPOINTS = {
     deactivate: (id) => `/users/${id}/deactivate`,
     byId: (id) => `/users/${id}`,
   },
+  appointments: {
+    list: "/appointments",
+  },
   vets: {
+    list: "/vets",
     create: "/vets",
     byId: (id) => `/vets/${id}`,
   },

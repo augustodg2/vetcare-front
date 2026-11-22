@@ -2,7 +2,9 @@ import { ENDPOINTS } from "./endpoints";
 import { onlyDigits } from "../lib/format";
 import { http } from "./http";
 import {
+  fromApiAppointment,
   fromApiPage,
+  fromApiVet,
   fromApiPet,
   fromApiPetOwner,
   fromApiUser,
@@ -45,6 +47,21 @@ export const users = {
 
 // ============================== veterinários ==============================
 export const vets = {
+  list: async ({ search, page } = {}) =>
+    fromApiPage(
+      await http.get(ENDPOINTS.vets.list, { search, page }),
+      fromApiVet,
+    ),
+  listAll: async () => {
+    const first = await vets.list({ page: 1 });
+    const pages = Math.ceil(first.total / first.pageSize);
+    const rest = await Promise.all(
+      Array.from({ length: Math.max(pages - 1, 0) }, (_, i) =>
+        vets.list({ page: i + 2 }),
+      ),
+    );
+    return [first, ...rest].flatMap((p) => p.rows);
+  },
   create: ({ userId, cpf, crmv }) =>
     http.post(ENDPOINTS.vets.create, { userId, cpf: onlyDigits(cpf), crmv }),
   remove: (id) => http.delete(ENDPOINTS.vets.byId(id)),
@@ -84,10 +101,25 @@ export const pets = {
   remove: (id) => http.delete(ENDPOINTS.pets.byId(id)),
 };
 
+// ============================== agenda ==============================
+export const appointments = {
+  // `from` inclusive, `to` exclusive; the API caps the range at 31 days
+  list: async ({ from, to, vetId, status } = {}) => {
+    const res = await http.get(ENDPOINTS.appointments.list, {
+      from,
+      to,
+      vetId,
+      status,
+    });
+    return res.data.map(fromApiAppointment);
+  },
+};
+
 export const api = {
   auth,
   users,
   vets,
+  appointments,
   petOwners,
   pets,
 };
