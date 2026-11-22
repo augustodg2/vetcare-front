@@ -54,7 +54,7 @@ export default function Agenda() {
                 label: v.name,
               }))}
               value={vetId}
-              onChange={setVetId}
+              onChange={(id) => setVetId(id)}
               disabled={!vets.data}
               w={220}
             />
