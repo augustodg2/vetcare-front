@@ -11,6 +11,9 @@ export const queryClient = new QueryClient({
   queryCache: new QueryCache({ onError: dispatchApiError }),
   mutationCache: new MutationCache({
     onError: (error, _vars, _ctx, mutation) => {
+      // React Query swallows thrown errors, so a bug in a mutation would only
+      // show up as the generic toast below
+      if (!(error instanceof ApiError)) console.error(error);
       dispatchApiError(error);
       if (mutation.meta?.silent) {
         return;
