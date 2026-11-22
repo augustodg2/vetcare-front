@@ -62,6 +62,51 @@ export function maskCpf(v = "") {
     .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
 }
 
+export function isCpf(v = "") {
+  const d = onlyDigits(v);
+  if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false;
+  const check = (len) => {
+    let sum = 0;
+    for (let i = 0; i < len; i++) sum += Number(d[i]) * (len + 1 - i);
+    const r = (sum * 10) % 11;
+    return r === 10 ? 0 : r;
+  };
+  return check(9) === Number(d[9]) && check(10) === Number(d[10]);
+}
+
+export const UFS = [
+  "AC",
+  "AL",
+  "AP",
+  "AM",
+  "BA",
+  "CE",
+  "DF",
+  "ES",
+  "GO",
+  "MA",
+  "MT",
+  "MS",
+  "MG",
+  "PA",
+  "PB",
+  "PR",
+  "PE",
+  "PI",
+  "RJ",
+  "RN",
+  "RS",
+  "RO",
+  "RR",
+  "SC",
+  "SP",
+  "SE",
+  "TO",
+];
+
+// CRMV number (up to 6 digits) + UF -> "CRMV-SP 123456"
+export const formatCrmv = (number, uf) => `CRMV-${uf} ${number}`;
+
 // 123.456.789-10 -> 123.***.***-10
 export function hideCpf(v = "") {
   const d = onlyDigits(v);
