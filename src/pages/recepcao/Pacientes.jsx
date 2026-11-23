@@ -214,7 +214,11 @@ export default function Pacientes() {
       </div>
 
       <PetOwnerDrawer
-        id={historyPet ? null : openPetOwner}
+        id={
+          historyPet || petOwnerForm || petForm || toDelete
+            ? null
+            : openPetOwner
+        }
         onClose={() => setOpenPetOwner(null)}
         onEdit={(t) => setPetOwnerForm({ petOwner: t })}
         onAddPet={(t) => setPetForm({ petOwnerId: t.id, petOwnerName: t.name })}

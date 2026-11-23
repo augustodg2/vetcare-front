@@ -9,30 +9,60 @@ import { ConfirmDialog, Facts, Pill } from "../ui";
 import { AppointmentModal } from "./AppointmentModal";
 
 export function AppointmentDrawer({ appointment, onClose, onRescheduled }) {
-  return (
-    <Drawer opened={!!appointment} onClose={onClose} title="Consulta" size="md">
-      {appointment && (
-        <AppointmentDetails
-          appointment={appointment}
-          onClose={onClose}
-          onRescheduled={onRescheduled}
-        />
-      )}
-    </Drawer>
-  );
-}
+  const [mode, setMode] = useState(null);
 
-function AppointmentDetails({ appointment: a, onClose, onRescheduled }) {
-  const [confirming, setConfirming] = useState(false);
-  const [rescheduling, setRescheduling] = useState(false);
   const cancel = useCancelAppointment({
     onSuccess: () => {
-      toast.ok(`Consulta de ${a.pet.name} cancelada.`);
-      setConfirming(false);
+      toast.ok(`Consulta de ${appointment.pet.name} cancelada.`);
+      setMode(null);
       onClose();
     },
   });
 
+  return (
+    <>
+      <Drawer
+        opened={!!appointment && !mode}
+        onClose={onClose}
+        title="Consulta"
+        size="md"
+      >
+        {appointment && (
+          <AppointmentDetails
+            appointment={appointment}
+            onReschedule={() => setMode("reschedule")}
+            onCancel={() => setMode("cancel")}
+          />
+        )}
+      </Drawer>
+
+      <AppointmentModal
+        opened={mode === "reschedule"}
+        onClose={() => setMode(null)}
+        appointment={appointment}
+        onSaved={(saved) => {
+          setMode(null);
+          onRescheduled?.(saved);
+          onClose();
+        }}
+      />
+
+      <ConfirmDialog
+        opened={mode === "cancel"}
+        onClose={() => setMode(null)}
+        onConfirm={() => cancel.mutate(appointment.id)}
+        loading={cancel.isPending}
+        title="Cancelar consulta"
+        confirmLabel="Cancelar consulta"
+      >
+        {appointment &&
+          `Cancelar a consulta de ${appointment.pet.name} em ${fmtDateTime(appointment.dateTime)}? O horário fica livre e o registro continua no histórico.`}
+      </ConfirmDialog>
+    </>
+  );
+}
+
+function AppointmentDetails({ appointment: a, onReschedule, onCancel }) {
   return (
     <Stack gap="lg">
       <Group justify="space-between" align="flex-start">
@@ -56,7 +86,7 @@ function AppointmentDetails({ appointment: a, onClose, onRescheduled }) {
           <Button
             variant="default"
             leftSection={<IconCalendarEvent size={14} />}
-            onClick={() => setRescheduling(true)}
+            onClick={onReschedule}
           >
             Remarcar
           </Button>
@@ -64,34 +94,12 @@ function AppointmentDetails({ appointment: a, onClose, onRescheduled }) {
             color="red"
             variant="default"
             leftSection={<IconX size={14} />}
-            onClick={() => setConfirming(true)}
+            onClick={onCancel}
           >
             Cancelar consulta
           </Button>
         </Group>
       )}
-
-      <AppointmentModal
-        opened={rescheduling}
-        onClose={() => setRescheduling(false)}
-        appointment={a}
-        onSaved={(saved) => {
-          onRescheduled?.(saved);
-          onClose();
-        }}
-      />
-
-      <ConfirmDialog
-        opened={confirming}
-        onClose={() => setConfirming(false)}
-        onConfirm={() => cancel.mutate(a.id)}
-        loading={cancel.isPending}
-        title="Cancelar consulta"
-        confirmLabel="Cancelar consulta"
-      >
-        Cancelar a consulta de {a.pet.name} em {fmtDateTime(a.dateTime)}? O
-        horário fica livre e o registro continua no histórico.
-      </ConfirmDialog>
     </Stack>
   );
 }

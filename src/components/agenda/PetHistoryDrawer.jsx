@@ -1,6 +1,6 @@
 import { Button, Drawer, Group, Pagination, Stack, Text } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePetAppointments } from "../../api/queries/appointments";
 import { fmtDateTime } from "../../lib/format";
 import { APPOINTMENT_STATUS, PROCEDURE_LABEL } from "../../lib/status";
@@ -8,21 +8,43 @@ import { Async, Empty, Pill } from "../ui";
 import { AppointmentModal } from "./AppointmentModal";
 
 export function PetHistoryDrawer({ pet, onClose }) {
+  const [page, setPage] = useState(1);
+  const [booking, setBooking] = useState(false);
+  const petId = pet?.id;
+
+  useEffect(() => {
+    setPage(1);
+    setBooking(false);
+  }, [petId]);
+
   return (
-    <Drawer
-      opened={!!pet}
-      onClose={onClose}
-      title="Histórico de agendamentos"
-      size="md"
-    >
-      {pet && <PetHistory pet={pet} />}
-    </Drawer>
+    <>
+      <Drawer
+        opened={!!pet && !booking}
+        onClose={onClose}
+        title="Histórico de agendamentos"
+        size="md"
+      >
+        {pet && (
+          <PetHistory
+            pet={pet}
+            page={page}
+            onPage={setPage}
+            onBook={() => setBooking(true)}
+          />
+        )}
+      </Drawer>
+
+      <AppointmentModal
+        opened={booking}
+        onClose={() => setBooking(false)}
+        pet={pet}
+      />
+    </>
   );
 }
 
-function PetHistory({ pet }) {
-  const [page, setPage] = useState(1);
-  const [booking, setBooking] = useState(false);
+function PetHistory({ pet, page, onPage, onBook }) {
   const history = usePetAppointments({ petId: pet.id, page });
 
   return (
@@ -38,11 +60,7 @@ function PetHistory({ pet }) {
             </Text>
           )}
         </div>
-        <Button
-          size="xs"
-          leftSection={<IconPlus size={14} />}
-          onClick={() => setBooking(true)}
-        >
+        <Button size="xs" leftSection={<IconPlus size={14} />} onClick={onBook}>
           Agendar
         </Button>
       </Group>
@@ -88,7 +106,7 @@ function PetHistory({ pet }) {
               {total > pageSize && (
                 <Pagination
                   value={page}
-                  onChange={setPage}
+                  onChange={onPage}
                   total={Math.ceil(total / pageSize)}
                   size="sm"
                 />
@@ -97,12 +115,6 @@ function PetHistory({ pet }) {
           )
         }
       </Async>
-
-      <AppointmentModal
-        opened={booking}
-        onClose={() => setBooking(false)}
-        pet={pet}
-      />
     </Stack>
   );
 }

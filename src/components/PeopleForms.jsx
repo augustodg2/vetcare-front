@@ -21,7 +21,7 @@ import { IconPencil, IconSearch, IconX } from "@tabler/icons-react";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useCreatePetOwner,
   usePetOwner,
@@ -233,14 +233,22 @@ function PetOwnerForm({ onClose, petOwner }) {
 }
 
 export function NewPatientModal({ opened, onClose }) {
+  const [covered, setCovered] = useState(false);
+
   return (
-    <Modal opened={opened} onClose={onClose} title="Novo paciente" size="xl">
-      {opened && <NewPatientForm onClose={onClose} />}
+    <Modal
+      opened={opened && !covered}
+      onClose={onClose}
+      title="Novo paciente"
+      size="xl"
+      keepMounted
+    >
+      {opened && <NewPatientForm onClose={onClose} onCovered={setCovered} />}
     </Modal>
   );
 }
 
-function ExistingOwnerPicker({ form }) {
+function ExistingOwnerPicker({ form, onCovered }) {
   const [search, setSearch] = useState("");
   const [debounced] = useDebouncedValue(search, 300);
   const [editing, setEditing] = useState(false);
@@ -249,6 +257,12 @@ function ExistingOwnerPicker({ form }) {
   const results = usePetOwners({ search: debounced, enabled: searching });
   const selected = usePetOwner(id);
   const owner = selected.data;
+  const editOpen = editing && !!owner;
+
+  useEffect(() => {
+    onCovered?.(editOpen);
+    return () => onCovered?.(false);
+  }, [editOpen, onCovered]);
 
   const pick = (o) => {
     form.setFieldValue("petOwnerId", o.id);
@@ -373,7 +387,7 @@ function ExistingOwnerPicker({ form }) {
       )}
 
       <PetOwnerModal
-        opened={editing && !!owner}
+        opened={editOpen}
         onClose={() => setEditing(false)}
         petOwner={owner}
       />
@@ -381,7 +395,7 @@ function ExistingOwnerPicker({ form }) {
   );
 }
 
-function NewPatientForm({ onClose }) {
+function NewPatientForm({ onClose, onCovered }) {
   const form = useForm({
     initialValues: {
       mode: "new",
@@ -441,7 +455,7 @@ function NewPatientForm({ onClose }) {
           <OwnerFields form={form} />
         </Tabs.Panel>
         <Tabs.Panel value="existing">
-          <ExistingOwnerPicker form={form} />
+          <ExistingOwnerPicker form={form} onCovered={onCovered} />
         </Tabs.Panel>
       </Tabs>
 
