@@ -13,6 +13,7 @@ import { useDebouncedValue } from "@mantine/hooks";
 import {
   IconEye,
   IconEyeOff,
+  IconHistory,
   IconPencil,
   IconPlus,
   IconSearch,
@@ -20,11 +21,9 @@ import {
 } from "@tabler/icons-react";
 import { debounce, parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
-import {
-  useDeletePetOwner,
-  usePetOwner,
-} from "../../api/queries/petOwners";
+import { useDeletePetOwner, usePetOwner } from "../../api/queries/petOwners";
 import { useDeletePet, usePets } from "../../api/queries/pets";
+import { PetHistoryDrawer } from "../../components/agenda/PetHistoryDrawer";
 import {
   NewPatientModal,
   PetModal,
@@ -60,6 +59,7 @@ export default function Pacientes() {
   const [petOwnerForm, setPetOwnerForm] = useState(null); // { petOwner }
   const [petForm, setPetForm] = useState(null); // { pet?, petOwnerId, petOwnerName }
   const [openPetOwner, setOpenPetOwner] = useState(null);
+  const [historyPet, setHistoryPet] = useState(null);
   const [toDelete, setToDelete] = useState(null); // { kind, row }
   const deletePetOwner = useDeletePetOwner({
     onSuccess: (_, id) => {
@@ -219,8 +219,10 @@ export default function Pacientes() {
         onEdit={(t) => setPetOwnerForm({ petOwner: t })}
         onAddPet={(t) => setPetForm({ petOwnerId: t.id, petOwnerName: t.name })}
         onEditPet={(p) => setPetForm({ pet: p })}
+        onHistory={setHistoryPet}
         onDelete={(kind, row) => setToDelete({ kind, row })}
       />
+      <PetHistoryDrawer pet={historyPet} onClose={() => setHistoryPet(null)} />
       <NewPatientModal
         opened={newPatient}
         onClose={() => setNewPatient(false)}
@@ -260,7 +262,14 @@ function PetOwnerDrawer({ id, onClose, ...handlers }) {
   );
 }
 
-function PetOwnerDetails({ id, onEdit, onAddPet, onEditPet, onDelete }) {
+function PetOwnerDetails({
+  id,
+  onEdit,
+  onAddPet,
+  onEditPet,
+  onHistory,
+  onDelete,
+}) {
   const petOwner = usePetOwner(id);
   const [showCpf, setShowCpf] = useState(false);
   return (
@@ -381,6 +390,19 @@ function PetOwnerDetails({ id, onEdit, onAddPet, onEditPet, onDelete }) {
                       </div>
                     </Group>
                     <Group gap={4} wrap="nowrap">
+                      <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        aria-label={`Histórico de agendamentos de ${p.name}`}
+                        onClick={() =>
+                          onHistory({
+                            ...p,
+                            petOwner: { id: t.id, name: t.name },
+                          })
+                        }
+                      >
+                        <IconHistory size={16} />
+                      </ActionIcon>
                       <ActionIcon
                         variant="subtle"
                         color="gray"

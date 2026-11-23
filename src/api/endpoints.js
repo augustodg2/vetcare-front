@@ -30,5 +30,6 @@ export const ENDPOINTS = {
     list: "/pets",
     create: "/pets",
     byId: (id) => `/pets/${id}`,
+    appointments: (id) => `/pets/${id}/appointments`,
   },
 };

@@ -988,7 +988,6 @@ button.mrow {
   --badge-fz-md: 12px;
 }
 
-/* agenda: linha do tempo do dia, todos os veterinários juntos */
 .ag-scroll {
   overflow-x: auto;
   padding: 0 20px 16px;
@@ -1058,7 +1057,6 @@ button.mrow {
   opacity: 0.8;
 }
 
-/* agenda: visão de semana */
 .wk {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));

@@ -56,7 +56,6 @@ export default function Agenda() {
   });
 
   const [creating, setCreating] = useState(false);
-  // keep only the id, so the drawer always shows the freshest cached data
   const [selectedId, setSelectedId] = useState(null);
   const selected = appointments.data?.find((a) => a.id === selectedId);
 

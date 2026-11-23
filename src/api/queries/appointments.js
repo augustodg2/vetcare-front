@@ -9,6 +9,7 @@ import { api } from "..";
 export const appointmentKeys = {
   all: ["appointments"],
   list: (params) => [...appointmentKeys.all, "list", params],
+  pet: (petId, page) => [...appointmentKeys.all, "pet", petId, page],
 };
 
 export const useAppointments = ({ from, to, vetId, enabled = true }) =>
@@ -19,7 +20,6 @@ export const useAppointments = ({ from, to, vetId, enabled = true }) =>
     placeholderData: keepPreviousData,
   });
 
-// `options.onSuccess` runs after the appointment lists are invalidated
 const useAppointmentMutation = (mutationFn, { onSuccess, ...options } = {}) => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -43,3 +43,11 @@ export const useUpdateAppointment = (options) =>
 
 export const useCancelAppointment = (options) =>
   useAppointmentMutation(api.appointments.cancel, options);
+
+export const usePetAppointments = ({ petId, page = 1 }) =>
+  useQuery({
+    enabled: !!petId,
+    queryKey: appointmentKeys.pet(petId, page),
+    queryFn: () => api.pets.appointments(petId, { page }),
+    placeholderData: keepPreviousData,
+  });

@@ -6,6 +6,7 @@ import { store as petOwnerStore } from "./petOwners";
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 const VET_PAGE_SIZE = 10;
+const HISTORY_PAGE_SIZE = 10;
 
 export const vetStore = [
   { id: "v1", crmv: "CRMV-SP 11234", cpf: "52998224725", name: "Camila Rocha" },
@@ -55,7 +56,6 @@ const appt = (
   };
 };
 
-// in-memory store for the appointment handlers
 export const appointmentStore = {
   appointments: [
     appt("a1", "v1", "p1", at(0, 9), "CONSULTATION", "DONE"),
@@ -82,6 +82,28 @@ export const appointmentHandlers = [
       pageSize: VET_PAGE_SIZE,
     });
   }),
+
+  http.get(
+    `${API_URL}${ENDPOINTS.pets.appointments(":id")}`,
+    ({ params, request }) => {
+      const page = Math.max(
+        1,
+        Number(new URL(request.url).searchParams.get("page")) || 1,
+      );
+      const mine = appointmentStore.appointments
+        .filter((a) => a.pet.id === params.id)
+        .sort((a, b) => b.dateTime.localeCompare(a.dateTime));
+      return HttpResponse.json({
+        data: mine.slice(
+          (page - 1) * HISTORY_PAGE_SIZE,
+          page * HISTORY_PAGE_SIZE,
+        ),
+        total: mine.length,
+        page,
+        pageSize: HISTORY_PAGE_SIZE,
+      });
+    },
+  ),
 
   http.get(`${API_URL}${ENDPOINTS.appointments.list}`, ({ request }) => {
     const q = new URL(request.url).searchParams;

@@ -24,7 +24,6 @@ import { FormActions } from "../ui";
 const SEARCH_DEBOUNCE_MS = 300;
 const OBS_MAX = 500;
 
-// fixed 30-minute slots: the API only detects a conflict on the exact time
 const SLOTS = Array.from({ length: 24 }, (_, i) => {
   const min = 8 * 60 + i * 30;
   const h = String(Math.floor(min / 60)).padStart(2, "0");
@@ -42,12 +41,11 @@ const toDateTime = (date, time) => {
   return dayjs(date).hour(h).minute(m).second(0).millisecond(0).toDate();
 };
 
-// With `appointment` the modal reschedules it: only the day, time, type and
-// notes change, because the API cannot move an appointment to another pet or vet.
 export function AppointmentModal({
   opened,
   onClose,
   appointment,
+  pet,
   date,
   vetId,
   onCreated,
@@ -64,6 +62,7 @@ export function AppointmentModal({
         <AppointmentForm
           onClose={onClose}
           appointment={appointment}
+          pet={pet}
           date={date}
           vetId={vetId}
           onCreated={onCreated}
@@ -77,6 +76,7 @@ export function AppointmentModal({
 function AppointmentForm({
   onClose,
   appointment,
+  pet,
   date,
   vetId,
   onCreated,
@@ -94,10 +94,9 @@ function AppointmentForm({
           obs: appointment.obs ?? "",
         }
       : {
-          petId: null,
+          petId: pet?.id ?? null,
           vetId: vetId ?? null,
           type: "CONSULTATION",
-          // past days cannot be booked
           date:
             date && !dayjs(date).isBefore(dayjs(), "day") ? date : new Date(),
           time: null,
@@ -119,11 +118,9 @@ function AppointmentForm({
     },
   });
 
-  // the pet list is searched on the server; the chosen pet stays in the
-  // options even when a later search no longer returns it
   const [search, setSearch] = useState("");
   const [debounced] = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
-  const [chosenPet, setChosenPet] = useState(null);
+  const [chosenPet, setChosenPet] = useState(pet ?? null);
   const pets = usePets({ search: debounced, enabled: !appointment });
   const vets = useAllVets();
 
@@ -151,7 +148,6 @@ function AppointmentForm({
     },
   });
 
-  // an appointment saved off the 30-minute grid keeps its own time as an option
   const slots =
     form.values.time && !SLOTS.includes(form.values.time)
       ? [...SLOTS, form.values.time].sort()
@@ -180,11 +176,11 @@ function AppointmentForm({
       <Stack gap="sm">
         {appointment ? (
           <SimpleGrid cols={{ base: 1, sm: 2 }}>
-            <TextInput label="Pet" value={appointment.pet.name} readOnly />
+            <TextInput label="Pet" value={appointment.pet.name} disabled />
             <TextInput
               label="Veterinário"
               value={appointment.vet.name}
-              readOnly
+              disabled
             />
           </SimpleGrid>
         ) : (

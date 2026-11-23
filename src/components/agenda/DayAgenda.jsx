@@ -2,16 +2,13 @@ import dayjs from "dayjs";
 import { Empty } from "../ui";
 import { PROCEDURE_LABEL } from "../../lib/status";
 
-// The API has no duration, so every block is drawn as one slot.
 const SLOT_MIN = 30;
-// blocks are at least this wide, so two starting closer than this overlap
 const LANE_WINDOW_MIN = 90;
 const DEFAULT_START = 7;
 const DEFAULT_END = 20;
 
 const minutesOfDay = (d) => d.hour() * 60 + d.minute();
 
-// Puts each appointment in the first lane that is free at its start time.
 function withLanes(appointments) {
   const laneEnds = [];
   const placed = appointments.map((a) => {
@@ -24,8 +21,6 @@ function withLanes(appointments) {
   return { placed, lanes: Math.max(laneEnds.length, 1) };
 }
 
-// One timeline with every vet's appointments together. CANCELLED appointments
-// free the slot, so they are not drawn.
 export default function DayAgenda({ appointments, onSelect }) {
   const visible = appointments
     .filter((a) => a.status !== "CANCELLED")

@@ -97,7 +97,6 @@ export const fromApiAppointment = (a) => ({
   vet: { id: a.vet.id, name: a.vet.name },
 });
 
-// `dateTime` is a Date (or ISO string); the API wants an ISO 8601 UTC string
 export const toApiCreateAppointment = ({
   dateTime,
   type,
@@ -112,7 +111,6 @@ export const toApiCreateAppointment = ({
   vetId,
 });
 
-// the API accepts only the day/time, type and notes of an existing appointment
 export const toApiUpdateAppointment = ({ dateTime, type, obs }) => ({
   dateTime: new Date(dateTime).toISOString(),
   type,
