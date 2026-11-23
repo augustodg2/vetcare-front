@@ -1,4 +1,10 @@
-import { ActionIcon, Button, Group, Select } from "@mantine/core";
+import {
+  ActionIcon,
+  Button,
+  Group,
+  SegmentedControl,
+  Select,
+} from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import {
   IconChevronLeft,
@@ -6,15 +12,18 @@ import {
   IconPlus,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import { parseAsString, useQueryState } from "nuqs";
+import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import { useState } from "react";
 import { useAppointments } from "../../api/queries/appointments";
 import { useAllVets } from "../../api/queries/vets";
 import { AppointmentModal } from "../../components/agenda/AppointmentModal";
 import { AppointmentDrawer } from "../../components/agenda/AppointmentDrawer";
 import DayAgenda from "../../components/agenda/DayAgenda";
+import WeekAgenda from "../../components/agenda/WeekAgenda";
 import { Async, Block, PageHeader } from "../../components/ui";
-import { ISO, todayISO } from "../../lib/format";
+import { ISO, todayISO, weekStart } from "../../lib/format";
+
+const VIEWS = ["dia", "semana"];
 
 export default function Agenda() {
   const [dateParam, setDate] = useQueryState(
@@ -23,16 +32,27 @@ export default function Agenda() {
   );
   const day = dayjs(dateParam, ISO).isValid() ? dayjs(dateParam, ISO) : dayjs();
 
+  const [view, setView] = useQueryState(
+    "v",
+    parseAsStringLiteral(VIEWS)
+      .withDefault("dia")
+      .withOptions({ history: "replace" }),
+  );
+  const week = view === "semana";
+
   const [vetId, setVetId] = useQueryState(
     "vet",
     parseAsString.withOptions({ history: "replace" }),
   );
 
+  const rangeStart = week ? weekStart(day) : day.startOf("day");
+  const rangeEnd = rangeStart.add(week ? 7 : 1, "day");
+
   const vets = useAllVets();
   const appointments = useAppointments({
     vetId,
-    from: day.startOf("day").toISOString(),
-    to: day.add(1, "day").startOf("day").toISOString(),
+    from: rangeStart.toISOString(),
+    to: rangeEnd.toISOString(),
   });
 
   const [creating, setCreating] = useState(false);
@@ -41,16 +61,20 @@ export default function Agenda() {
   const selected = appointments.data?.find((a) => a.id === selectedId);
 
   const go = (d) => setDate(dayjs(d).format(ISO));
+  const step = week ? 7 : 1;
+
+  const count = appointments.data?.filter(
+    (a) => a.status !== "CANCELLED",
+  ).length;
+  const period = week
+    ? `${rangeStart.format("D [de] MMM")} a ${rangeEnd.subtract(1, "day").format("D [de] MMM")}`
+    : day.format("dddd, D [de] MMMM");
 
   return (
     <>
       <PageHeader
         title="Agenda"
-        finding={`${day.format("dddd, D [de] MMMM")}${
-          appointments.data
-            ? ` · ${appointments.data.filter((a) => a.status !== "CANCELLED").length} consultas`
-            : ""
-        }`}
+        finding={`${period}${count != null ? ` · ${count} ${count === 1 ? "consulta" : "consultas"}` : ""}`}
       >
         <Button
           leftSection={<IconPlus size={16} />}
@@ -76,6 +100,15 @@ export default function Agenda() {
         flush
         actions={
           <Group gap={6} wrap="wrap">
+            <SegmentedControl
+              aria-label="Visão"
+              value={view}
+              onChange={setView}
+              data={[
+                { value: "dia", label: "Dia" },
+                { value: "semana", label: "Semana" },
+              ]}
+            />
             <Select
               aria-label="Veterinário"
               placeholder="Todos os veterinários"
@@ -91,8 +124,8 @@ export default function Agenda() {
             />
             <ActionIcon
               variant="default"
-              aria-label="Dia anterior"
-              onClick={() => go(day.subtract(1, "day"))}
+              aria-label={week ? "Semana anterior" : "Dia anterior"}
+              onClick={() => go(day.subtract(step, "day"))}
             >
               <IconChevronLeft size={16} />
             </ActionIcon>
@@ -105,8 +138,8 @@ export default function Agenda() {
             />
             <ActionIcon
               variant="default"
-              aria-label="Próximo dia"
-              onClick={() => go(day.add(1, "day"))}
+              aria-label={week ? "Próxima semana" : "Próximo dia"}
+              onClick={() => go(day.add(step, "day"))}
             >
               <IconChevronRight size={16} />
             </ActionIcon>
@@ -114,12 +147,20 @@ export default function Agenda() {
         }
       >
         <Async q={appointments} rows={3}>
-          {(rows) => (
-            <DayAgenda
-              appointments={rows}
-              onSelect={(a) => setSelectedId(a.id)}
-            />
-          )}
+          {(rows) =>
+            week ? (
+              <WeekAgenda
+                appointments={rows}
+                start={rangeStart}
+                onSelect={(a) => setSelectedId(a.id)}
+              />
+            ) : (
+              <DayAgenda
+                appointments={rows}
+                onSelect={(a) => setSelectedId(a.id)}
+              />
+            )
+          }
         </Async>
       </Block>
     </>
