@@ -125,7 +125,7 @@ function AppointmentForm({
   const [debounced] = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
   const [chosenPet, setChosenPet] = useState(pet ?? null);
   const pets = usePets({ search: debounced, enabled: !appointment });
-  const vets = useAllVets({ enabled: !ownVet });
+  const vets = useAllVets({ enabled: !ownVet && !appointment });
 
   const petOptions = [
     ...(chosenPet ? [chosenPet] : []),

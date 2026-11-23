@@ -95,7 +95,6 @@ export default function Agenda() {
         onCreated={(a) => go(a.dateTime)}
       />
       <AppointmentDrawer
-        readOnly={isVet}
         appointment={selected}
         onClose={() => setSelectedId(null)}
         onRescheduled={(a) => go(a.dateTime)}

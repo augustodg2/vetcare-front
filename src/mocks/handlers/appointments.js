@@ -57,6 +57,15 @@ const appt = (
   };
 };
 
+const FORBIDDEN_MESSAGE = "Você só pode alterar as suas próprias consultas";
+
+const canManage = (request, appointment) => {
+  const caller = userFromRequest(request);
+  if (caller?.role !== "VET") return true;
+  const ownVet = vetStore.find((v) => v.user.name === caller.name);
+  return ownVet?.id === appointment.vet.id;
+};
+
 export const appointmentStore = {
   appointments: [
     appt("a1", "v1", "p1", at(0, 9), "CONSULTATION", "DONE"),
@@ -140,7 +149,7 @@ export const appointmentHandlers = [
 
   http.patch(
     `${API_URL}${ENDPOINTS.appointments.cancel(":id")}`,
-    ({ params }) => {
+    ({ params, request }) => {
       const found = appointmentStore.appointments.find(
         (a) => a.id === params.id,
       );
@@ -148,6 +157,12 @@ export const appointmentHandlers = [
         return HttpResponse.json(
           { message: "Consulta não encontrada" },
           { status: STATUS.NOT_FOUND },
+        );
+      }
+      if (!canManage(request, found)) {
+        return HttpResponse.json(
+          { message: FORBIDDEN_MESSAGE },
+          { status: STATUS.FORBIDDEN },
         );
       }
       if (found.status !== "ACTIVE") {
@@ -177,6 +192,8 @@ export const appointmentHandlers = [
         (a) => a.id === params.id,
       );
       if (!found) return fail(STATUS.NOT_FOUND, "Consulta não encontrada");
+      if (!canManage(request, found))
+        return fail(STATUS.FORBIDDEN, FORBIDDEN_MESSAGE);
       if (found.status !== "ACTIVE") {
         return fail(
           STATUS.BAD_REQUEST,
