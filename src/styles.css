@@ -1010,7 +1010,7 @@ button.mrow {
 }
 .ag-track {
   position: relative;
-  height: calc(var(--lanes) * 54px + 8px);
+  height: calc(var(--lanes) * 66px + 8px);
 }
 .ag-gridline {
   position: absolute;
@@ -1024,8 +1024,8 @@ button.mrow {
   text-align: left;
   cursor: pointer;
   position: absolute;
-  top: calc(4px + var(--lane) * 54px);
-  height: 48px;
+  top: calc(4px + var(--lane) * 66px);
+  height: 60px;
   min-width: 84px;
   padding: 4px 8px;
   border-left: 3px solid var(--mantine-color-blue-6);
@@ -1047,11 +1047,13 @@ button.mrow {
   font-weight: 600;
 }
 .ag-pet,
+.ag-type,
 .ag-vet-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.ag-type,
 .ag-vet-name {
   opacity: 0.8;
 }

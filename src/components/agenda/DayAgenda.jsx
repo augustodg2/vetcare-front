@@ -82,6 +82,7 @@ export default function DayAgenda({ appointments, onSelect }) {
                 <span className="ag-pet">
                   {d.format("HH:mm")} {a.pet.name}
                 </span>
+                <span className="ag-type">{PROCEDURE_LABEL[a.type]}</span>
                 <span className="ag-vet-name">{a.vet.name}</span>
               </button>
             );
