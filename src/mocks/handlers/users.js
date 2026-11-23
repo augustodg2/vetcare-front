@@ -44,6 +44,7 @@ export const store = {
   users: [
     active("u1", "Renata Freitas", "admin@vetcare.com.br", "ADMIN", 0),
     active("u2", "Juliana Prado", "recepcao@vetcare.com.br", "RECEP", 1),
+    active("u10", "Camila Rocha", "vet@vetcare.com.br", "VET", 1),
     active("u3", "Bruno Carvalho", "bruno.carvalho@vetcare.com.br", "RECEP", 3),
     active("u4", "Camila Duarte", "camila.duarte@vetcare.com.br", "ADMIN", 5),
     active("u5", "Diego Moreira", "diego.moreira@vetcare.com.br", "RECEP", 8),

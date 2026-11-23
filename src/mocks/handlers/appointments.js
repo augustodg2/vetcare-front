@@ -3,6 +3,7 @@ import { http, HttpResponse } from "msw";
 import { ENDPOINTS } from "../../api/endpoints";
 import { STATUS } from "../../api/statusCodes";
 import { store as petOwnerStore } from "./petOwners";
+import { userFromRequest } from "./users";
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 const VET_PAGE_SIZE = 10;
@@ -109,7 +110,17 @@ export const appointmentHandlers = [
     const q = new URL(request.url).searchParams;
     const from = new Date(q.get("from")).getTime();
     const to = new Date(q.get("to")).getTime();
-    const vetId = q.get("vetId");
+    const caller = userFromRequest(request);
+    const ownVet =
+      caller?.role === "VET" &&
+      vetStore.find((v) => v.user.name === caller.name);
+    if (caller?.role === "VET" && !ownVet) {
+      return HttpResponse.json(
+        { message: "Cadastro de veterinário não encontrado para este usuário" },
+        { status: STATUS.FORBIDDEN },
+      );
+    }
+    const vetId = ownVet ? ownVet.id : q.get("vetId");
     const status = q.get("status");
 
     const data = appointmentStore.appointments

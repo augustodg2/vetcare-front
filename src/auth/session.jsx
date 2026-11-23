@@ -5,8 +5,9 @@ import { tokenStore } from "../api/http";
 import { authKeys, useMe } from "../api/queries/auth";
 
 export const ROLES = {
-  RECEP: { label: "Recepcionista", home: "/recepcao/pacientes" },
-  ADMIN: { label: "Administrador", home: "/admin/pacientes" },
+  RECEP: { label: "Recepcionista", home: "/recepcao/agenda" },
+  ADMIN: { label: "Administrador", home: "/admin/agenda" },
+  VET: { label: "Veterinário", home: "/vet/agenda" },
 };
 
 const SessionContext = createContext(null);

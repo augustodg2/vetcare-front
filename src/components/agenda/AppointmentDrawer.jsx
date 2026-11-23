@@ -8,7 +8,12 @@ import { APPOINTMENT_STATUS, PROCEDURE_LABEL } from "../../lib/status";
 import { ConfirmDialog, Facts, Pill } from "../ui";
 import { AppointmentModal } from "./AppointmentModal";
 
-export function AppointmentDrawer({ appointment, onClose, onRescheduled }) {
+export function AppointmentDrawer({
+  appointment,
+  onClose,
+  onRescheduled,
+  readOnly,
+}) {
   const [mode, setMode] = useState(null);
 
   const cancel = useCancelAppointment({
@@ -30,6 +35,7 @@ export function AppointmentDrawer({ appointment, onClose, onRescheduled }) {
         {appointment && (
           <AppointmentDetails
             appointment={appointment}
+            readOnly={readOnly}
             onReschedule={() => setMode("reschedule")}
             onCancel={() => setMode("cancel")}
           />
@@ -62,7 +68,12 @@ export function AppointmentDrawer({ appointment, onClose, onRescheduled }) {
   );
 }
 
-function AppointmentDetails({ appointment: a, onReschedule, onCancel }) {
+function AppointmentDetails({
+  appointment: a,
+  readOnly,
+  onReschedule,
+  onCancel,
+}) {
   return (
     <Stack gap="lg">
       <Group justify="space-between" align="flex-start">
@@ -81,7 +92,7 @@ function AppointmentDetails({ appointment: a, onReschedule, onCancel }) {
         ]}
       />
 
-      {a.status === "ACTIVE" && (
+      {!readOnly && a.status === "ACTIVE" && (
         <Group justify="flex-end">
           <Button
             variant="default"

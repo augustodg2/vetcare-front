@@ -6,8 +6,9 @@ export const vetKeys = {
   everyone: () => [...vetKeys.all, "all"],
 };
 
-export const useAllVets = () =>
+export const useAllVets = ({ enabled = true } = {}) =>
   useQuery({
+    enabled,
     queryKey: vetKeys.everyone(),
     queryFn: api.vets.listAll,
   });

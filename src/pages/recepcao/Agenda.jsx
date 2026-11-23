@@ -14,6 +14,7 @@ import {
 import dayjs from "dayjs";
 import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import { useState } from "react";
+import { useSession } from "../../auth/session";
 import { useAppointments } from "../../api/queries/appointments";
 import { useAllVets } from "../../api/queries/vets";
 import { AppointmentModal } from "../../components/agenda/AppointmentModal";
@@ -26,6 +27,9 @@ import { ISO, todayISO, weekStart } from "../../lib/format";
 const VIEWS = ["dia", "semana"];
 
 export default function Agenda() {
+  const { user } = useSession();
+  const readOnly = user.role === "VET";
+
   const [dateParam, setDate] = useQueryState(
     "d",
     parseAsString.withDefault(todayISO()).withOptions({ history: "replace" }),
@@ -48,9 +52,9 @@ export default function Agenda() {
   const rangeStart = week ? weekStart(day) : day.startOf("day");
   const rangeEnd = rangeStart.add(week ? 7 : 1, "day");
 
-  const vets = useAllVets();
+  const vets = useAllVets({ enabled: !readOnly });
   const appointments = useAppointments({
-    vetId,
+    vetId: readOnly ? null : vetId,
     from: rangeStart.toISOString(),
     to: rangeEnd.toISOString(),
   });
@@ -72,24 +76,29 @@ export default function Agenda() {
   return (
     <>
       <PageHeader
-        title="Agenda"
+        title={readOnly ? "Minha agenda" : "Agenda"}
         finding={`${period}${count != null ? ` · ${count} ${count === 1 ? "consulta" : "consultas"}` : ""}`}
       >
-        <Button
-          leftSection={<IconPlus size={16} />}
-          onClick={() => setCreating(true)}
-        >
-          Novo agendamento
-        </Button>
+        {!readOnly && (
+          <Button
+            leftSection={<IconPlus size={16} />}
+            onClick={() => setCreating(true)}
+          >
+            Novo agendamento
+          </Button>
+        )}
       </PageHeader>
-      <AppointmentModal
-        opened={creating}
-        onClose={() => setCreating(false)}
-        date={day.toDate()}
-        vetId={vetId}
-        onCreated={(a) => go(a.dateTime)}
-      />
+      {!readOnly && (
+        <AppointmentModal
+          opened={creating}
+          onClose={() => setCreating(false)}
+          date={day.toDate()}
+          vetId={vetId}
+          onCreated={(a) => go(a.dateTime)}
+        />
+      )}
       <AppointmentDrawer
+        readOnly={readOnly}
         appointment={selected}
         onClose={() => setSelectedId(null)}
         onRescheduled={(a) => go(a.dateTime)}
@@ -108,19 +117,21 @@ export default function Agenda() {
                 { value: "semana", label: "Semana" },
               ]}
             />
-            <Select
-              aria-label="Veterinário"
-              placeholder="Todos os veterinários"
-              clearable
-              data={(vets.data ?? []).map((v) => ({
-                value: v.id,
-                label: v.name,
-              }))}
-              value={vetId}
-              onChange={(id) => setVetId(id)}
-              disabled={!vets.data}
-              w={220}
-            />
+            {!readOnly && (
+              <Select
+                aria-label="Veterinário"
+                placeholder="Todos os veterinários"
+                clearable
+                data={(vets.data ?? []).map((v) => ({
+                  value: v.id,
+                  label: v.name,
+                }))}
+                value={vetId}
+                onChange={(id) => setVetId(id)}
+                disabled={!vets.data}
+                w={220}
+              />
+            )}
             <ActionIcon
               variant="default"
               aria-label={week ? "Semana anterior" : "Dia anterior"}

@@ -38,6 +38,9 @@ export default function App() {
             <Route path="agenda" element={<Agenda />} />
             <Route path="pacientes" element={<Pacientes />} />
           </Route>
+          <Route path="vet" element={<RoleGate role="VET" />}>
+            <Route path="agenda" element={<Agenda />} />
+          </Route>
           <Route path="admin" element={<RoleGate role="ADMIN" />}>
             <Route path="agenda" element={<Agenda />} />
             <Route path="pacientes" element={<Pacientes />} />
