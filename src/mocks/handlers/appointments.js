@@ -212,7 +212,13 @@ export const appointmentHandlers = [
   http.post(
     `${API_URL}${ENDPOINTS.appointments.create}`,
     async ({ request }) => {
-      const { dateTime, type, obs, petId, vetId } = await request.json();
+      const body = await request.json();
+      const { dateTime, type, obs, petId } = body;
+      const caller = userFromRequest(request);
+      const ownVet =
+        caller?.role === "VET" &&
+        vetStore.find((v) => v.user.name === caller.name);
+      const vetId = ownVet ? ownVet.id : body.vetId;
       const fail = (status, message) =>
         HttpResponse.json({ message }, { status });
 

@@ -28,7 +28,7 @@ const VIEWS = ["dia", "semana"];
 
 export default function Agenda() {
   const { user } = useSession();
-  const readOnly = user.role === "VET";
+  const isVet = user.role === "VET";
 
   const [dateParam, setDate] = useQueryState(
     "d",
@@ -52,9 +52,9 @@ export default function Agenda() {
   const rangeStart = week ? weekStart(day) : day.startOf("day");
   const rangeEnd = rangeStart.add(week ? 7 : 1, "day");
 
-  const vets = useAllVets({ enabled: !readOnly });
+  const vets = useAllVets({ enabled: !isVet });
   const appointments = useAppointments({
-    vetId: readOnly ? null : vetId,
+    vetId: isVet ? null : vetId,
     from: rangeStart.toISOString(),
     to: rangeEnd.toISOString(),
   });
@@ -76,29 +76,26 @@ export default function Agenda() {
   return (
     <>
       <PageHeader
-        title={readOnly ? "Minha agenda" : "Agenda"}
+        title={isVet ? "Minha agenda" : "Agenda"}
         finding={`${period}${count != null ? ` · ${count} ${count === 1 ? "consulta" : "consultas"}` : ""}`}
       >
-        {!readOnly && (
-          <Button
-            leftSection={<IconPlus size={16} />}
-            onClick={() => setCreating(true)}
-          >
-            Novo agendamento
-          </Button>
-        )}
+        <Button
+          leftSection={<IconPlus size={16} />}
+          onClick={() => setCreating(true)}
+        >
+          Novo agendamento
+        </Button>
       </PageHeader>
-      {!readOnly && (
-        <AppointmentModal
-          opened={creating}
-          onClose={() => setCreating(false)}
-          date={day.toDate()}
-          vetId={vetId}
-          onCreated={(a) => go(a.dateTime)}
-        />
-      )}
+      <AppointmentModal
+        opened={creating}
+        onClose={() => setCreating(false)}
+        date={day.toDate()}
+        vetId={vetId}
+        ownVet={isVet}
+        onCreated={(a) => go(a.dateTime)}
+      />
       <AppointmentDrawer
-        readOnly={readOnly}
+        readOnly={isVet}
         appointment={selected}
         onClose={() => setSelectedId(null)}
         onRescheduled={(a) => go(a.dateTime)}
@@ -117,7 +114,7 @@ export default function Agenda() {
                 { value: "semana", label: "Semana" },
               ]}
             />
-            {!readOnly && (
+            {!isVet && (
               <Select
                 aria-label="Veterinário"
                 placeholder="Todos os veterinários"

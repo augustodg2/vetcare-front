@@ -48,6 +48,7 @@ export function AppointmentModal({
   pet,
   date,
   vetId,
+  ownVet,
   onCreated,
   onSaved,
 }) {
@@ -65,6 +66,7 @@ export function AppointmentModal({
           pet={pet}
           date={date}
           vetId={vetId}
+          ownVet={ownVet}
           onCreated={onCreated}
           onSaved={onSaved}
         />
@@ -79,6 +81,7 @@ function AppointmentForm({
   pet,
   date,
   vetId,
+  ownVet,
   onCreated,
   onSaved,
 }) {
@@ -104,7 +107,7 @@ function AppointmentForm({
         },
     validate: {
       petId: (v) => (v ? null : "Escolha o pet"),
-      vetId: (v) => (v ? null : "Escolha o veterinário"),
+      vetId: (v) => (v || ownVet ? null : "Escolha o veterinário"),
       date: (v) => (v ? null : "Informe o dia"),
       time: (v, values) => {
         if (!v) return "Escolha o horário";
@@ -122,7 +125,7 @@ function AppointmentForm({
   const [debounced] = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
   const [chosenPet, setChosenPet] = useState(pet ?? null);
   const pets = usePets({ search: debounced, enabled: !appointment });
-  const vets = useAllVets();
+  const vets = useAllVets({ enabled: !ownVet });
 
   const petOptions = [
     ...(chosenPet ? [chosenPet] : []),
@@ -164,7 +167,7 @@ function AppointmentForm({
     }
     create.mutate({
       petId: v.petId,
-      vetId: v.vetId,
+      vetId: ownVet ? undefined : v.vetId,
       type: v.type,
       obs: v.obs,
       dateTime: toDateTime(v.date, v.time),
@@ -209,7 +212,7 @@ function AppointmentForm({
           />
         )}
         <SimpleGrid cols={{ base: 1, sm: 2 }}>
-          {!appointment && (
+          {!appointment && !ownVet && (
             <Select
               label="Veterinário"
               placeholder="Escolha o veterinário"
