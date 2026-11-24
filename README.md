@@ -1,64 +1,116 @@
 # VetCare · front-end
 
-Front-end do VetCare (clínica veterinária), feito a partir do fluxo do protótipo do Figma Make,
-com o design revisado para ficar mais funcional. Só front: a API ainda não está ligada, então o
-app roda com dados de demonstração guardados no navegador.
+Front-end do VetCare, sistema de gestão para clínica veterinária: cadastro de pacientes e
+tutores e controle de acesso da equipe. Todas as telas consomem a API do VetCare; para trabalhar sem
+o back-end, a API pode ser simulada no navegador com o MSW.
 
-**Stack:** React 18 + Vite 5, Mantine 7 (componentes, formulários, datas, avisos), Tabler Icons, dayjs, React Router 6.
+## Entrega 2
 
-## Rodar
+Esta versão corresponde à **entrega 2** do trabalho, com as seguintes entregas:
+
+- **Autenticação:** login por e-mail e senha, sessão mantida ao recarregar a página e acesso separado
+  por perfil (Administrador e Recepcionista).
+- **Convites:** criação de senha pelo link de convite, com regra de senha forte.
+- **Pacientes e tutores:** busca por nome, raça, tutor ou CPF; cadastro de pet com tutor novo ou já
+  existente; ficha do tutor, edição e exclusão.
+- **Usuários:** listagem com busca, convite, edição e desativação de acesso.
+- **Integração com a API:** todas as telas ligadas às rotas do back-end, com tratamento de erros e API
+  simulada para desenvolvimento.
+
+## Stack
+
+| Tecnologia | Para que serve no projeto |
+|---|---|
+| [React 18](https://react.dev) | Construção da interface em componentes |
+| [Vite 5](https://vite.dev) | Servidor de desenvolvimento e build de produção |
+| [Mantine 7](https://mantine.dev) | Componentes visuais, formulários, campos de data e avisos |
+| [TanStack Query 5](https://tanstack.com/query) | Busca, cache e atualização dos dados da API |
+| [React Router 6](https://reactrouter.com) | Rotas e controle de acesso às páginas por perfil |
+| [nuqs](https://nuqs.dev) | Busca e paginação guardadas na URL |
+| [dayjs](https://day.js.org) | Datas em português |
+| [Tabler Icons](https://tabler.io/icons) | Ícones |
+| [MSW 2](https://mswjs.io) | API simulada no navegador durante o desenvolvimento |
+| [PostCSS](https://postcss.org) | Processamento do CSS, com o preset do Mantine |
+| [Prettier](https://prettier.io) | Formatação do código |
+
+O projeto é escrito em JavaScript (JSX). As chamadas à API usam o `fetch` do navegador, centralizado
+em `src/api/http.js`.
+
+## Pré-requisitos
+
+- [Node.js](https://nodejs.org/pt-br/download) na versão LTS, que já inclui o npm. A página de
+  download traz as instruções para Windows, Linux e macOS.
+
+## Como rodar
 
 ```bash
 npm install
-npm run dev        # http://localhost:5181
-npm run build      # gera dist/
+npm run dev
 ```
 
-Na tela de login, escolha o **perfil de demonstração** (a senha já vem preenchida). Os dados de
-exemplo são recriados a cada dia; o botão **Restaurar demonstração** (barra lateral) volta tudo ao início.
+O app abre em `http://localhost:5181`.
 
-## Perfis e páginas (mesmo fluxo do Figma)
-
-| Perfil | Páginas |
+| Comando | O que faz |
 |---|---|
-| Recepcionista | **Agenda** (linha do tempo por veterinário, dia/semana, pedidos do portal, chegada, remarcar, cancelar) · **Pacientes** (tutores e pacientes, busca, novo paciente com tutor novo ou já cadastrado, edição, exclusão) · **Caixa** (a receber, pagamentos do dia, baixa com troco e parcelas) |
-| Veterinário | **Atendimentos** (fila do dia e ficha: anamnese, histórico, vacinação, prescrição) · **Prontuários** · **Vacinas** (atrasadas, próximas, aplicadas) · **Prescrições** (rascunho, emissão, PDF) |
-| Administrador | **Dashboard** (faturamento, atendimentos, ticket, a receber, semanas, formas de pagamento) · **Relatórios** (CSV/PDF) · **Usuários** (convite, perfil, desativar) · **Financeiro** (receitas, despesas, saldo) |
-| Tutor | **Meus pets** · **Vacinas** (carteira e lembretes) · **Consultas** (pedir, acompanhar, cancelar) · **Receitas** (ver, compartilhar, PDF) |
+| `npm run dev` | Servidor de desenvolvimento |
+| `npm run build` | Gera a versão de produção em `dist/` |
+| `npm run preview` | Serve o conteúdo de `dist/` localmente |
+| `npm run format` | Formata `src/` com o Prettier |
 
-Os perfis conversam entre si: o pedido do tutor aparece na agenda da recepção; a chegada avisa o
-veterinário; concluir o atendimento grava o prontuário, emite a prescrição para o tutor e manda a
-cobrança para o caixa; o caixa alimenta o dashboard e o financeiro.
+## Variáveis de ambiente
 
-## O que mudou em relação ao protótipo
+| Variável | Descrição |
+|---|---|
+| `VITE_API_URL` | Endereço da API |
+| `VITE_ENABLE_MSW` | `true` liga a API simulada; qualquer outro valor usa a API real |
 
-- Números calculados a partir dos dados (nada de valor fixo): indicadores, totais, gráfico semanal.
-- Cada modal virou um formulário de verdade, com validação e mensagens em português.
-- Agenda com uma faixa por veterinário e checagem de horário ocupado ao marcar.
-- Ficha de atendimento com estados (aguardando → em atendimento → concluído).
-- Tabelas viram listas de duas linhas no celular; navegação inferior no celular.
-- Contraste e tamanhos de texto revisados (pílulas de estado legíveis, botão principal AA).
+O `.env.development` traz os valores usados por `npm run dev`. Para mudar algo só na sua máquina,
+crie um `.env.local` (ignorado pelo Git). O `.env.example` serve de modelo.
 
-## Ligar na API
+### API simulada
 
-Toda a comunicação passa por `src/api/index.js`. O passo a passo e a rota sugerida para cada
-função estão em [`src/api/README.md`](src/api/README.md). Copie `.env.example` para `.env` e
-preencha `VITE_API_URL`. O MSW (API simulada) liga com `VITE_ENABLE_MSW=true`; em `npm run dev` ele já vem ligado por `.env.development`. Para usar a API real, crie `.env.local` com `VITE_ENABLE_MSW=false`.
+Com `VITE_ENABLE_MSW=true`, as rotas são respondidas por `src/mocks/handlers/`, com 1 segundo de
+atraso por requisição. Os dados são fictícios e ficam em memória: voltam ao início ao recarregar a página.
+
+| Perfil | E-mail | Senha |
+|---|---|---|
+| Administrador | `admin@vetcare.com.br` | `password` |
+| Recepcionista | `recepcao@vetcare.com.br` | `password` |
+
+Na simulação, o link de um novo convite aparece no console do navegador, já que nenhum e-mail é enviado.
+
+## Perfis e acesso
+
+| Página | Administrador | Recepcionista |
+|---|---|---|
+| Pacientes | `/admin/pacientes` | `/recepcao/pacientes` |
+| Usuários | `/admin/usuarios` | — |
+
+Cada perfil só entra nas próprias páginas. As rotas públicas são `/login` e `/convite/:token`.
 
 ## Estrutura
 
 ```
 src/
-  api/          serviços (index.js), cliente HTTP (http.js), banco de demonstração (db.js)
-  data/seed.js  dados de exemplo e listas fixas (preços, vacinas, formas de pagamento)
+  api/          cliente HTTP, rotas, mapeadores, serviços e tratamento de erros
+    queries/    hooks do TanStack Query usados pelas telas
   auth/         sessão e perfis
-  layout/       barra lateral, barra do celular, avisos
-  components/   peças compartilhadas (tabela, indicadores, modais de agendamento, pagamento, vacina, prescrição…)
-  pages/        uma pasta por perfil
+  components/   peças compartilhadas e formulários
+  data/         dados da antiga demonstração (sem uso nas telas)
+  layout/       estrutura das páginas, barra lateral e navegação
+  lib/          formatação, avisos, regra de senha e rótulos de estado
+  mocks/        API simulada com MSW
+  pages/        telas
 ```
 
-## Dados de exemplo
+As telas usam os hooks de `src/api/queries/`, que chamam os serviços de `src/api/index.js`. Os
+endereços ficam em `src/api/endpoints.js` e a conversão entre o formato da API e o das telas, em
+`src/api/mappers.js`.
 
-Todos os nomes, CPFs, telefones, e-mails e valores são fictícios e precisam ser trocados pelos
-dados reais da API. A tabela de preços dos atendimentos (`PRICES` em `src/data/seed.js`) também é
-de exemplo e deve vir do back-end.
+## Deploy
+
+Nesta entrega, a Vercel estava configurada com deploys automáticos a partir do repositório. O
+redirecionamento das rotas para `index.html` fica em `vercel.json`.
+
+Para publicar em outro lugar, a aplicação é estática: basta servir o conteúdo de `dist/`, com as
+variáveis de ambiente definidas no momento do build.
