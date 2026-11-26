@@ -19,6 +19,25 @@ const pet = (id, name, species, breed, sex, birthDate, weight, notes = "") => ({
 
 let nextSeedPetId = 6; // p1–p5 are written by hand below
 
+const SEED_ADDRESSES = [
+  "Rua Oscar Freire, 379 · Jardim Paulista, São Paulo",
+  "Rua dos Pinheiros, 870 · Pinheiros, São Paulo",
+  "Av. Brigadeiro Faria Lima, 2232 · Jardim Paulistano, São Paulo",
+  "Rua Teodoro Sampaio, 1020 · Pinheiros, São Paulo",
+  "Rua Bela Cintra, 655 · Consolação, São Paulo",
+  "Av. Rebouças, 3970 · Pinheiros, São Paulo",
+  "Rua Fradique Coutinho, 1110 · Vila Madalena, São Paulo",
+  "Rua Tabapuã, 540 · Itaim Bibi, São Paulo",
+  "Rua Vergueiro, 2045 · Vila Mariana, São Paulo",
+  "Av. Santo Amaro, 1800 · Vila Nova Conceição, São Paulo",
+  "Rua Domingos de Morais, 1300 · Vila Mariana, São Paulo",
+  "Rua Haddock Lobo, 745 · Cerqueira César, São Paulo",
+  "Rua Mourato Coelho, 390 · Pinheiros, São Paulo",
+  "Rua Joaquim Floriano, 466 · Itaim Bibi, São Paulo",
+  "Av. Angélica, 2100 · Higienópolis, São Paulo",
+  "Rua Apinajés, 1240 · Perdizes, São Paulo",
+];
+
 // in-memory store, shared by the owner and pet handlers
 export const store = {
   petOwners: [
@@ -58,7 +77,7 @@ export const store = {
       cpf: "12345678909",
       phone: "11965432109",
       email: "ana.souza@email.com",
-      address: "",
+      address: "Rua Cardeal Arcoverde, 1540 · Pinheiros, São Paulo",
       pets: [
         pet(
           "p4",
@@ -172,7 +191,7 @@ export const store = {
       cpf,
       phone: `1194000${1000 + i}`,
       email: `${name.split(" ")[0].toLowerCase()}@email.com`,
-      address: "",
+      address: SEED_ADDRESSES[i % SEED_ADDRESSES.length],
       pets: pets.map(([petName, species, breed, sex, weight]) =>
         pet(
           `p${nextSeedPetId++}`,
