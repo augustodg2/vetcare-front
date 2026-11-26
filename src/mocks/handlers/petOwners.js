@@ -6,13 +6,13 @@ const PAGE_SIZE = 8;
 
 const digits = (v = "") => v.replace(/\D/g, "");
 
-const pet = (id, name, species, breed, sex, birthdate, weight, notes = "") => ({
+const pet = (id, name, species, breed, sex, birthDate, weight, notes = "") => ({
   id,
   name,
   species,
   breed,
   sex,
-  birthdate,
+  birthDate,
   weight,
   notes,
 });
@@ -252,9 +252,9 @@ export const petHandlers = [
       if (!found) return notFound("Pet not found");
 
       // petOwnerId is ignored: a pet cannot change owner
-      const { name, species, breed, sex, birthdate, weight, notes } =
+      const { name, species, breed, sex, birthDate, weight, notes } =
         await request.json();
-      const data = { name, species, breed, sex, birthdate, weight, notes };
+      const data = { name, species, breed, sex, birthDate, weight, notes };
       const error = validatePet(data);
       if (error) return badRequest(error);
 

@@ -1,6 +1,6 @@
 import { maskCpf, maskPhone, onlyDigits } from "../lib/format";
 
-// The API speaks `petOwner` / `species` / `birthdate` / `notes`; the pages keep
+// The API speaks `petOwner` / `species` / `birthDate` / `notes`; the pages keep
 // the `species` / `birth` / `alerts` names they already use.
 
 export const fromApiPet = (p) => ({
@@ -9,7 +9,7 @@ export const fromApiPet = (p) => ({
   species: p.species,
   breed: p.breed,
   sex: p.sex,
-  birth: p.birthDate,
+  birth: p.birthDate?.slice(0, 10),
   weight: p.weight,
   alerts: p.notes,
   ...(p.petOwner && {

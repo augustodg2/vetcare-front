@@ -13,7 +13,7 @@ A tradução fica em `mappers.js`; as telas continuam usando os nomes antigos no
 
 | API                                                              | Telas                           |
 | ---------------------------------------------------------------- | ------------------------------- |
-| `birthdate` (`YYYY-MM-DD`)                                       | `birth`                         |
+| `birthDate` (`YYYY-MM-DD`)                                       | `birth`                         |
 | `notes`                                                          | `alerts`                        |
 | `petOwner` / `petOwnerId`                                        | `petOwner` / `petOwnerId`       |
 | `cpf`, `phone` (só dígitos)                                      | mascarados para exibição        |
