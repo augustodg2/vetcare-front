@@ -21,6 +21,7 @@ import {
 } from "@tabler/icons-react";
 import { debounce, parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
+import { useSession } from "../../auth/session";
 import { useDeletePetOwner, usePetOwner } from "../../api/queries/petOwners";
 import { useDeletePet, usePets } from "../../api/queries/pets";
 import { PetHistoryDrawer } from "../../components/agenda/PetHistoryDrawer";
@@ -44,8 +45,12 @@ import { SPECIES_LABEL } from "../../lib/status";
 import { toast } from "../../lib/notify";
 
 const SEARCH_DEBOUNCE_MS = 500;
+const HISTORY_ROLES = ["RECEP", "ADMIN"];
 
 export default function Pacientes() {
+  const { user } = useSession();
+  const readOnly = user.role === "VET";
+  const canSeeAppointmentHistory = HISTORY_ROLES.includes(user.role);
   const [search, setSearch] = useQueryState(
     "q",
     parseAsString.withDefault("").withOptions({
@@ -107,12 +112,14 @@ export default function Pacientes() {
   return (
     <>
       <PageHeader title="Pacientes" finding="Pacientes e tutores da clínica">
-        <Button
-          leftSection={<IconPlus size={16} />}
-          onClick={() => setNewPatient(true)}
-        >
-          Novo paciente
-        </Button>
+        {!readOnly && (
+          <Button
+            leftSection={<IconPlus size={16} />}
+            onClick={() => setNewPatient(true)}
+          >
+            Novo paciente
+          </Button>
+        )}
       </PageHeader>
 
       <div className="stack">
@@ -150,7 +157,9 @@ export default function Pacientes() {
                     ? `Nenhum paciente encontrado para "${search}".`
                     : "Nenhum paciente cadastrado."
                 }
-                onRowClick={(p) => setOpenPetOwner(p.petOwnerId)}
+                onRowClick={
+                  readOnly ? undefined : (p) => setOpenPetOwner(p.petOwnerId)
+                }
                 fixed
                 columns={[
                   {
@@ -220,13 +229,19 @@ export default function Pacientes() {
             : openPetOwner
         }
         onClose={() => setOpenPetOwner(null)}
+        canSeeAppointmentHistory={canSeeAppointmentHistory}
         onEdit={(t) => setPetOwnerForm({ petOwner: t })}
         onAddPet={(t) => setPetForm({ petOwnerId: t.id, petOwnerName: t.name })}
         onEditPet={(p) => setPetForm({ pet: p })}
         onHistory={setHistoryPet}
         onDelete={(kind, row) => setToDelete({ kind, row })}
       />
-      <PetHistoryDrawer pet={historyPet} onClose={() => setHistoryPet(null)} />
+      {canSeeAppointmentHistory && (
+        <PetHistoryDrawer
+          pet={historyPet}
+          onClose={() => setHistoryPet(null)}
+        />
+      )}
       <NewPatientModal
         opened={newPatient}
         onClose={() => setNewPatient(false)}
@@ -268,6 +283,7 @@ function PetOwnerDrawer({ id, onClose, ...handlers }) {
 
 function PetOwnerDetails({
   id,
+  canSeeAppointmentHistory,
   onEdit,
   onAddPet,
   onEditPet,
@@ -394,19 +410,21 @@ function PetOwnerDetails({
                       </div>
                     </Group>
                     <Group gap={4} wrap="nowrap">
-                      <ActionIcon
-                        variant="subtle"
-                        color="gray"
-                        aria-label={`Histórico de agendamentos de ${p.name}`}
-                        onClick={() =>
-                          onHistory({
-                            ...p,
-                            petOwner: { id: t.id, name: t.name },
-                          })
-                        }
-                      >
-                        <IconHistory size={16} />
-                      </ActionIcon>
+                      {canSeeAppointmentHistory && (
+                        <ActionIcon
+                          variant="subtle"
+                          color="gray"
+                          aria-label={`Histórico de agendamentos de ${p.name}`}
+                          onClick={() =>
+                            onHistory({
+                              ...p,
+                              petOwner: { id: t.id, name: t.name },
+                            })
+                          }
+                        >
+                          <IconHistory size={16} />
+                        </ActionIcon>
+                      )}
                       <ActionIcon
                         variant="subtle"
                         color="gray"

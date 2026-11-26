@@ -6,7 +6,10 @@ export const NAV = {
     { to: "/recepcao/agenda", label: "Agenda", icon: IconCalendar },
     { to: "/recepcao/pacientes", label: "Pacientes", icon: IconUsers },
   ],
-  VET: [{ to: "/vet/agenda", label: "Agenda", icon: IconCalendar }],
+  VET: [
+    { to: "/vet/agenda", label: "Agenda", icon: IconCalendar },
+    { to: "/vet/pacientes", label: "Pacientes", icon: IconUsers },
+  ],
   ADMIN: [
     { to: "/admin/agenda", label: "Agenda", icon: IconCalendar },
     { to: "/admin/pacientes", label: "Pacientes", icon: IconUsers },
