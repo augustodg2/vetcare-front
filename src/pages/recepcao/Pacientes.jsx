@@ -21,6 +21,7 @@ import {
 } from "@tabler/icons-react";
 import { debounce, parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSession } from "../../auth/session";
 import { useDeletePetOwner, usePetOwner } from "../../api/queries/petOwners";
 import { useDeletePet, usePets } from "../../api/queries/pets";
@@ -49,6 +50,7 @@ const HISTORY_ROLES = ["RECEP", "ADMIN"];
 
 export default function Pacientes() {
   const { user } = useSession();
+  const navigate = useNavigate();
   const readOnly = user.role === "VET";
   const canSeeAppointmentHistory = HISTORY_ROLES.includes(user.role);
   const [search, setSearch] = useQueryState(
@@ -157,8 +159,10 @@ export default function Pacientes() {
                     ? `Nenhum paciente encontrado para "${search}".`
                     : "Nenhum paciente cadastrado."
                 }
-                onRowClick={
-                  readOnly ? undefined : (p) => setOpenPetOwner(p.petOwnerId)
+                onRowClick={(p) =>
+                  readOnly
+                    ? navigate(`/vet/pacientes/${p.id}`)
+                    : setOpenPetOwner(p.petOwnerId)
                 }
                 fixed
                 columns={[
