@@ -40,12 +40,17 @@ import { usePetAppointments } from "../../api/queries/appointments";
 import { usePetOwner } from "../../api/queries/petOwners";
 import { usePet } from "../../api/queries/pets";
 import {
+  usePetPrescriptions,
+  usePrescription,
+} from "../../api/queries/prescriptions";
+import {
   useAddProcedureNote,
   usePetProcedures,
   useProcedure,
 } from "../../api/queries/procedures";
 import { AppointmentModal } from "../../components/agenda/AppointmentModal";
 import { PetModal, PetOwnerModal } from "../../components/PeopleForms";
+import { NewPrescription } from "../../components/PrescriptionForm";
 import { NewProcedure } from "../../components/ProcedureForm";
 import { htmlToText, RichText } from "../../components/RichText";
 import {
@@ -200,6 +205,14 @@ function PetMain({ pet }) {
     "novo",
     parseAsBoolean.withOptions({ history: "push" }),
   );
+  const [prescriptionId, setPrescriptionId] = useQueryState(
+    "prescricao",
+    parseAsString.withOptions({ history: "push" }),
+  );
+  const [prescribing, setPrescribing] = useQueryState(
+    "novaPrescricao",
+    parseAsBoolean.withOptions({ history: "push" }),
+  );
   const ref = useRef(null);
 
   useEffect(() => {
@@ -207,7 +220,7 @@ function PetMain({ pet }) {
     if (el && el.getBoundingClientRect().top < 0) {
       el.scrollIntoView({ block: "start" });
     }
-  }, [procedureId, page, creating]);
+  }, [procedureId, page, creating, prescriptionId, prescribing]);
 
   return (
     <section className="block" ref={ref} style={{ scrollMarginTop: 16 }}>
@@ -223,8 +236,24 @@ function PetMain({ pet }) {
             setProcedureId(pr.id);
           }}
         />
+      ) : prescribing ? (
+        <NewPrescription
+          petId={petId}
+          onBack={() => setPrescribing(null)}
+          onCreated={(rx) => {
+            setPrescribing(null);
+            setPage(null);
+            setTab("prescricoes");
+            setPrescriptionId(rx.id);
+          }}
+        />
       ) : procedureId ? (
         <ProcedureDetail id={procedureId} onBack={() => setProcedureId(null)} />
+      ) : prescriptionId ? (
+        <PrescriptionDetail
+          id={prescriptionId}
+          onBack={() => setPrescriptionId(null)}
+        />
       ) : (
         <Tabs
           value={tab}
@@ -248,6 +277,7 @@ function PetMain({ pet }) {
             >
               Agendamentos
             </Tabs.Tab>
+            <Tabs.Tab value="prescricoes">Prescrições</Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value="historico">
             <ClinicalHistory
@@ -269,6 +299,15 @@ function PetMain({ pet }) {
               range={upcomingRange}
               page={page}
               onPage={setPage}
+            />
+          </Tabs.Panel>
+          <Tabs.Panel value="prescricoes">
+            <Prescriptions
+              petId={petId}
+              page={page}
+              onPage={setPage}
+              onOpen={(rx) => setPrescriptionId(rx.id)}
+              onNew={() => setPrescribing(true)}
             />
           </Tabs.Panel>
         </Tabs>
@@ -564,6 +603,125 @@ function ProcedureDetail({ id, onBack }) {
             </div>
             <ExtraNotes procedure={pr} />
           </>
+        )}
+      </Async>
+    </>
+  );
+}
+
+function Prescriptions({ petId, page, onPage, onOpen, onNew }) {
+  const list = usePetPrescriptions({ petId, page });
+  const total = list.data?.total;
+
+  return (
+    <>
+      <div className="tab-meta tab-toolbar">
+        <span>
+          {total > 0 &&
+            `${total} ${total === 1 ? "prescrição" : "prescrições"}`}
+        </span>
+        <Button
+          size="xs"
+          leftSection={<IconPlus size={14} />}
+          onClick={onNew}
+          style={{ flexShrink: 0 }}
+        >
+          Nova prescrição
+        </Button>
+      </div>
+      <Async q={list} rows={3}>
+        {({ rows, total, pageSize }) =>
+          rows.length === 0 ? (
+            <Empty>Nenhuma prescrição registrada para este pet.</Empty>
+          ) : (
+            <>
+              <div className="procedure-list">
+                {rows.map((rx) => (
+                  <PrescriptionItem
+                    key={rx.id}
+                    prescription={rx}
+                    onOpen={onOpen}
+                  />
+                ))}
+              </div>
+              {total > pageSize && (
+                <div className="block-foot">
+                  <Text size="sm" c="dimmed">
+                    {(page - 1) * pageSize + 1}–
+                    {Math.min(page * pageSize, total)} de {total}
+                  </Text>
+                  <Pagination
+                    value={page}
+                    onChange={onPage}
+                    total={Math.ceil(total / pageSize)}
+                    size="sm"
+                  />
+                </div>
+              )}
+            </>
+          )
+        }
+      </Async>
+    </>
+  );
+}
+
+function PrescriptionItem({ prescription: rx, onOpen }) {
+  const d = dayjs(rx.createdAt);
+  const summary = useMemo(() => htmlToText(rx.content), [rx.content]);
+
+  return (
+    <UnstyledButton
+      className="procedure-row"
+      onClick={() => onOpen(rx)}
+      aria-label={`Abrir prescrição de ${fmtDate(rx.createdAt)}`}
+    >
+      <div className="procedure-when">
+        <span className="d">{d.format("DD MMM YY")}</span>
+        <span className="ago">{ago(rx.createdAt)}</span>
+      </div>
+      <div className="procedure-body">
+        <Text size="xs" c="dimmed" truncate>
+          {rx.vet.name}
+        </Text>
+        <div className="procedure-summary">{summary}</div>
+      </div>
+      <IconChevronRight size={18} className="procedure-chevron" />
+    </UnstyledButton>
+  );
+}
+
+function PrescriptionDetail({ id, onBack }) {
+  const prescription = usePrescription(id);
+  const rx = prescription.data;
+
+  return (
+    <>
+      <div className="block-head procedure-head">
+        <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            onClick={onBack}
+            aria-label="Voltar às prescrições"
+          >
+            <IconArrowLeft size={18} />
+          </ActionIcon>
+          <div style={{ minWidth: 0 }}>
+            <h2>Prescrição{rx && ` · ${fmtDate(rx.createdAt)}`}</h2>
+            {rx && (
+              <div className="sub">
+                {dayjs(rx.createdAt).format("HH:mm")} · {rx.vet.name}
+              </div>
+            )}
+          </div>
+        </Group>
+      </div>
+      <Async q={prescription} rows={6}>
+        {(rx) => (
+          <div className="procedure-section">
+            <RichText html={rx.content} />
+          </div>
         )}
       </Async>
     </>

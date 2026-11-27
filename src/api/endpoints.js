@@ -41,4 +41,9 @@ export const ENDPOINTS = {
     byId: (id) => `/procedures/${id}`,
     notes: (id) => `/procedures/${id}/notes`,
   },
+  prescriptions: {
+    list: "/prescriptions",
+    create: "/prescriptions",
+    byId: (id) => `/prescriptions/${id}`,
+  },
 };

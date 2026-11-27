@@ -144,6 +144,19 @@ export const fromApiProcedure = (p) => ({
   })),
 });
 
+export const toApiCreatePrescription = ({ content, petId, vetId }) => ({
+  content: content.trim(),
+  petId,
+  vetId,
+});
+
+export const fromApiPrescription = (p) => ({
+  id: p.id,
+  content: p.content,
+  createdAt: p.createdAt,
+  vet: { id: p.vet?.id, name: p.vet?.name },
+});
+
 export const fromApiMetaPage = (res, map) => ({
   rows: res.data.map(map),
   total: res.meta.total,

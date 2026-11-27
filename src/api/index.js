@@ -5,12 +5,14 @@ import {
   fromApiAppointment,
   fromApiMetaPage,
   fromApiPage,
+  fromApiPrescription,
   fromApiProcedure,
   fromApiVet,
   fromApiPet,
   fromApiPetOwner,
   fromApiUser,
   toApiCreateAppointment,
+  toApiCreatePrescription,
   toApiCreateProcedure,
   toApiUpdateAppointment,
   toApiCreatePet,
@@ -173,6 +175,23 @@ export const procedures = {
     ),
 };
 
+export const prescriptions = {
+  list: async ({ petId, vetId, page } = {}) =>
+    fromApiMetaPage(
+      await http.get(ENDPOINTS.prescriptions.list, { petId, vetId, page }),
+      fromApiPrescription,
+    ),
+  get: async (id) =>
+    fromApiPrescription(await http.get(ENDPOINTS.prescriptions.byId(id))),
+  create: async (data) =>
+    fromApiPrescription(
+      await http.post(
+        ENDPOINTS.prescriptions.create,
+        toApiCreatePrescription(data),
+      ),
+    ),
+};
+
 export const api = {
   auth,
   users,
@@ -181,4 +200,5 @@ export const api = {
   petOwners,
   pets,
   procedures,
+  prescriptions,
 };

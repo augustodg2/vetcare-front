@@ -2,6 +2,7 @@ import { delay, http } from "msw";
 import { appointmentHandlers } from "./appointments";
 import { authHandlers } from "./auth";
 import { petHandlers, petOwnerHandlers } from "./petOwners";
+import { prescriptionHandlers } from "./prescriptions";
 import { procedureHandlers } from "./procedures";
 import { userHandlers } from "./users";
 
@@ -12,5 +13,6 @@ export const handlers = [
   ...petOwnerHandlers,
   ...petHandlers,
   ...procedureHandlers,
+  ...prescriptionHandlers,
   ...userHandlers,
 ];
