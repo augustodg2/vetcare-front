@@ -1,5 +1,5 @@
 import { notifications } from "@mantine/notifications";
-import { dispatchApiError } from "../api/errorHandler";
+import { dispatchApiError } from "@/api/errorHandler";
 
 export const toast = {
   ok: (message) =>

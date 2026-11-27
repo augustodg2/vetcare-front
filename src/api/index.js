@@ -1,5 +1,5 @@
 import { ENDPOINTS } from "./endpoints";
-import { onlyDigits } from "../lib/format";
+import { onlyDigits } from "@/lib/format";
 import { http } from "./http";
 import {
   fromApiAppointment,

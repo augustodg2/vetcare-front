@@ -1,5 +1,5 @@
 import { http, HttpResponse } from "msw";
-import { ENDPOINTS } from "../../api/endpoints";
+import { ENDPOINTS } from "@/api/endpoints";
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 const PAGE_SIZE = 8;

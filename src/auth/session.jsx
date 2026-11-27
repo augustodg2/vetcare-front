@@ -7,8 +7,8 @@ import {
   useEffect,
   useMemo,
 } from "react";
-import { tokenStore } from "../api/http";
-import { authKeys, useMe } from "../api/queries/auth";
+import { tokenStore } from "@/api/http";
+import { authKeys, useMe } from "@/api/queries/auth";
 
 const SessionContext = createContext(null);
 

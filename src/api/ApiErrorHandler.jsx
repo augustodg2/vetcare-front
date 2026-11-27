@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSession } from "../auth/session";
+import { useSession } from "@/auth/session";
 import { setErrorContext } from "./errorHandler";
 
 export default function ApiErrorHandler() {

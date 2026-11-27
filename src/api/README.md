@@ -3,7 +3,7 @@
 As telas **nunca** chamam `fetch` direto: elas usam as funções de `index.js` (todas devolvem `Promise`).
 Todas as funções usam a API real (`http.js` + `ENDPOINTS`); as rotas só são simuladas pelo MSW (`src/mocks/handlers/`) quando `VITE_ENABLE_MSW=true`.
 
-As telas não chamam `index.js` direto: usam os hooks do React Query em `src/api/queries/` (`usePetOwners`, `useCreatePet`, `useUsers`, ...), que guardam as chaves de cache e invalidam as listas após cada mutação.
+As telas não chamam `index.js` direto: usam os hooks do React Query (`usePetOwners`, `useCreatePet`, `useUsers`, ...), que ficam em `src/api/queries/` ou no `queries.js` da funcionalidade em `src/features/` e guardam as chaves de cache e invalidam as listas após cada mutação.
 
 Configuração: coloque o endereço da API em `.env` → `VITE_API_URL=https://...`. O token é guardado em `tokenStore` (`http.js`); `index.js` só faz as requisições. O `http.js` já manda `Authorization: Bearer` e lança `ApiError`; o redirecionamento para `/login` em 401 fica no handler global (`ApiErrorHandler`, acionado pelo `queryClient`).
 

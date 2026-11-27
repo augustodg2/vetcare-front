@@ -109,16 +109,35 @@ src/
   api/          cliente HTTP, rotas, mapeadores, serviços e tratamento de erros
     queries/    hooks do TanStack Query usados pelas telas
   auth/         sessão e perfis
-  components/   peças compartilhadas e formulários
+  components/
+    ui/         componentes genéricos, usados por várias funcionalidades
+  features/     uma pasta por funcionalidade, com telas, componentes e queries
   layout/       estrutura das páginas, barra lateral e navegação
   lib/          formatação, avisos, regra de senha e rótulos de estado
   mocks/        API simulada com MSW
-  pages/        telas
 ```
 
-As telas usam os hooks de `src/api/queries/`, que chamam os serviços de `src/api/index.js`. Os
+As telas usam os hooks do TanStack Query, que chamam os serviços de `src/api/index.js`. Os
 endereços ficam em `src/api/endpoints.js` e a conversão entre o formato da API e o das telas, em
 `src/api/mappers.js`.
+
+### Organização por funcionalidade
+
+```
+src/features/
+  agenda/       visões de dia, semana e mês, agendamento e detalhes da consulta
+  atendimento/  painel do dia do veterinário
+  auth/         login, convite e redefinição de senha
+  caixa/        movimentações do dia e pagamentos
+  pacientes/    pacientes, tutores, ficha clínica, procedimentos e receitas
+  usuarios/     gestão de usuários
+```
+
+- O que só uma funcionalidade usa fica na pasta dela, com as queries em `queries.js`.
+- Queries usadas por mais de uma funcionalidade ficam em `src/api/queries/`.
+- Um componente de funcionalidade pode ser importado por outra, como o `AppointmentModal` da agenda.
+- `src/components/ui/` recebe apenas componentes genéricos, exportados por `@/components/ui`.
+- Use o alias `@/` (que aponta para `src/`) para importar de fora da pasta, e `./` dentro dela.
 
 ## Deploy
 

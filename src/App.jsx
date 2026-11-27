@@ -2,15 +2,15 @@ import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { isKnownRole, ROLES, roleHome } from "./auth/roles";
 import { SignOut, useSession } from "./auth/session";
 import AppLayout from "./layout/AppLayout";
-import AcceptInvite from "./pages/AcceptInvite";
-import Agenda from "./pages/agenda/Agenda";
-import Atendimento from "./pages/atendimento/Atendimento";
-import Caixa from "./pages/caixa/Caixa";
-import Login from "./pages/Login";
-import Paciente from "./pages/pacientes/Paciente";
-import Pacientes from "./pages/pacientes/Pacientes";
-import ResetPassword from "./pages/ResetPassword";
-import Usuarios from "./pages/usuarios/Usuarios";
+import AcceptInvite from "@/features/auth/AcceptInvite";
+import Agenda from "@/features/agenda/Agenda";
+import Atendimento from "@/features/atendimento/Atendimento";
+import Caixa from "@/features/caixa/Caixa";
+import Login from "@/features/auth/Login";
+import Paciente from "@/features/pacientes/Paciente";
+import Pacientes from "@/features/pacientes/Pacientes";
+import ResetPassword from "@/features/auth/ResetPassword";
+import Usuarios from "@/features/usuarios/Usuarios";
 
 function RequireAuth() {
   const { user } = useSession();

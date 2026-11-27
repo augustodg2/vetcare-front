@@ -1,7 +1,7 @@
-import { isStrongPassword, PASSWORD_RULE } from "../../lib/password";
+import { isStrongPassword, PASSWORD_RULE } from "@/lib/password";
 import { http, HttpResponse } from "msw";
-import { ENDPOINTS } from "../../api/endpoints";
-import { STATUS } from "../../api/statusCodes";
+import { ENDPOINTS } from "@/api/endpoints";
+import { STATUS } from "@/api/statusCodes";
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 const PAGE_SIZE = 8;

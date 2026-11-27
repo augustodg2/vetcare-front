@@ -1,4 +1,4 @@
-import { maskCpf, maskPhone, onlyDigits } from "../lib/format";
+import { maskCpf, maskPhone, onlyDigits } from "@/lib/format";
 
 // The API speaks `petOwner` / `species` / `birthDate` / `notes`; the pages keep
 // the `species` / `birth` / `alerts` names they already use.

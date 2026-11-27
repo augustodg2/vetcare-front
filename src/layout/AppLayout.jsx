@@ -2,9 +2,9 @@
 import { IconLogout, IconMenu2 } from "@tabler/icons-react";
 import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { ROLES } from "../auth/roles";
-import { useSession } from "../auth/session";
-import { PersonAvatar } from "../components/ui";
+import { ROLES } from "@/auth/roles";
+import { useSession } from "@/auth/session";
+import { PersonAvatar } from "@/components/ui";
 import Sidebar, { useSidebarCollapsed } from "./Sidebar";
 
 export default function AppLayout() {

@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "..";
-import { ApiError } from "../errors";
-import { tokenStore } from "../http";
-import { STATUS } from "../statusCodes";
+import { api } from "@/api";
+import { ApiError } from "@/api/errors";
+import { tokenStore } from "@/api/http";
+import { STATUS } from "@/api/statusCodes";
 
 export const authKeys = { me: ["auth", "me"] };
 

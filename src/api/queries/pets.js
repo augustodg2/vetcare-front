@@ -4,7 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { api } from "..";
+import { api } from "@/api";
 import { petOwnerKeys } from "./petOwners";
 
 export const petKeys = {
