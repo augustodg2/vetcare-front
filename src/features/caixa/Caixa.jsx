@@ -332,7 +332,7 @@ export default function Caixa() {
                       </>
                     ),
                   },
-                  { key: "method", label: "Forma" },
+                  { key: "paymentMethod", label: "Forma" },
                   {
                     key: "total",
                     label: "Total",
@@ -368,7 +368,7 @@ export default function Caixa() {
                 mobile={{
                   title: (p) => petsOf(p) || itemsLabel(p),
                   sub: (p) =>
-                    `${dayjs(p.createdAt).format("HH:mm")} · ${p.method} · ${itemsLabel(p)}`,
+                    `${dayjs(p.createdAt).format("HH:mm")} · ${p.paymentMethod} · ${itemsLabel(p)}`,
                   side: (p) => (
                     <>
                       <Num>{brl(p.total)}</Num>

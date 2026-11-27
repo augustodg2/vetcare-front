@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { createPortal } from "react-dom";
 import { CLINIC } from "@/lib/clinic";
-import { age, fmtDate } from "@/lib/format";
+import { age, fmtDate, maskCpf, maskPhone } from "@/lib/format";
 import { SPECIES_LABEL } from "@/lib/status";
 import { RichText } from "@/components/ui/RichText";
 import styles from "./PrescriptionPrint.module.css";
@@ -40,9 +40,9 @@ export function PrescriptionPrint({ prescription: rx, pet, petOwner, crmv }) {
         <div className={styles.box}>
           <div className={styles.label}>Tutor</div>
           <Field label="Nome" value={petOwner?.name} />
-          <Field label="CPF" value={petOwner?.cpf} />
+          <Field label="CPF" value={maskCpf(petOwner?.cpf)} />
           <Field label="Endereço" value={petOwner?.address} />
-          <Field label="Telefone" value={petOwner?.phone} />
+          <Field label="Telefone" value={maskPhone(petOwner?.phone)} />
         </div>
         <div className={styles.box}>
           <div className={styles.label}>Paciente</div>
@@ -56,7 +56,8 @@ export function PrescriptionPrint({ prescription: rx, pet, petOwner, crmv }) {
           <Field
             label="Idade"
             value={
-              pet.birth && `${age(pet.birth)} (nasc. ${fmtDate(pet.birth)})`
+              pet.birthDate &&
+              `${age(pet.birthDate)} (nasc. ${fmtDate(pet.birthDate)})`
             }
           />
         </div>

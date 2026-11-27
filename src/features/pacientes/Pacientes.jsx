@@ -40,7 +40,7 @@ import {
   PageHeader,
   SpeciesAvatar,
 } from "@/components/ui";
-import { age, hideCpf, kg } from "@/lib/format";
+import { age, hideCpf, kg, maskCpf, maskPhone } from "@/lib/format";
 import { SPECIES_LABEL } from "@/lib/status";
 import { toast } from "@/lib/notify";
 import layoutStyles from "@/styles/layout.module.css";
@@ -102,9 +102,9 @@ export default function Pacientes() {
   };
 
   const petAlerts = (p) =>
-    p.alerts ? (
+    p.notes ? (
       <Text size="sm" c="red.8">
-        {p.alerts}
+        {p.notes}
       </Text>
     ) : (
       <Dash />
@@ -188,16 +188,16 @@ export default function Pacientes() {
                     render: (p) => p.petOwner?.name,
                   },
                   {
-                    key: "alerts",
+                    key: "notes",
                     label: "Alertas",
                     render: petAlerts,
                   },
                 ]}
                 mobile={{
                   title: (p) => `${p.name} · ${p.breed}`,
-                  sub: (p) => `${p.petOwner?.name} · ${age(p.birth)}`,
+                  sub: (p) => `${p.petOwner?.name} · ${age(p.birthDate)}`,
                   side: (p) =>
-                    p.alerts && (
+                    p.notes && (
                       <Text size="xs" c="red.8">
                         Alerta
                       </Text>
@@ -316,7 +316,7 @@ function PetOwnerDetails({
                   "CPF",
                   <Group key="cpf" gap={6} wrap="nowrap">
                     <span className={textStyles.tnum}>
-                      {showCpf ? t.cpf : hideCpf(t.cpf)}
+                      {showCpf ? maskCpf(t.cpf) : hideCpf(t.cpf)}
                     </span>
                     <ActionIcon
                       variant="subtle"
@@ -334,7 +334,7 @@ function PetOwnerDetails({
                     </ActionIcon>
                   </Group>,
                 ],
-                ["Telefone", t.phone],
+                ["Telefone", maskPhone(t.phone)],
               ]}
             />
             <Facts
@@ -383,11 +383,11 @@ function PetOwnerDetails({
                           {p.name}
                         </Text>
                         <Text size="xs" c="dimmed">
-                          {p.breed} · {age(p.birth)} · {kg(p.weight)}
+                          {p.breed} · {age(p.birthDate)} · {kg(p.weight)}
                         </Text>
-                        {p.alerts && (
+                        {p.notes && (
                           <Text size="xs" c="red.8">
-                            {p.alerts}
+                            {p.notes}
                           </Text>
                         )}
                       </div>

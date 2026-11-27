@@ -1,7 +1,4 @@
-import { maskCpf, maskPhone, onlyDigits } from "@/lib/format";
-
-// The API speaks `petOwner` / `species` / `birthDate` / `notes`; the pages keep
-// the `species` / `birth` / `alerts` names they already use.
+import { onlyDigits } from "@/lib/format";
 
 export const fromApiPet = (p) => ({
   id: p.id,
@@ -9,9 +6,9 @@ export const fromApiPet = (p) => ({
   species: p.species,
   breed: p.breed,
   sex: p.sex,
-  birth: p.birthDate?.slice(0, 10),
+  birthDate: p.birthDate?.slice(0, 10),
   weight: p.weight,
-  alerts: p.notes,
+  notes: p.notes,
   ...(p.petOwner && {
     petOwnerId: p.petOwner.id,
     petOwner: { id: p.petOwner.id, name: p.petOwner.name },
@@ -21,8 +18,8 @@ export const fromApiPet = (p) => ({
 export const fromApiPetOwner = (o) => ({
   id: o.id,
   name: o.name,
-  cpf: maskCpf(o.cpf),
-  phone: maskPhone(o.phone),
+  cpf: o.cpf,
+  phone: o.phone,
   email: o.email,
   address: o.address,
   pets: (o.pets ?? []).map((p) => ({ ...fromApiPet(p), petOwnerId: o.id })),
@@ -33,9 +30,9 @@ const toApiNewPet = (p) => ({
   species: p.species,
   breed: p.breed,
   sex: p.sex,
-  birthDate: p.birth,
+  birthDate: p.birthDate,
   weight: p.weight,
-  notes: p.alerts,
+  notes: p.notes,
 });
 
 export const toApiCreatePet = ({ petOwnerId, ...p }) => ({
@@ -61,24 +58,15 @@ export const toApiUpdatePetOwner = (o) => ({
   address: o.address,
 });
 
-// The page keeps its own status names (`ativo` / `convite` / `inativo`).
-const USER_STATUS_FROM_API = {
-  ACTIVE: "ativo",
-  PENDING_INVITE: "convite",
-  DEACTIVATED: "inativo",
-};
-
 export const fromApiUser = (u) => ({
   id: u.id,
   name: u.name,
   email: u.email,
   role: u.role,
-  status: USER_STATUS_FROM_API[u.status] ?? u.status,
-  lastSeen: u.lastAccessAt,
-  invitedAt: u.inviteSentAt,
-  vet: u.vet
-    ? { id: u.vet.id, cpf: maskCpf(u.vet.cpf), crmv: u.vet.crmv }
-    : null,
+  status: u.status,
+  lastAccessAt: u.lastAccessAt,
+  inviteSentAt: u.inviteSentAt,
+  vet: u.vet ? { id: u.vet.id, cpf: u.vet.cpf, crmv: u.vet.crmv } : null,
 });
 
 export const fromApiVet = (v) => ({
@@ -162,7 +150,7 @@ export const fromApiPrescription = (p) => ({
 
 export const fromApiPayment = (p) => ({
   id: p.id,
-  method: p.paymentMethod,
+  paymentMethod: p.paymentMethod,
   status: p.status,
   discount: p.discount,
   total: p.total,
@@ -180,8 +168,13 @@ export const fromApiPayment = (p) => ({
   })),
 });
 
-export const toApiCreatePayment = ({ method, discount, notes, items }) => ({
-  paymentMethod: method,
+export const toApiCreatePayment = ({
+  paymentMethod,
+  discount,
+  notes,
+  items,
+}) => ({
+  paymentMethod,
   discount: discount || undefined,
   notes: notes?.trim() || undefined,
   items: items.map((i) => ({ procedureId: i.procedureId, amount: i.amount })),

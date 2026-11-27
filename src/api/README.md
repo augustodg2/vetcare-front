@@ -9,19 +9,16 @@ Configuração: coloque o endereço da API em `.env` → `VITE_API_URL=https://.
 
 ## Mapeamento de campos (API → telas)
 
-A tradução fica em `mappers.js`; as telas continuam usando os nomes antigos nos campos abaixo.
+Os nomes dos campos são os mesmos da API (`birthDate`, `notes`, `status` `ACTIVE`/`PENDING_INVITE`/`DEACTIVATED`, `lastAccessAt`, `inviteSentAt`, `paymentMethod`...). `mappers.js` só ajusta a estrutura:
 
-| API                                                              | Telas                           |
-| ---------------------------------------------------------------- | ------------------------------- |
-| `birthDate` (`YYYY-MM-DD`)                                       | `birth`                         |
-| `notes` do pet                                                   | `alerts`                        |
-| `petOwner` / `petOwnerId`                                        | `petOwner` / `petOwnerId`       |
-| `cpf`, `phone` (só dígitos)                                      | mascarados para exibição        |
-| `{ data, total, page, pageSize }`                                | `{ rows, total, pageSize }`     |
-| `{ data, meta: { total, pagesize } }`                            | `{ rows, total, pageSize }`     |
-| `status` do usuário: `ACTIVE` / `PENDING_INVITE` / `DEACTIVATED` | `ativo` / `convite` / `inativo` |
-| `lastAccessAt` / `inviteSentAt`                                  | `lastSeen` / `invitedAt`        |
-| `paymentMethod` do pagamento                                     | `method`                        |
+| API                                   | Telas                                   |
+| ------------------------------------- | --------------------------------------- |
+| `birthDate` (data ou data e hora ISO) | `birthDate` (`YYYY-MM-DD`)              |
+| `pet.petOwner` aninhado               | `petOwner: { id, name }` + `petOwnerId` |
+| `{ data, total, page, pageSize }`     | `{ rows, total, pageSize }`             |
+| `{ data, meta: { total, pagesize } }` | `{ rows, total, pageSize }`             |
+
+CPF e telefone ficam só com dígitos no cache; a máscara (`maskCpf`, `maskPhone`, `hideCpf` de `@/lib/format`) é aplicada na hora de exibir.
 
 Ao enviar, CPF e telefone vão só com dígitos, o CPF não é editável (o `PATCH` do tutor não o envia) e o tutor de um pet não muda (o `PATCH` do pet não envia `petOwnerId`).
 

@@ -25,7 +25,7 @@ import {
 } from "@/api/queries/appointments";
 import { usePetOwner } from "@/api/queries/petOwners";
 import { usePet } from "@/api/queries/pets";
-import { fmtDateTime } from "@/lib/format";
+import { fmtDateTime, maskPhone } from "@/lib/format";
 import { toast } from "@/lib/notify";
 import {
   APPOINTMENT_STATUS,
@@ -157,14 +157,14 @@ function AppointmentDetails({
         <DetailsSkeleton />
       ) : (
         <>
-          {pet?.alerts && (
+          {pet?.notes && (
             <Alert
               color="red"
               variant="light"
               icon={<IconAlertTriangle size={16} />}
               p="xs"
             >
-              <strong>Alerta:</strong> {pet.alerts}
+              <strong>Alerta:</strong> {pet.notes}
             </Alert>
           )}
 
@@ -208,7 +208,7 @@ function AppointmentDetails({
                   >
                     <Group gap={4} wrap="nowrap" component="span">
                       <IconPhone size={14} />
-                      {petOwner.phone}
+                      {maskPhone(petOwner.phone)}
                     </Group>
                   </Anchor>
                 )}

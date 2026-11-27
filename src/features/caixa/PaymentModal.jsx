@@ -87,7 +87,7 @@ function PaymentForm({ charge, onClose }) {
   const form = useForm({
     initialValues: {
       items: (charge?.procedures ?? []).map(toItem),
-      method: PAYMENT_METHODS[0],
+      paymentMethod: PAYMENT_METHODS[0],
       discount: "",
       received: "",
       notes: "",
@@ -125,7 +125,7 @@ function PaymentForm({ charge, onClose }) {
 
   const subtotal = subtotalCents(values);
   const total = Math.max(subtotal - toCents(values.discount), 0);
-  const cash = values.method === "Dinheiro";
+  const cash = values.paymentMethod === "Dinheiro";
   const change = toCents(values.received) - total;
   const offPage = values.items.filter(
     (i) => !rows.some((p) => p.id === i.procedureId),
@@ -146,7 +146,7 @@ function PaymentForm({ charge, onClose }) {
     (v) =>
       v.items.length > 0 &&
       create.mutate({
-        method: v.method,
+        paymentMethod: v.paymentMethod,
         discount: Number(v.discount) || 0,
         notes: v.notes,
         items: v.items.map((i) => ({
@@ -257,7 +257,7 @@ function PaymentForm({ charge, onClose }) {
           <SegmentedControl
             fullWidth
             data={PAYMENT_METHODS}
-            {...form.getInputProps("method")}
+            {...form.getInputProps("paymentMethod")}
           />
         </Stack>
 

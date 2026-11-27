@@ -73,9 +73,13 @@ const STATUS_FILTERS = [
     label: "Ativos e convites",
     status: ["ACTIVE", "PENDING_INVITE"],
   },
-  { value: "ativo", label: "Ativos", status: ["ACTIVE"] },
-  { value: "convite", label: "Convite pendente", status: ["PENDING_INVITE"] },
-  { value: "inativo", label: "Desativados", status: ["DEACTIVATED"] },
+  { value: "ACTIVE", label: "Ativos", status: ["ACTIVE"] },
+  {
+    value: "PENDING_INVITE",
+    label: "Convite pendente",
+    status: ["PENDING_INVITE"],
+  },
+  { value: "DEACTIVATED", label: "Desativados", status: ["DEACTIVATED"] },
   { value: "todos", label: "Todos", status: undefined },
 ];
 const DEFAULT_STATUS_FILTER = STATUS_FILTERS[0].value;
@@ -225,7 +229,7 @@ export default function Usuarios() {
                         <PersonAvatar
                           name={u.name}
                           size={30}
-                          color={u.status === "inativo" ? "gray" : "teal"}
+                          color={u.status === "DEACTIVATED" ? "gray" : "teal"}
                         />
                         <div>
                           <CellMain>
@@ -251,12 +255,12 @@ export default function Usuarios() {
                     key: "l",
                     label: "Último acesso",
                     render: (u) =>
-                      u.status === "convite" ? (
-                        <span className={styles.invitedAt}>
-                          Convite enviado {relDay(u.invitedAt)}
+                      u.status === "PENDING_INVITE" ? (
+                        <span className={styles.inviteSentAt}>
+                          Convite enviado {relDay(u.inviteSentAt)}
                         </span>
-                      ) : u.lastSeen ? (
-                        fmtDateTime(u.lastSeen)
+                      ) : u.lastAccessAt ? (
+                        fmtDateTime(u.lastAccessAt)
                       ) : (
                         <Dash />
                       ),
@@ -284,7 +288,7 @@ export default function Usuarios() {
                             >
                               Editar usuário
                             </Menu.Item>
-                            {u.status === "convite" && (
+                            {u.status === "PENDING_INVITE" && (
                               <Menu.Item
                                 leftSection={<IconMailForward size={15} />}
                                 onClick={() => onResendInvite(u)}
@@ -292,7 +296,7 @@ export default function Usuarios() {
                                 Reenviar convite
                               </Menu.Item>
                             )}
-                            {u.status === "ativo" && (
+                            {u.status === "ACTIVE" && (
                               <Menu.Item
                                 leftSection={<IconKey size={15} />}
                                 onClick={() => setPasswordReset(u)}
@@ -300,7 +304,7 @@ export default function Usuarios() {
                                 Enviar link de nova senha
                               </Menu.Item>
                             )}
-                            {u.status !== "inativo" && (
+                            {u.status !== "DEACTIVATED" && (
                               <Menu.Item
                                 leftSection={<IconUserOff size={15} />}
                                 color="red"
@@ -553,7 +557,12 @@ function EditUserForm({ user, onClose }) {
         />
         {user.vet && (
           <SimpleGrid cols={2}>
-            <TextInput label="CPF" value={user.vet.cpf} disabled readOnly />
+            <TextInput
+              label="CPF"
+              value={maskCpf(user.vet.cpf)}
+              disabled
+              readOnly
+            />
             <TextInput label="CRMV" value={user.vet.crmv} disabled readOnly />
           </SimpleGrid>
         )}

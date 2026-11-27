@@ -64,7 +64,16 @@ import {
   SpeciesAvatar,
 } from "@/components/ui";
 import { toast } from "@/lib/notify";
-import { age, ago, fmtDate, hideCpf, kg, relDay } from "@/lib/format";
+import {
+  age,
+  ago,
+  fmtDate,
+  hideCpf,
+  kg,
+  maskCpf,
+  maskPhone,
+  relDay,
+} from "@/lib/format";
 import { PROCEDURE_COLOR, PROCEDURE_LABEL, SPECIES_LABEL } from "@/lib/status";
 import { cx } from "@/lib/cx";
 import textStyles from "@/styles/text.module.css";
@@ -154,11 +163,11 @@ function PetHeader({ pet: p }) {
             <div>
               <dt>Idade</dt>
               <dd>
-                {p.birth ? (
+                {p.birthDate ? (
                   <>
-                    {age(p.birth)}{" "}
+                    {age(p.birthDate)}{" "}
                     <span className={styles.birth}>
-                      nasc. {fmtDate(p.birth)}
+                      nasc. {fmtDate(p.birthDate)}
                     </span>
                   </>
                 ) : (
@@ -178,11 +187,11 @@ function PetHeader({ pet: p }) {
           style={{ alignSelf: "flex-start" }}
         />
       </div>
-      {p.alerts && (
+      {p.notes && (
         <div className={styles.petAlert} role="note">
           <IconAlertTriangle size={16} style={{ flexShrink: 0 }} />
           <span>
-            <strong>Alerta:</strong> {p.alerts}
+            <strong>Alerta:</strong> {p.notes}
           </span>
         </div>
       )}
@@ -947,7 +956,7 @@ function PetOwnerInfo({ petOwner: t, className, footer }) {
         value={
           <Group gap={6} wrap="nowrap" component="span">
             <span className={textStyles.tnum}>
-              {showCpf ? t.cpf : hideCpf(t.cpf)}
+              {showCpf ? maskCpf(t.cpf) : hideCpf(t.cpf)}
             </span>
             <ActionIcon
               variant="subtle"
@@ -971,7 +980,7 @@ function PetOwnerInfo({ petOwner: t, className, footer }) {
               size="sm"
               className={textStyles.tnum}
             >
-              {t.phone}
+              {maskPhone(t.phone)}
             </Anchor>
           )
         }

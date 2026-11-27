@@ -56,9 +56,9 @@ const petInitial = (p = {}) => ({
   species: p.species ?? "DOG",
   breed: p.breed ?? "",
   sex: p.sex ?? "M",
-  birth: p.birth ? dayjs(p.birth).toDate() : null,
+  birthDate: p.birthDate ? dayjs(p.birthDate).toDate() : null,
   weight: p.weight ?? "",
-  alerts: p.alerts ?? "",
+  notes: p.notes ?? "",
 });
 
 const petRules = (on = () => true) => ({
@@ -73,9 +73,9 @@ const petPayload = (p) => ({
   species: p.species,
   breed: p.breed.trim(),
   sex: p.sex,
-  birth: toISO(p.birth),
+  birthDate: toISO(p.birthDate),
   weight: p.weight === "" ? null : Number(p.weight),
-  alerts: p.alerts.trim(),
+  notes: p.notes.trim(),
 });
 
 function PetFields({ form, prefix = "" }) {
@@ -105,7 +105,7 @@ function PetFields({ form, prefix = "" }) {
         valueFormat="DD/MM/YYYY"
         maxDate={new Date()}
         clearable
-        {...f("birth")}
+        {...f("birthDate")}
       />
       <NumberInput
         label="Peso"
@@ -123,7 +123,7 @@ function PetFields({ form, prefix = "" }) {
         autosize
         minRows={1}
         style={{ gridColumn: "1 / -1" }}
-        {...f("alerts")}
+        {...f("notes")}
       />
     </SimpleGrid>
   );
@@ -202,7 +202,7 @@ function PetOwnerForm({ onClose, petOwner }) {
     initialValues: {
       name: petOwner?.name ?? "",
       cpf: hideCpf(petOwner?.cpf),
-      phone: petOwner?.phone ?? "",
+      phone: maskPhone(petOwner?.phone),
       email: petOwner?.email ?? "",
       address: petOwner?.address ?? "",
     },
@@ -317,7 +317,7 @@ function ExistingOwnerPicker({ form, onCovered }) {
                   {o.name}
                 </Text>
                 <Text size="xs" c="dimmed">
-                  {hideCpf(o.cpf)} · {o.phone}
+                  {hideCpf(o.cpf)} · {maskPhone(o.phone)}
                 </Text>
               </UnstyledButton>
             ))}
@@ -373,7 +373,7 @@ function ExistingOwnerPicker({ form, onCovered }) {
                       {hideCpf(owner.cpf)}
                     </span>,
                   ],
-                  ["Telefone", owner.phone],
+                  ["Telefone", maskPhone(owner.phone)],
                 ]}
               />
               <Facts

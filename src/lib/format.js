@@ -59,9 +59,9 @@ export const initials = (name = "") =>
     .join("")
     .toUpperCase();
 
-export const onlyDigits = (v = "") => v.replace(/\D/g, "");
+export const onlyDigits = (v) => String(v ?? "").replace(/\D/g, "");
 
-export function maskCpf(v = "") {
+export function maskCpf(v) {
   return onlyDigits(v)
     .slice(0, 11)
     .replace(/(\d{3})(\d)/, "$1.$2")
@@ -69,7 +69,7 @@ export function maskCpf(v = "") {
     .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
 }
 
-export function isCpf(v = "") {
+export function isCpf(v) {
   const d = onlyDigits(v);
   if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false;
   const check = (len) => {
@@ -115,12 +115,12 @@ export const UFS = [
 export const formatCrmv = (number, uf) => `CRMV-${uf} ${number}`;
 
 // 123.456.789-10 -> 123.***.***-10
-export function hideCpf(v = "") {
+export function hideCpf(v) {
   const d = onlyDigits(v);
   return d.length === 11 ? `${d.slice(0, 3)}.***.***-${d.slice(9)}` : "";
 }
 
-export function maskPhone(v = "") {
+export function maskPhone(v) {
   const d = onlyDigits(v).slice(0, 11);
   if (d.length <= 10)
     return d.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{4})(\d)/, "$1-$2");
