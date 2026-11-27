@@ -5,6 +5,7 @@ import Usuarios from "./pages/admin/Usuarios";
 import AcceptInvite from "./pages/AcceptInvite";
 import Login from "./pages/Login";
 import Agenda from "./pages/recepcao/Agenda";
+import Caixa from "./pages/recepcao/Caixa";
 import Pacientes from "./pages/recepcao/Pacientes";
 import ResetPassword from "./pages/ResetPassword";
 import Atendimento from "./pages/vet/Atendimento";
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="recepcao" element={<RoleGate role="RECEP" />}>
             <Route path="agenda" element={<Agenda />} />
             <Route path="pacientes" element={<Pacientes />} />
+            <Route path="caixa" element={<Caixa />} />
           </Route>
           <Route path="vet" element={<RoleGate role="VET" />}>
             <Route path="atendimento" element={<Atendimento />} />

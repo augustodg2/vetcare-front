@@ -23,9 +23,17 @@ const daysAgo = (n, hour = 10) =>
     .toISOString();
 
 let nextId = 1;
-const procedure = (petId, vetId, type, ago, notes, extraNotes = []) => {
+const procedure = (
+  petId,
+  vetId,
+  type,
+  ago,
+  notes,
+  extraNotes = [],
+  hour = 10,
+) => {
   const vet = vetStore.find((v) => v.id === vetId);
-  const dateTime = daysAgo(ago);
+  const dateTime = daysAgo(ago, hour);
   return {
     id: `pr${nextId++}`,
     type,
@@ -64,7 +72,34 @@ const consultation = ({
     para(prognostico),
   ].join("");
 
-const store = [
+export const procedureStore = [
+  procedure(
+    "p2",
+    "v2",
+    "VACCINATION",
+    0,
+    para("V5 felina anual aplicada. Sem reações."),
+    [],
+    9,
+  ),
+  procedure(
+    "p3",
+    "v1",
+    "RETURN",
+    0,
+    para("Retorno da distensão muscular. Sem claudicação, alta."),
+    [],
+    10,
+  ),
+  procedure(
+    "p3",
+    "v1",
+    "EXAM",
+    0,
+    para("Radiografia do membro pélvico esquerdo sem alterações."),
+    [],
+    11,
+  ),
   procedure(
     "p1",
     "v1",
@@ -251,9 +286,13 @@ export const procedureHandlers = [
     const page = Math.max(1, Number(q.get("page")) || 1);
     const petId = q.get("petId");
     const type = q.get("type");
-    const rows = store
+    const dateFrom = q.get("dateFrom");
+    const dateTo = q.get("dateTo");
+    const rows = procedureStore
       .filter((p) => !petId || p.pet.id === petId)
       .filter((p) => !type || p.type === type)
+      .filter((p) => !dateFrom || p.dateTime >= dateFrom)
+      .filter((p) => !dateTo || p.dateTime <= dateTo)
       .sort((a, b) => b.dateTime.localeCompare(a.dateTime));
     return HttpResponse.json({
       data: rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
@@ -267,7 +306,7 @@ export const procedureHandlers = [
   }),
 
   http.get(`${API_URL}${ENDPOINTS.procedures.byId(":id")}`, ({ params }) => {
-    const found = store.find((p) => p.id === params.id);
+    const found = procedureStore.find((p) => p.id === params.id);
     if (!found) {
       return HttpResponse.json(
         { message: "Procedimento não encontrado" },
@@ -280,7 +319,7 @@ export const procedureHandlers = [
   http.post(
     `${API_URL}${ENDPOINTS.procedures.notes(":id")}`,
     async ({ params, request }) => {
-      const found = store.find((p) => p.id === params.id);
+      const found = procedureStore.find((p) => p.id === params.id);
       if (!found) {
         return HttpResponse.json(
           { message: "Procedimento não encontrado" },
@@ -328,7 +367,7 @@ export const procedureHandlers = [
       vet: { id: vet.id, name: vet.user.name },
       extraNotes: [],
     };
-    store.push(created);
+    procedureStore.push(created);
     return HttpResponse.json(created, { status: STATUS.CREATED });
   }),
 ];

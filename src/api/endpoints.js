@@ -41,6 +41,13 @@ export const ENDPOINTS = {
     byId: (id) => `/procedures/${id}`,
     notes: (id) => `/procedures/${id}/notes`,
   },
+  payments: {
+    list: "/payments",
+    create: "/payments",
+    byId: (id) => `/payments/${id}`,
+    cancel: (id) => `/payments/${id}/cancel`,
+    refund: (id) => `/payments/${id}/refund`,
+  },
   prescriptions: {
     list: "/prescriptions",
     create: "/prescriptions",

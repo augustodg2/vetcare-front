@@ -18,6 +18,19 @@ export const APPOINTMENT_STATUS = {
   CANCELLED: { label: "Cancelada", color: "red" },
 };
 
+export const PAYMENT_STATUS = {
+  PAID: { label: "Pago", color: "teal" },
+  CANCELED: { label: "Cancelado", color: "gray" },
+  REFUNDED: { label: "Estornado", color: "orange" },
+};
+
+export const PAYMENT_METHODS = [
+  "PIX",
+  "Dinheiro",
+  "Cartão de débito",
+  "Cartão de crédito",
+];
+
 export const PROCEDURE_LABEL = {
   CONSULTATION: "Consulta",
   RETURN: "Retorno",

@@ -1,5 +1,6 @@
 import {
   IconCalendar,
+  IconCashRegister,
   IconLayoutDashboard,
   IconPaw,
   IconUserShield,
@@ -10,6 +11,7 @@ export const NAV = {
   RECEP: [
     { to: "/recepcao/agenda", label: "Agenda", icon: IconCalendar },
     { to: "/recepcao/pacientes", label: "Pacientes", icon: IconPaw },
+    { to: "/recepcao/caixa", label: "Caixa", icon: IconCashRegister },
   ],
   VET: [
     {

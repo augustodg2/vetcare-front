@@ -5,6 +5,7 @@ import {
   fromApiAppointment,
   fromApiMetaPage,
   fromApiPage,
+  fromApiPayment,
   fromApiPrescription,
   fromApiProcedure,
   fromApiVet,
@@ -12,6 +13,7 @@ import {
   fromApiPetOwner,
   fromApiUser,
   toApiCreateAppointment,
+  toApiCreatePayment,
   toApiCreatePrescription,
   toApiCreateProcedure,
   toApiUpdateAppointment,
@@ -23,6 +25,15 @@ import {
 
 // Serviços do VetCare. As telas só chamam estas funções, todas assíncronas e
 // ligadas à API real (http.js + ENDPOINTS). O README desta pasta lista as rotas.
+
+const fetchAllPages = async (fetchPage) => {
+  const rows = [];
+  for (let page = 1; ; page++) {
+    const res = await fetchPage(page);
+    rows.push(...res.rows);
+    if (!res.rows.length || rows.length >= res.total) return rows;
+  }
+};
 
 // ============================== autenticação ==============================
 
@@ -156,11 +167,19 @@ export const appointments = {
 };
 
 export const procedures = {
-  list: async ({ petId, type, page } = {}) =>
+  list: async ({ petId, type, dateFrom, dateTo, page } = {}) =>
     fromApiMetaPage(
-      await http.get(ENDPOINTS.procedures.list, { petId, type, page }),
+      await http.get(ENDPOINTS.procedures.list, {
+        petId,
+        type,
+        dateFrom,
+        dateTo,
+        page,
+      }),
       fromApiProcedure,
     ),
+  listAll: (filters = {}) =>
+    fetchAllPages((page) => procedures.list({ ...filters, page })),
   get: async (id) =>
     fromApiProcedure(await http.get(ENDPOINTS.procedures.byId(id))),
   create: async (data) =>
@@ -192,6 +211,29 @@ export const prescriptions = {
     ),
 };
 
+export const payments = {
+  list: async ({ status, dateFrom, dateTo, page } = {}) =>
+    fromApiMetaPage(
+      await http.get(ENDPOINTS.payments.list, {
+        status,
+        dateFrom,
+        dateTo,
+        page,
+      }),
+      fromApiPayment,
+    ),
+  listAll: (filters = {}) =>
+    fetchAllPages((page) => payments.list({ ...filters, page })),
+  create: async (data) =>
+    fromApiPayment(
+      await http.post(ENDPOINTS.payments.create, toApiCreatePayment(data)),
+    ),
+  cancel: async (id) =>
+    fromApiPayment(await http.patch(ENDPOINTS.payments.cancel(id))),
+  refund: async (id) =>
+    fromApiPayment(await http.patch(ENDPOINTS.payments.refund(id))),
+};
+
 export const api = {
   auth,
   users,
@@ -201,4 +243,5 @@ export const api = {
   pets,
   procedures,
   prescriptions,
+  payments,
 };

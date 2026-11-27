@@ -136,6 +136,9 @@ export const fromApiProcedure = (p) => ({
   type: p.type,
   dateTime: p.dateTime,
   notes: p.notes,
+  ...(p.pet && {
+    pet: { id: p.pet.id, name: p.pet.name, species: p.pet.species },
+  }),
   vet: { id: p.vet.id, name: p.vet.name },
   extraNotes: (p.extraNotes ?? []).map((n) => ({
     id: n.id,
@@ -155,6 +158,34 @@ export const fromApiPrescription = (p) => ({
   content: p.content,
   createdAt: p.createdAt,
   vet: { id: p.vet?.id, name: p.vet?.name },
+});
+
+export const fromApiPayment = (p) => ({
+  id: p.id,
+  method: p.paymentMethod,
+  status: p.status,
+  subtotal: p.subtotal,
+  discount: p.discount,
+  total: p.total,
+  notes: p.notes,
+  createdAt: p.createdAt,
+  items: p.items.map((i) => ({
+    id: i.id,
+    amount: i.amount,
+    description: i.description,
+    procedure: {
+      id: i.procedure.id,
+      type: i.procedure.type,
+      dateTime: i.procedure.dateTime,
+    },
+  })),
+});
+
+export const toApiCreatePayment = ({ method, discount, notes, items }) => ({
+  paymentMethod: method,
+  discount: discount || undefined,
+  notes: notes?.trim() || undefined,
+  items: items.map((i) => ({ procedureId: i.procedureId, amount: i.amount })),
 });
 
 export const fromApiMetaPage = (res, map) => ({

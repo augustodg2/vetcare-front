@@ -8,6 +8,9 @@ export const todayISO = () => dayjs().format(ISO);
 export const toISO = (d) => (d ? dayjs(d).format(ISO) : null);
 
 export const int = (v) => (v ?? 0).toLocaleString("pt-BR");
+export const brl = (v) =>
+  (v ?? 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+export const toCents = (v) => Math.round(Number(v || 0) * 100);
 export const pct = (v) => `${Math.round(v * 100)}%`;
 
 export const fmtDate = (d) => (d ? dayjs(d).format("DD/MM/YYYY") : "—");
