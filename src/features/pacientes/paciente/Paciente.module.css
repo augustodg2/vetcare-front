@@ -1,0 +1,24 @@
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--vc-muted);
+  text-decoration: none;
+}
+.backLink:hover {
+  color: var(--vc-ink);
+}
+
+.gridAside {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: var(--vc-gutter);
+  align-items: start;
+}
+@media (max-width: 1023px) {
+  .gridAside {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

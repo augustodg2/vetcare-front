@@ -10,7 +10,7 @@ const Agenda = lazy(() => import("@/features/agenda/Agenda"));
 const Atendimento = lazy(() => import("@/features/atendimento/Atendimento"));
 const Caixa = lazy(() => import("@/features/caixa/Caixa"));
 const Login = lazy(() => import("@/features/auth/Login"));
-const Paciente = lazy(() => import("@/features/pacientes/Paciente"));
+const Paciente = lazy(() => import("@/features/pacientes/paciente/Paciente"));
 const Pacientes = lazy(() => import("@/features/pacientes/Pacientes"));
 const ResetPassword = lazy(() => import("@/features/auth/ResetPassword"));
 const Usuarios = lazy(() => import("@/features/usuarios/Usuarios"));
