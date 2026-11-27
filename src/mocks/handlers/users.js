@@ -59,7 +59,7 @@ export const store = {
       6,
     ),
     deactivated(
-      "u10",
+      "u12",
       "Isabela Rocha",
       "isabela.rocha@vetcare.com.br",
       "RECEP",
