@@ -12,8 +12,8 @@ import {
 import { useDebouncedValue } from "@mantine/hooks";
 import {
   IconEye,
+  IconCalendar,
   IconEyeOff,
-  IconHistory,
   IconPencil,
   IconPlus,
   IconSearch,
@@ -21,11 +21,10 @@ import {
 } from "@tabler/icons-react";
 import { debounce, parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSession } from "../../auth/session";
 import { useDeletePetOwner, usePetOwner } from "../../api/queries/petOwners";
 import { useDeletePet, usePets } from "../../api/queries/pets";
-import { PetHistoryDrawer } from "../../components/agenda/PetHistoryDrawer";
 import {
   NewPatientModal,
   PetModal,
@@ -46,13 +45,13 @@ import { SPECIES_LABEL } from "../../lib/status";
 import { toast } from "../../lib/notify";
 
 const SEARCH_DEBOUNCE_MS = 500;
-const HISTORY_ROLES = ["RECEP", "ADMIN"];
+const AGENDA_PATH = { RECEP: "/recepcao/agenda", ADMIN: "/admin/agenda" };
 
 export default function Pacientes() {
   const { user } = useSession();
   const navigate = useNavigate();
   const readOnly = user.role === "VET";
-  const canSeeAppointmentHistory = HISTORY_ROLES.includes(user.role);
+  const agendaPath = AGENDA_PATH[user.role];
   const [search, setSearch] = useQueryState(
     "q",
     parseAsString.withDefault("").withOptions({
@@ -66,7 +65,6 @@ export default function Pacientes() {
   const [petOwnerForm, setPetOwnerForm] = useState(null); // { petOwner }
   const [petForm, setPetForm] = useState(null); // { pet?, petOwnerId, petOwnerName }
   const [openPetOwner, setOpenPetOwner] = useState(null);
-  const [historyPet, setHistoryPet] = useState(null);
   const [toDelete, setToDelete] = useState(null); // { kind, row }
   const deletePetOwner = useDeletePetOwner({
     onSuccess: (_, id) => {
@@ -227,25 +225,14 @@ export default function Pacientes() {
       </div>
 
       <PetOwnerDrawer
-        id={
-          historyPet || petOwnerForm || petForm || toDelete
-            ? null
-            : openPetOwner
-        }
+        id={petOwnerForm || petForm || toDelete ? null : openPetOwner}
         onClose={() => setOpenPetOwner(null)}
-        canSeeAppointmentHistory={canSeeAppointmentHistory}
+        agendaPath={agendaPath}
         onEdit={(t) => setPetOwnerForm({ petOwner: t })}
         onAddPet={(t) => setPetForm({ petOwnerId: t.id, petOwnerName: t.name })}
         onEditPet={(p) => setPetForm({ pet: p })}
-        onHistory={setHistoryPet}
         onDelete={(kind, row) => setToDelete({ kind, row })}
       />
-      {canSeeAppointmentHistory && (
-        <PetHistoryDrawer
-          pet={historyPet}
-          onClose={() => setHistoryPet(null)}
-        />
-      )}
       <NewPatientModal
         opened={newPatient}
         onClose={() => setNewPatient(false)}
@@ -287,11 +274,10 @@ function PetOwnerDrawer({ id, onClose, ...handlers }) {
 
 function PetOwnerDetails({
   id,
-  canSeeAppointmentHistory,
+  agendaPath,
   onEdit,
   onAddPet,
   onEditPet,
-  onHistory,
   onDelete,
 }) {
   const petOwner = usePetOwner(id);
@@ -414,19 +400,15 @@ function PetOwnerDetails({
                       </div>
                     </Group>
                     <Group gap={4} wrap="nowrap">
-                      {canSeeAppointmentHistory && (
+                      {agendaPath && (
                         <ActionIcon
+                          component={Link}
+                          to={`${agendaPath}?v=semana&paciente=${p.id}`}
                           variant="subtle"
                           color="gray"
-                          aria-label={`Histórico de agendamentos de ${p.name}`}
-                          onClick={() =>
-                            onHistory({
-                              ...p,
-                              petOwner: { id: t.id, name: t.name },
-                            })
-                          }
+                          aria-label={`Ver ${p.name} na agenda`}
                         >
-                          <IconHistory size={16} />
+                          <IconCalendar size={16} />
                         </ActionIcon>
                       )}
                       <ActionIcon
