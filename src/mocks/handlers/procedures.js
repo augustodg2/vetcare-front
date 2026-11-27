@@ -276,4 +276,59 @@ export const procedureHandlers = [
     }
     return HttpResponse.json(found);
   }),
+
+  http.post(
+    `${API_URL}${ENDPOINTS.procedures.notes(":id")}`,
+    async ({ params, request }) => {
+      const found = store.find((p) => p.id === params.id);
+      if (!found) {
+        return HttpResponse.json(
+          { message: "Procedimento não encontrado" },
+          { status: STATUS.NOT_FOUND },
+        );
+      }
+      const { content } = await request.json();
+      if (!content?.trim()) {
+        return HttpResponse.json(
+          { message: "Dados inválidos" },
+          { status: STATUS.BAD_REQUEST },
+        );
+      }
+      found.extraNotes.push({
+        id: `pn${nextId++}`,
+        content,
+        createdAt: new Date().toISOString(),
+      });
+      return HttpResponse.json(found, { status: STATUS.CREATED });
+    },
+  ),
+
+  http.post(`${API_URL}${ENDPOINTS.procedures.create}`, async ({ request }) => {
+    const { type, notes, dateTime, petId, vetId } = await request.json();
+    if (!type || !notes?.trim() || !dateTime || !petId || !vetId) {
+      return HttpResponse.json(
+        { message: "Dados inválidos" },
+        { status: STATUS.BAD_REQUEST },
+      );
+    }
+    const vet = vetStore.find((v) => v.id === vetId);
+    if (!vet) {
+      return HttpResponse.json(
+        { message: "Veterinário não encontrado" },
+        { status: STATUS.NOT_FOUND },
+      );
+    }
+    const created = {
+      id: `pr${nextId++}`,
+      type,
+      notes,
+      dateTime,
+      createdAt: new Date().toISOString(),
+      pet: pets[petId] ?? { id: petId, name: "", species: "" },
+      vet: { id: vet.id, name: vet.user.name },
+      extraNotes: [],
+    };
+    store.push(created);
+    return HttpResponse.json(created, { status: STATUS.CREATED });
+  }),
 ];

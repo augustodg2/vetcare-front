@@ -12,6 +12,7 @@ import {
   Stack,
   Tabs,
   Text,
+  Textarea,
   UnstyledButton,
 } from "@mantine/core";
 import {
@@ -26,18 +27,30 @@ import {
   IconEyeOff,
   IconPaw,
   IconPencil,
+  IconPlus,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
+import {
+  parseAsBoolean,
+  parseAsInteger,
+  parseAsString,
+  useQueryState,
+} from "nuqs";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { usePetAppointments } from "../../api/queries/appointments";
 import { usePetOwner } from "../../api/queries/petOwners";
 import { usePet } from "../../api/queries/pets";
-import { usePetProcedures, useProcedure } from "../../api/queries/procedures";
+import {
+  useAddProcedureNote,
+  usePetProcedures,
+  useProcedure,
+} from "../../api/queries/procedures";
 import { PetModal, PetOwnerModal } from "../../components/PeopleForms";
+import { NewProcedure } from "../../components/ProcedureForm";
 import { htmlToText, RichText } from "../../components/RichText";
 import { Async, Dash, Empty, LoadingRows } from "../../components/ui";
+import { toast } from "../../lib/notify";
 import { age, ago, fmtDate, hideCpf, kg, relDay } from "../../lib/format";
 import {
   PROCEDURE_COLOR,
@@ -193,6 +206,10 @@ function PetMain({ petId }) {
   });
   const upcomingTotal = usePetAppointments({ petId, ...upcomingRange }).data
     ?.total;
+  const [creating, setCreating] = useQueryState(
+    "novo",
+    parseAsBoolean.withOptions({ history: "push" }),
+  );
   const ref = useRef(null);
 
   useEffect(() => {
@@ -200,11 +217,23 @@ function PetMain({ petId }) {
     if (el && el.getBoundingClientRect().top < 0) {
       el.scrollIntoView({ block: "start" });
     }
-  }, [procedureId, page]);
+  }, [procedureId, page, creating]);
 
   return (
     <section className="block" ref={ref} style={{ scrollMarginTop: 16 }}>
-      {procedureId ? (
+      {creating ? (
+        <NewProcedure
+          petId={petId}
+          onBack={() => setCreating(null)}
+          onCreated={(pr) => {
+            setCreating(null);
+            setType(null);
+            setPage(null);
+            setTab(null);
+            setProcedureId(pr.id);
+          }}
+        />
+      ) : procedureId ? (
         <ProcedureDetail id={procedureId} onBack={() => setProcedureId(null)} />
       ) : (
         <Tabs
@@ -241,6 +270,7 @@ function PetMain({ petId }) {
               page={page}
               onPage={setPage}
               onOpen={(pr) => setProcedureId(pr.id)}
+              onNew={() => setCreating(true)}
             />
           </Tabs.Panel>
           <Tabs.Panel value="agendamentos">
@@ -338,44 +368,45 @@ const TYPE_FILTERS = [
   "RETURN",
 ];
 
-function ClinicalHistory({ petId, type, onType, page, onPage, onOpen }) {
+function ClinicalHistory({ petId, type, onType, page, onPage, onOpen, onNew }) {
   const history = usePetProcedures({ petId, type, page });
-  const total = history.data?.total;
 
   return (
     <>
-      <div className="tab-meta">
-        {total > 0 && (
-          <>
-            {total} {total === 1 ? "registro" : "registros"}
-            {type && ` de ${typeLabel(type).toLowerCase()}`}
-          </>
-        )}
-      </div>
-      <div
-        className="procedure-filters"
-        role="group"
-        aria-label="Filtrar por tipo"
-      >
-        <Chip.Group
-          value={type ?? "ALL"}
-          onChange={(v) => onType(v === "ALL" ? null : v)}
+      <div className="history-toolbar">
+        <div
+          className="procedure-filters"
+          role="group"
+          aria-label="Filtrar por tipo"
         >
-          <Chip value="ALL" size="xs" variant="outline">
-            Todos
-          </Chip>
-          {TYPE_FILTERS.map((t) => (
-            <Chip
-              key={t}
-              value={t}
-              size="xs"
-              variant="outline"
-              color={typeColor(t)}
-            >
-              {typeLabel(t)}
+          <Chip.Group
+            value={type ?? "ALL"}
+            onChange={(v) => onType(v === "ALL" ? null : v)}
+          >
+            <Chip value="ALL" size="xs" variant="outline">
+              Todos
             </Chip>
-          ))}
-        </Chip.Group>
+            {TYPE_FILTERS.map((t) => (
+              <Chip
+                key={t}
+                value={t}
+                size="xs"
+                variant="outline"
+                color={typeColor(t)}
+              >
+                {typeLabel(t)}
+              </Chip>
+            ))}
+          </Chip.Group>
+        </div>
+        <Button
+          size="xs"
+          leftSection={<IconPlus size={14} />}
+          onClick={onNew}
+          style={{ flexShrink: 0 }}
+        >
+          Novo registro
+        </Button>
       </div>
       <Async q={history} rows={4}>
         {({ rows, total, pageSize }) =>
@@ -514,30 +545,102 @@ function ProcedureDetail({ id, onBack }) {
                 <Empty>Sem descrição registrada.</Empty>
               )}
             </div>
-            {pr.extraNotes.length > 0 && (
-              <div className="procedure-section">
-                <div className="section-label">
-                  Notas adicionais ({pr.extraNotes.length})
-                </div>
-                <Stack gap="sm" mt="sm" className="note-list">
-                  {pr.extraNotes.map((n) => (
-                    <div key={n.id} className="note">
-                      <Text size="xs" c="dimmed">
-                        {fmtDate(n.createdAt)} às{" "}
-                        {dayjs(n.createdAt).format("HH:mm")}
-                      </Text>
-                      <Text size="sm" style={{ whiteSpace: "pre-line" }}>
-                        {n.content}
-                      </Text>
-                    </div>
-                  ))}
-                </Stack>
-              </div>
-            )}
+            <ExtraNotes procedure={pr} />
           </>
         )}
       </Async>
     </>
+  );
+}
+
+const NOTE_MAX = 2000;
+
+function ExtraNotes({ procedure: pr }) {
+  const [adding, setAdding] = useState(false);
+  const [content, setContent] = useState("");
+  const [error, setError] = useState(null);
+  const count = pr.extraNotes.length;
+
+  const close = () => {
+    setAdding(false);
+    setContent("");
+    setError(null);
+  };
+
+  const add = useAddProcedureNote({
+    onSuccess: () => {
+      toast.ok("Nota adicionada.");
+      close();
+    },
+  });
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    if (!content.trim()) return setError("Escreva a nota");
+    if (content.length > NOTE_MAX) {
+      return setError(`Máximo de ${NOTE_MAX} caracteres`);
+    }
+    add.mutate({ id: pr.id, content });
+  };
+
+  return (
+    <div className="procedure-section">
+      <div className="section-label">
+        Notas adicionais{count > 0 && ` (${count})`}
+      </div>
+      {count > 0 && (
+        <Stack gap="sm" mt="sm" className="note-list">
+          {pr.extraNotes.map((n) => (
+            <div key={n.id} className="note">
+              <Text size="xs" c="dimmed">
+                {fmtDate(n.createdAt)} às {dayjs(n.createdAt).format("HH:mm")}
+              </Text>
+              <Text size="sm" style={{ whiteSpace: "pre-line" }}>
+                {n.content}
+              </Text>
+            </div>
+          ))}
+        </Stack>
+      )}
+      {!adding && (
+        <Button
+          mt="sm"
+          variant="default"
+          size="xs"
+          leftSection={<IconPlus size={14} />}
+          onClick={() => setAdding(true)}
+        >
+          Adicionar nota
+        </Button>
+      )}
+      {adding && (
+        <form onSubmit={onSubmit} noValidate>
+          <Textarea
+            mt="sm"
+            aria-label="Nova nota"
+            placeholder="Evolução, contato com o tutor, resultado de exame..."
+            autosize
+            minRows={3}
+            maxRows={10}
+            autoFocus
+            value={content}
+            onChange={(e) => {
+              setContent(e.currentTarget.value);
+              setError(null);
+            }}
+            error={error}
+          />
+          <Group justify="flex-end" gap="sm" mt="sm">
+            <Button variant="default" size="xs" onClick={close}>
+              Cancelar
+            </Button>
+            <Button type="submit" size="xs" loading={add.isPending}>
+              Salvar nota
+            </Button>
+          </Group>
+        </form>
+      )}
+    </div>
   );
 }
 

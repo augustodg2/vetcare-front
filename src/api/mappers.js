@@ -117,6 +117,20 @@ export const toApiUpdateAppointment = ({ dateTime, type, obs }) => ({
   obs: obs?.trim(),
 });
 
+export const toApiCreateProcedure = ({
+  type,
+  notes,
+  dateTime,
+  petId,
+  vetId,
+}) => ({
+  type,
+  notes,
+  dateTime: new Date(dateTime).toISOString(),
+  petId,
+  vetId,
+});
+
 export const fromApiProcedure = (p) => ({
   id: p.id,
   type: p.type,

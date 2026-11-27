@@ -1339,6 +1339,17 @@ button.mrow {
   color: var(--vc-muted);
   min-height: calc(1.5em + 22px);
 }
+.history-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px 14px;
+}
+.history-toolbar .procedure-filters {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+}
 .procedure-chevron {
   color: var(--vc-muted);
 }
@@ -1416,6 +1427,9 @@ button.mrow {
   .procedure-filters {
     padding: 0 16px 12px;
   }
+  .history-toolbar {
+    padding: 10px 16px 12px;
+  }
   .appointment-row {
     grid-template-columns: 68px minmax(0, 1fr);
   }
@@ -1436,4 +1450,19 @@ button.mrow {
 .note-list .note {
   padding-left: 12px;
   border-left: 2px solid var(--vc-line);
+}
+.procedure-editor .ProseMirror {
+  min-height: 220px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.procedure-editor .ProseMirror h3 {
+  font-size: 14px;
+  margin: 12px 0 4px;
+}
+.procedure-editor .ProseMirror h3:first-child {
+  margin-top: 0;
+}
+.procedure-editor[data-error] {
+  border-color: var(--mantine-color-error);
 }

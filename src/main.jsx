@@ -16,6 +16,7 @@ import { theme } from "./theme";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/notifications/styles.css";
+import "@mantine/tiptap/styles.css";
 import "dayjs/locale/pt-br";
 import "./styles.css";
 

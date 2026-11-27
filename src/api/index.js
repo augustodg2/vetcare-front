@@ -11,6 +11,7 @@ import {
   fromApiPetOwner,
   fromApiUser,
   toApiCreateAppointment,
+  toApiCreateProcedure,
   toApiUpdateAppointment,
   toApiCreatePet,
   toApiCreatePetOwner,
@@ -153,6 +154,16 @@ export const procedures = {
     ),
   get: async (id) =>
     fromApiProcedure(await http.get(ENDPOINTS.procedures.byId(id))),
+  create: async (data) =>
+    fromApiProcedure(
+      await http.post(ENDPOINTS.procedures.create, toApiCreateProcedure(data)),
+    ),
+  addNote: async (id, content) =>
+    fromApiProcedure(
+      await http.post(ENDPOINTS.procedures.notes(id), {
+        content: content.trim(),
+      }),
+    ),
 };
 
 export const api = {

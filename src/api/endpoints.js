@@ -33,6 +33,8 @@ export const ENDPOINTS = {
   },
   procedures: {
     list: "/procedures",
+    create: "/procedures",
     byId: (id) => `/procedures/${id}`,
+    notes: (id) => `/procedures/${id}/notes`,
   },
 };

@@ -1,4 +1,9 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { api } from "..";
 
 export const procedureKeys = {
@@ -21,3 +26,33 @@ export const usePetProcedures = ({ petId, type, page = 1 }) =>
     queryFn: () => api.procedures.list({ petId, type, page }),
     placeholderData: keepPreviousData,
   });
+
+export const useCreateProcedure = ({ onSuccess, ...options } = {}) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    ...options,
+    mutationFn: api.procedures.create,
+    onSuccess: async (procedure, ...rest) => {
+      queryClient.setQueryData(procedureKeys.detail(procedure.id), procedure);
+      await queryClient.invalidateQueries({
+        queryKey: [...procedureKeys.all, "pet"],
+      });
+      return onSuccess?.(procedure, ...rest);
+    },
+  });
+};
+
+export const useAddProcedureNote = ({ onSuccess, ...options } = {}) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    ...options,
+    mutationFn: ({ id, content }) => api.procedures.addNote(id, content),
+    onSuccess: async (procedure, ...rest) => {
+      queryClient.setQueryData(procedureKeys.detail(procedure.id), procedure);
+      await queryClient.invalidateQueries({
+        queryKey: [...procedureKeys.all, "pet"],
+      });
+      return onSuccess?.(procedure, ...rest);
+    },
+  });
+};
