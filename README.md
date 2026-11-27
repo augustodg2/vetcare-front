@@ -128,7 +128,7 @@ endereços ficam em `src/api/endpoints.js` e a conversão entre o formato da API
 src/features/
   appointments/ agenda de dia, semana e mês, painel do veterinário e detalhes da consulta
   auth/         login, convite e redefinição de senha
-  caixa/        movimentações do dia e pagamentos
+  payments/     movimentações do dia e pagamentos
   pacientes/    pacientes, tutores, ficha clínica, procedimentos e receitas
   usuarios/     gestão de usuários
 ```

@@ -12,7 +12,7 @@ const AppointmentCalendar = lazy(
 const VetAppointmentDashboard = lazy(
   () => import("@/features/appointments/VetAppointmentDashboard"),
 );
-const Caixa = lazy(() => import("@/features/caixa/Caixa"));
+const Payments = lazy(() => import("@/features/payments/Payments"));
 const Login = lazy(() => import("@/features/auth/Login"));
 const Pacientes = lazy(() => import("@/features/pacientes/Pacientes"));
 const PatientRoutes = lazy(
@@ -62,7 +62,7 @@ export default function App() {
           <Route path={ROLES.RECEP.base} element={<RoleGate role="RECEP" />}>
             <Route path="agenda" element={<AppointmentCalendar />} />
             <Route path="pacientes" element={<Pacientes />} />
-            <Route path="caixa" element={<Caixa />} />
+            <Route path="caixa" element={<Payments />} />
           </Route>
           <Route path={ROLES.VET.base} element={<RoleGate role="VET" />}>
             <Route path="atendimento" element={<VetAppointmentDashboard />} />

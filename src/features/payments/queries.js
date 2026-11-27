@@ -9,7 +9,7 @@ import dayjs from "dayjs";
 import { api } from "@/api";
 import { procedureKeys } from "@/api/queries/procedures";
 
-const CASH_REFRESH_MS = 60_000;
+const PAYMENTS_REFRESH_MS = 60_000;
 
 const paymentKeys = {
   all: ["payments"],
@@ -17,7 +17,7 @@ const paymentKeys = {
   since: (iso) => [...paymentKeys.all, "since", iso],
 };
 
-export const useCashDay = (day) => {
+export const usePaymentsDay = (day) => {
   const start = dayjs(day).startOf("day");
   const end = start.endOf("day");
   return useQuery({
@@ -33,7 +33,7 @@ export const useCashDay = (day) => {
       return { procedures, payments };
     },
     placeholderData: keepPreviousData,
-    refetchInterval: CASH_REFRESH_MS,
+    refetchInterval: PAYMENTS_REFRESH_MS,
   });
 };
 

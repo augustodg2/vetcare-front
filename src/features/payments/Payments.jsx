@@ -34,16 +34,16 @@ import { PAYMENT_STATUS, PROCEDURE_LABEL } from "@/lib/status";
 import { PaymentModal } from "./PaymentModal";
 import {
   useCancelPayment,
-  useCashDay,
+  usePaymentsDay,
   useProceduresById,
   useRefundPayment,
 } from "./queries";
 import layoutStyles from "@/styles/layout.module.css";
-import styles from "./Caixa.module.css";
+import styles from "./Payments.module.css";
 
 const SETTLED = ["PAID", "REFUNDED"];
 
-export default function Caixa() {
+export default function Payments() {
   const [dateParam, setDate] = useQueryState(
     "d",
     parseAsString.withDefault(todayISO()).withOptions({ history: "replace" }),
@@ -57,9 +57,9 @@ export default function Caixa() {
   const [action, setAction] = useState(null);
   const closeAction = () => setAction(null);
 
-  const cash = useCashDay(day);
-  const procedures = cash.data?.procedures ?? [];
-  const allPayments = cash.data?.payments ?? [];
+  const paymentsDay = usePaymentsDay(day);
+  const procedures = paymentsDay.data?.procedures ?? [];
+  const allPayments = paymentsDay.data?.payments ?? [];
 
   const settledIds = new Set(
     allPayments
@@ -201,7 +201,7 @@ export default function Caixa() {
       </ConfirmDialog>
 
       <div className={layoutStyles.stack}>
-        {cash.data === undefined ? (
+        {paymentsDay.data === undefined ? (
           <KpisLoading n={4} />
         ) : (
           <Kpis
@@ -230,7 +230,7 @@ export default function Caixa() {
         )}
 
         <Block title="Procedimentos do dia" flush>
-          <Async q={cash} rows={3}>
+          <Async q={paymentsDay} rows={3}>
             {() =>
               dayGroups.length === 0 ? (
                 <Empty>Nenhum procedimento registrado neste dia.</Empty>
@@ -305,7 +305,7 @@ export default function Caixa() {
           }
           flush
         >
-          <Async q={cash} rows={4}>
+          <Async q={paymentsDay} rows={4}>
             {() => (
               <DataTable
                 rows={payments}
