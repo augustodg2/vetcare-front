@@ -3,7 +3,9 @@ import { onlyDigits } from "../lib/format";
 import { http } from "./http";
 import {
   fromApiAppointment,
+  fromApiMetaPage,
   fromApiPage,
+  fromApiProcedure,
   fromApiVet,
   fromApiPet,
   fromApiPetOwner,
@@ -136,6 +138,16 @@ export const appointments = {
     ),
 };
 
+export const procedures = {
+  list: async ({ petId, page } = {}) =>
+    fromApiMetaPage(
+      await http.get(ENDPOINTS.procedures.list, { petId, page }),
+      fromApiProcedure,
+    ),
+  get: async (id) =>
+    fromApiProcedure(await http.get(ENDPOINTS.procedures.byId(id))),
+};
+
 export const api = {
   auth,
   users,
@@ -143,4 +155,5 @@ export const api = {
   appointments,
   petOwners,
   pets,
+  procedures,
 };

@@ -1,17 +1,38 @@
-import { ActionIcon, Group, Stack, Text } from "@mantine/core";
+import {
+  ActionIcon,
+  Badge,
+  Box,
+  Group,
+  Pagination,
+  Stack,
+  Tabs,
+  Text,
+  UnstyledButton,
+} from "@mantine/core";
 import {
   IconAlertTriangle,
   IconChevronLeft,
+  IconChevronRight,
   IconEye,
   IconEyeOff,
 } from "@tabler/icons-react";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { usePetOwner } from "../../api/queries/petOwners";
 import { usePet } from "../../api/queries/pets";
-import { Async, Block, Dash, Facts, PetAvatar } from "../../components/ui";
-import { age, fmtDate, hideCpf, kg } from "../../lib/format";
-import { SPECIES_LABEL } from "../../lib/status";
+import { usePetProcedures, useProcedure } from "../../api/queries/procedures";
+import { RichText, RichTextPreview } from "../../components/RichText";
+import {
+  Async,
+  Block,
+  Dash,
+  Empty,
+  Facts,
+  PetAvatar,
+} from "../../components/ui";
+import { age, fmtDate, fmtDateTime, hideCpf, kg } from "../../lib/format";
+import { PROCEDURE_COLOR, PROCEDURE_LABEL, SPECIES_LABEL } from "../../lib/status";
 
 const SEX_LABEL = { M: "Macho", F: "Fêmea" };
 
@@ -30,13 +51,176 @@ export default function Paciente() {
           <>
             <PetHeader pet={p} />
             <div className="grid-aside">
-              <div />
+              <PetMain petId={p.id} />
               <PetOwnerAside id={p.petOwnerId} />
             </div>
           </>
         )}
       </Async>
     </>
+  );
+}
+
+function PetMain({ petId }) {
+  const [procedureId, setProcedureId] = useQueryState(
+    "procedimento",
+    parseAsString.withOptions({ history: "push" }),
+  );
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+
+  return (
+    <div style={{ minWidth: 0 }}>
+      {procedureId ? (
+        <>
+          <UnstyledButton
+            className="back-link"
+            onClick={() => setProcedureId(null)}
+          >
+            <IconChevronLeft size={14} />
+            Histórico clínico
+          </UnstyledButton>
+          <section className="block">
+            <ProcedureDetail id={procedureId} />
+          </section>
+        </>
+      ) : (
+        <section className="block">
+          <Tabs defaultValue="historico">
+            <Tabs.List px="lg">
+              <Tabs.Tab value="historico">Histórico clínico</Tabs.Tab>
+            </Tabs.List>
+            <Tabs.Panel value="historico">
+              <ClinicalHistory
+                petId={petId}
+                page={page}
+                onPage={setPage}
+                onOpen={(pr) => setProcedureId(pr.id)}
+              />
+            </Tabs.Panel>
+          </Tabs>
+        </section>
+      )}
+    </div>
+  );
+}
+
+function ClinicalHistory({ petId, page, onPage, onOpen }) {
+  const history = usePetProcedures({ petId, page });
+
+  return (
+    <Async q={history} rows={4}>
+      {({ rows, total, pageSize }) =>
+        rows.length === 0 ? (
+          <Empty>Nenhum procedimento registrado para este pet.</Empty>
+        ) : (
+          <>
+            {rows.map((pr) => (
+              <ProcedureItem key={pr.id} procedure={pr} onOpen={onOpen} />
+            ))}
+            {total > pageSize && (
+              <div className="block-foot">
+                <Text size="sm" c="dimmed">
+                  {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)}{" "}
+                  de {total}
+                </Text>
+                <Pagination
+                  value={page}
+                  onChange={onPage}
+                  total={Math.ceil(total / pageSize)}
+                  size="sm"
+                />
+              </div>
+            )}
+          </>
+        )
+      }
+    </Async>
+  );
+}
+
+function ProcedureSummary({ procedure: pr }) {
+  return (
+    <Group gap="xs" align="baseline">
+      <Badge variant="light" color={PROCEDURE_COLOR[pr.type] ?? "gray"} size="sm">
+        {PROCEDURE_LABEL[pr.type] ?? pr.type}
+      </Badge>
+      <Text size="sm" fw={500}>
+        {fmtDateTime(pr.dateTime)}
+      </Text>
+      <Text size="xs" c="dimmed">
+        {pr.vet.name}
+      </Text>
+    </Group>
+  );
+}
+
+function ProcedureItem({ procedure: pr, onOpen }) {
+  return (
+    <UnstyledButton
+      className="procedure-row"
+      onClick={() => onOpen(pr)}
+      aria-label={`Abrir ${PROCEDURE_LABEL[pr.type] ?? pr.type} de ${fmtDateTime(pr.dateTime)}`}
+    >
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <ProcedureSummary procedure={pr} />
+        <RichTextPreview html={pr.notes} />
+      </div>
+      <IconChevronRight
+        size={18}
+        color="var(--vc-muted)"
+        style={{ flexShrink: 0 }}
+      />
+    </UnstyledButton>
+  );
+}
+
+function ProcedureDetail({ id }) {
+  const procedure = useProcedure(id);
+
+  return (
+    <Async q={procedure} rows={6}>
+      {(pr) => (
+        <>
+          <Box
+            px="lg"
+            py="md"
+            style={{ borderBottom: "1px solid var(--vc-line)" }}
+          >
+            <ProcedureSummary procedure={pr} />
+          </Box>
+          <Box px="lg" py="md">
+            {pr.notes ? (
+              <RichText html={pr.notes} />
+            ) : (
+              <Empty>Sem descrição registrada.</Empty>
+            )}
+          </Box>
+          {pr.extraNotes.length > 0 && (
+            <Box
+              px="lg"
+              py="md"
+              style={{ borderTop: "1px solid var(--vc-line)" }}
+            >
+              <div className="section-label">
+                Notas adicionais ({pr.extraNotes.length})
+              </div>
+              <Stack gap="sm" mt="sm" className="note-list">
+                {pr.extraNotes.map((n) => (
+                  <div key={n.id} className="note">
+                    <Text size="xs" c="dimmed">
+                      {fmtDateTime(n.createdAt)}
+                    </Text>
+                    <Text size="sm" style={{ whiteSpace: "pre-line" }}>
+                      {n.content}
+                    </Text>
+                  </div>
+                ))}
+              </Stack>
+            </Box>
+          )}
+        </>
+      )}
+    </Async>
   );
 }
 

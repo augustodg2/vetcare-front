@@ -117,6 +117,25 @@ export const toApiUpdateAppointment = ({ dateTime, type, obs }) => ({
   obs: obs?.trim(),
 });
 
+export const fromApiProcedure = (p) => ({
+  id: p.id,
+  type: p.type,
+  dateTime: p.dateTime,
+  notes: p.notes,
+  vet: { id: p.vet.id, name: p.vet.name },
+  extraNotes: (p.extraNotes ?? []).map((n) => ({
+    id: n.id,
+    content: n.content,
+    createdAt: n.createdAt,
+  })),
+});
+
+export const fromApiMetaPage = (res, map) => ({
+  rows: res.data.map(map),
+  total: res.meta.total,
+  pageSize: res.meta.pagesize,
+});
+
 export const fromApiPage = (res, map) => ({
   rows: res.data.map(map),
   total: res.total,

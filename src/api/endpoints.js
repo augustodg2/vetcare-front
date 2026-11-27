@@ -32,4 +32,8 @@ export const ENDPOINTS = {
     byId: (id) => `/pets/${id}`,
     appointments: (id) => `/pets/${id}/appointments`,
   },
+  procedures: {
+    list: "/procedures",
+    byId: (id) => `/procedures/${id}`,
+  },
 };

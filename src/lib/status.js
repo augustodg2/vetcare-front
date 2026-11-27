@@ -26,4 +26,12 @@ export const PROCEDURE_LABEL = {
   EXAM: "Exame",
 };
 
+export const PROCEDURE_COLOR = {
+  CONSULTATION: "teal",
+  RETURN: "blue",
+  VACCINATION: "grape",
+  SURGERY: "red",
+  EXAM: "orange",
+};
+
 export const SPECIES_LABEL = { DOG: "Cão", CAT: "Gato" };
