@@ -2,12 +2,15 @@ export const ENDPOINTS = {
   auth: {
     login: "/auth/login",
     acceptInvite: (token) => `/auth/invite/${token}/accept`,
+    resetPassword: (token) => `/auth/reset-password/${token}`,
   },
   users: {
     me: "/users/me",
     list: "/users",
     invite: "/users/invite",
     deactivate: (id) => `/users/${id}/deactivate`,
+    resendInvite: (id) => `/users/${id}/resend-invite`,
+    sendPasswordReset: (id) => `/users/${id}/reset-password`,
     byId: (id) => `/users/${id}`,
   },
   appointments: {

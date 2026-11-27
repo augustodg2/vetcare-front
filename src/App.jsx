@@ -6,6 +6,7 @@ import AcceptInvite from "./pages/AcceptInvite";
 import Login from "./pages/Login";
 import Agenda from "./pages/recepcao/Agenda";
 import Pacientes from "./pages/recepcao/Pacientes";
+import ResetPassword from "./pages/ResetPassword";
 import Atendimento from "./pages/vet/Atendimento";
 import Paciente from "./pages/vet/Paciente";
 
@@ -34,6 +35,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/convite/:token" element={<AcceptInvite />} />
+      <Route path="/redefinir-senha/:token" element={<ResetPassword />} />
       <Route element={<RequireAuth />}>
         <Route element={<AppLayout />}>
           <Route path="recepcao" element={<RoleGate role="RECEP" />}>

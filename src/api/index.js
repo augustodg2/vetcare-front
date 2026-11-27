@@ -30,6 +30,8 @@ export const auth = {
   me: () => http.get(ENDPOINTS.users.me),
   acceptInvite: (token, { password }) =>
     http.post(ENDPOINTS.auth.acceptInvite(token), { password }),
+  resetPassword: (token, { password }) =>
+    http.post(ENDPOINTS.auth.resetPassword(token), { password }),
 };
 
 // ============================== usuários ==============================
@@ -48,6 +50,8 @@ export const users = {
   update: (id, { name, role }) =>
     http.patch(ENDPOINTS.users.byId(id), { name, role }),
   deactivate: (id) => http.post(ENDPOINTS.users.deactivate(id)),
+  resendInvite: (id) => http.post(ENDPOINTS.users.resendInvite(id)),
+  sendPasswordReset: (id) => http.post(ENDPOINTS.users.sendPasswordReset(id)),
 };
 
 // ============================== veterinários ==============================

@@ -17,6 +17,8 @@ import { useForm } from "@mantine/form";
 import { useDebouncedValue } from "@mantine/hooks";
 import {
   IconDots,
+  IconKey,
+  IconMailForward,
   IconPlus,
   IconSearch,
   IconUserOff,
@@ -26,6 +28,8 @@ import { debounce, parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import {
   useDeactivateUser,
   useInviteUser,
+  useResendInvite,
+  useSendPasswordReset,
   useUpdateUser,
   useUsers,
 } from "../../api/queries/users";
@@ -83,6 +87,9 @@ export default function Usuarios() {
   const [editing, setEditing] = useState(null);
   const [deactivate, setDeactivate] = useState(null);
   const deactivateUser = useDeactivateUser();
+  const [passwordReset, setPasswordReset] = useState(null);
+  const resendInvite = useResendInvite();
+  const sendPasswordReset = useSendPasswordReset();
 
   const [search, setSearch] = useQueryState(
     "q",
@@ -125,6 +132,25 @@ export default function Usuarios() {
     }
     toast.ok(`Acesso de ${deactivate.name} desativado.`);
     setDeactivate(null);
+  };
+
+  const onResendInvite = async (u) => {
+    try {
+      await resendInvite.mutateAsync(u.id);
+    } catch {
+      return;
+    }
+    toast.ok(`Convite reenviado para ${u.email}.`);
+  };
+
+  const confirmPasswordReset = async () => {
+    try {
+      await sendPasswordReset.mutateAsync(passwordReset.id);
+    } catch {
+      return;
+    }
+    toast.ok(`Link de nova senha enviado para ${passwordReset.email}.`);
+    setPasswordReset(null);
   };
 
   return (
@@ -257,6 +283,22 @@ export default function Usuarios() {
                             >
                               Editar usuário
                             </Menu.Item>
+                            {u.status === "convite" && (
+                              <Menu.Item
+                                leftSection={<IconMailForward size={15} />}
+                                onClick={() => onResendInvite(u)}
+                              >
+                                Reenviar convite
+                              </Menu.Item>
+                            )}
+                            {u.status === "ativo" && (
+                              <Menu.Item
+                                leftSection={<IconKey size={15} />}
+                                onClick={() => setPasswordReset(u)}
+                              >
+                                Enviar link de nova senha
+                              </Menu.Item>
+                            )}
                             {u.status !== "inativo" && (
                               <Menu.Item
                                 leftSection={<IconUserOff size={15} />}
@@ -316,6 +358,18 @@ export default function Usuarios() {
       >
         {deactivate?.name} não vai mais conseguir entrar no VetCare. Os
         registros feitos por essa pessoa continuam no sistema.
+      </ConfirmDialog>
+      <ConfirmDialog
+        opened={!!passwordReset}
+        onClose={() => setPasswordReset(null)}
+        title="Enviar link de nova senha"
+        confirmLabel="Enviar link"
+        loading={sendPasswordReset.isPending}
+        onConfirm={confirmPasswordReset}
+      >
+        {passwordReset?.name} vai receber em {passwordReset?.email} um link para
+        definir uma nova senha, válido por 24 horas. A senha atual continua
+        valendo até a troca.
       </ConfirmDialog>
     </>
   );

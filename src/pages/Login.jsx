@@ -1,10 +1,19 @@
-import { Button, PasswordInput, Stack, Text, TextInput } from "@mantine/core";
+import {
+  Anchor,
+  Button,
+  PasswordInput,
+  Popover,
+  Stack,
+  Text,
+  TextInput,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { Navigate, useNavigate } from "react-router-dom";
 import { ApiError } from "../api/errors";
 import { useLogin } from "../api/queries/auth";
 import { STATUS } from "../api/statusCodes";
 import { ROLES, useSession } from "../auth/session";
+import { AuthCard } from "../components/AuthCard";
 import { isEmail } from "../lib/format";
 import { toast } from "../lib/notify";
 
@@ -40,52 +49,44 @@ export default function Login() {
   });
 
   return (
-    <div className="login">
-      <div className="login-card">
-        <div className="login-brand">
-          <img src="/favicon.svg" alt="" />
-          <div>
-            <Text fw={600} size="lg" lh={1.2}>
-              VetCare
-            </Text>
-            <Text size="sm" c="dimmed">
-              Clínica veterinária
-            </Text>
-          </div>
-        </div>
-        <div className="login-panel">
-          <h1 style={{ margin: "0 0 4px", fontSize: 24, fontWeight: 600 }}>
+    <AuthCard title="Entrar" intro="Acesse com o e-mail cadastrado na clínica.">
+      <form onSubmit={onSubmit} noValidate>
+        <Stack gap="md">
+          <TextInput
+            label="E-mail"
+            type="email"
+            placeholder="voce@email.com"
+            autoComplete="username"
+            {...form.getInputProps("email")}
+          />
+          <PasswordInput
+            label="Senha"
+            autoComplete="current-password"
+            {...form.getInputProps("password")}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            loading={loginMutation.isPending}
+            mt={4}
+          >
             Entrar
-          </h1>
-          <Text size="sm" c="dimmed" mb="lg">
-            Acesse com o e-mail cadastrado na clínica.
-          </Text>
-          <form onSubmit={onSubmit} noValidate>
-            <Stack gap="md">
-              <TextInput
-                label="E-mail"
-                type="email"
-                placeholder="voce@email.com"
-                autoComplete="username"
-                {...form.getInputProps("email")}
-              />
-              <PasswordInput
-                label="Senha"
-                autoComplete="current-password"
-                {...form.getInputProps("password")}
-              />
-              <Button
-                type="submit"
-                fullWidth
-                loading={loginMutation.isPending}
-                mt={4}
-              >
-                Entrar
-              </Button>
-            </Stack>
-          </form>
-        </div>
-      </div>
-    </div>
+          </Button>
+          <Popover width={280} position="bottom" withArrow shadow="md">
+            <Popover.Target>
+              <Anchor component="button" type="button" size="sm" mx="auto">
+                Esqueceu a senha?
+              </Anchor>
+            </Popover.Target>
+            <Popover.Dropdown>
+              <Text size="sm">
+                Peça a um administrador da clínica para enviar um link de nova
+                senha. Ele chega no seu e-mail e vale por 24 horas.
+              </Text>
+            </Popover.Dropdown>
+          </Popover>
+        </Stack>
+      </form>
+    </AuthCard>
   );
 }

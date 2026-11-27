@@ -81,7 +81,7 @@ const err = (status, message) =>
   HttpResponse.json({ statusCode: status, message }, { status });
 
 // never expose the password or the invite token
-const publicUser = ({ password, inviteToken, ...u }) => u;
+const publicUser = ({ password, inviteToken, resetToken, ...u }) => u;
 
 export const userFromRequest = (request) => {
   const token = request.headers.get("Authorization")?.replace("Bearer ", "");
@@ -205,6 +205,74 @@ export const userHandlers = [
       user.status = "ACTIVE";
       user.inviteToken = null;
       user.lastAccessAt = new Date().toISOString();
+      return HttpResponse.json({
+        access_token: TOKEN_PREFIX + user.email,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+      });
+    },
+  ),
+
+  http.post(
+    `${API_URL}${ENDPOINTS.users.resendInvite(":id")}`,
+    ({ request, params }) => {
+      const denied = requireAdmin(request);
+      if (denied) return denied;
+
+      const user = store.users.find((u) => u.id === params.id);
+      if (!user) return err(404, "Usuário não encontrado");
+      if (user.status !== "PENDING_INVITE")
+        return err(
+          409,
+          "Só é possível reenviar convite para usuários com convite pendente",
+        );
+
+      user.inviteToken = `convite-${user.id}-${Math.random().toString(36).slice(2, 10)}`;
+      user.inviteSentAt = new Date().toISOString();
+      console.info(
+        `[mock] convite reenviado para ${user.email}: ${window.location.origin}/convite/${user.inviteToken}`,
+      );
+      return HttpResponse.json(publicUser(user));
+    },
+  ),
+
+  http.post(
+    `${API_URL}${ENDPOINTS.users.sendPasswordReset(":id")}`,
+    ({ request, params }) => {
+      const denied = requireAdmin(request);
+      if (denied) return denied;
+
+      const user = store.users.find((u) => u.id === params.id);
+      if (!user) return err(404, "Usuário não encontrado");
+      if (user.status !== "ACTIVE" || !user.password)
+        return err(409, "Não é possível redefinir senha.");
+
+      user.resetToken = `senha-${user.id}-${Math.random().toString(36).slice(2, 10)}`;
+      console.info(
+        `[mock] nova senha para ${user.email}: ${window.location.origin}/redefinir-senha/${user.resetToken}`,
+      );
+      return HttpResponse.json(200);
+    },
+  ),
+
+  http.post(
+    `${API_URL}${ENDPOINTS.auth.resetPassword(":token")}`,
+    async ({ request, params }) => {
+      const user = store.users.find(
+        (u) => u.resetToken === params.token && u.status === "ACTIVE",
+      );
+      if (!user) return err(400, "Link inválido ou expirado");
+
+      const { password } = await request.json();
+      if (!password || !isStrongPassword(password))
+        return err(400, PASSWORD_RULE);
+
+      user.password = password;
+      user.resetToken = null;
       return HttpResponse.json({
         access_token: TOKEN_PREFIX + user.email,
         user: {

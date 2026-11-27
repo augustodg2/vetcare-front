@@ -52,6 +52,23 @@ export const useDeactivateUser = () => {
   });
 };
 
+export const useResendInvite = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => api.users.resendInvite(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: userKeys.all }),
+  });
+};
+
+export const useSendPasswordReset = () =>
+  useMutation({ mutationFn: (id) => api.users.sendPasswordReset(id) });
+
+export const useResetPassword = () =>
+  useMutation({
+    mutationFn: ({ token, password }) =>
+      api.auth.resetPassword(token, { password }),
+  });
+
 // Accepting an invite signs the person in: the response carries a session token.
 export const useAcceptInvite = () => {
   const queryClient = useQueryClient();
