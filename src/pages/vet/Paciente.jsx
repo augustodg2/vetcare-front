@@ -269,6 +269,7 @@ function PetMain({ pet }) {
         >
           <Tabs.List className="pet-tabs">
             <Tabs.Tab value="historico">Histórico clínico</Tabs.Tab>
+            <Tabs.Tab value="prescricoes">Prescrições</Tabs.Tab>
             <Tabs.Tab
               value="agendamentos"
               rightSection={
@@ -281,7 +282,6 @@ function PetMain({ pet }) {
             >
               Agendamentos
             </Tabs.Tab>
-            <Tabs.Tab value="prescricoes">Prescrições</Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value="historico">
             <ClinicalHistory
