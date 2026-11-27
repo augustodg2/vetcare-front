@@ -21,11 +21,6 @@
   display: flex;
   flex-direction: column;
 }
-.day.empty {
-  padding: 28px 20px;
-  text-align: center;
-  gap: 12px;
-}
 .day:nth-child(7n + 1) {
   border-left: 0;
 }
