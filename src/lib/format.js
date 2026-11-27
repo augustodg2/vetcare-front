@@ -22,6 +22,19 @@ export function relDay(d) {
   return diff > 1 ? `em ${diff} dias` : `há ${-diff} dias`;
 }
 
+export function ago(d) {
+  const day = dayjs(d).startOf("day");
+  const today = dayjs().startOf("day");
+  const days = today.diff(day, "day");
+  if (days <= 0) return "hoje";
+  if (days === 1) return "ontem";
+  if (days < 30) return `há ${days} dias`;
+  const months = today.diff(day, "month");
+  if (months < 12) return months <= 1 ? "há 1 mês" : `há ${months} meses`;
+  const years = today.diff(day, "year");
+  return years === 1 ? "há 1 ano" : `há ${years} anos`;
+}
+
 export function age(birth) {
   if (!birth) return "—";
   const years = dayjs().diff(birth, "year");

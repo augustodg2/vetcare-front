@@ -25,14 +25,14 @@ import {
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { usePetOwner } from "../../api/queries/petOwners";
 import { usePet } from "../../api/queries/pets";
 import { usePetProcedures, useProcedure } from "../../api/queries/procedures";
-import { RichText, RichTextPreview } from "../../components/RichText";
+import { htmlToText, RichText } from "../../components/RichText";
 import { Async, Dash, Empty, LoadingRows } from "../../components/ui";
-import { age, fmtDate, hideCpf, kg } from "../../lib/format";
+import { age, ago, fmtDate, hideCpf, kg } from "../../lib/format";
 import {
   PROCEDURE_COLOR,
   PROCEDURE_LABEL,
@@ -256,9 +256,23 @@ function ClinicalHistory({ petId, type, onType, page, onPage, onOpen }) {
           ) : (
             <>
               <div className="procedure-list">
-                {rows.map((pr) => (
-                  <ProcedureItem key={pr.id} procedure={pr} onOpen={onOpen} />
-                ))}
+                {rows.map((pr, i) => {
+                  const d = dayjs(pr.dateTime);
+                  const prev = rows[i - 1] && dayjs(rows[i - 1].dateTime);
+                  const newYear = !prev || prev.year() !== d.year();
+                  return (
+                    <Fragment key={pr.id}>
+                      {newYear && (
+                        <div className="procedure-year">{d.year()}</div>
+                      )}
+                      <ProcedureItem
+                        procedure={pr}
+                        sameDay={!!prev && prev.isSame(d, "day")}
+                        onOpen={onOpen}
+                      />
+                    </Fragment>
+                  );
+                })}
               </div>
               {total > pageSize && (
                 <div className="block-foot">
@@ -282,17 +296,27 @@ function ClinicalHistory({ petId, type, onType, page, onPage, onOpen }) {
   );
 }
 
-function ProcedureItem({ procedure: pr, onOpen }) {
+function ProcedureItem({ procedure: pr, sameDay, onOpen }) {
   const d = dayjs(pr.dateTime);
+  const summary = useMemo(
+    () => htmlToText(pr.notes, { skipHeadings: true }),
+    [pr.notes],
+  );
+
   return (
     <UnstyledButton
       className="procedure-row"
+      data-same-day={sameDay || undefined}
       onClick={() => onOpen(pr)}
       aria-label={`Abrir ${typeLabel(pr.type)} de ${fmtDate(pr.dateTime)}`}
     >
       <div className="procedure-when">
-        <span className="d">{d.format("DD/MM")}</span>
-        <span className="y">{d.format("YYYY")}</span>
+        {!sameDay && (
+          <>
+            <span className="d">{d.format("DD MMM")}</span>
+            <span className="ago">{ago(pr.dateTime)}</span>
+          </>
+        )}
       </div>
       <div className="procedure-body">
         <Group gap="xs" wrap="nowrap">
@@ -303,7 +327,7 @@ function ProcedureItem({ procedure: pr, onOpen }) {
             {pr.vet.name}
           </Text>
         </Group>
-        <RichTextPreview html={pr.notes} />
+        {summary && <div className="procedure-summary">{summary}</div>}
       </div>
       <IconChevronRight size={18} className="procedure-chevron" />
     </UnstyledButton>

@@ -1252,9 +1252,9 @@ button.mrow {
 }
 .procedure-row {
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) auto;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 16px;
+  gap: 24px;
   width: 100%;
   padding: 14px 20px;
   text-align: left;
@@ -1265,9 +1265,6 @@ button.mrow {
 }
 .procedure-row:hover {
   background: var(--vc-hover);
-}
-.procedure-row:hover .rich-text-preview {
-  color: var(--vc-ink);
 }
 .procedure-row:focus-visible {
   outline: 2px solid var(--vc-teal);
@@ -1283,9 +1280,35 @@ button.mrow {
   font-size: 15px;
   font-weight: 600;
 }
-.procedure-when .y {
+.procedure-when .ago {
   font-size: 12px;
   color: var(--vc-muted);
+  white-space: nowrap;
+}
+.procedure-row[data-same-day] {
+  border-top-style: dashed;
+}
+.procedure-year {
+  padding: 6px 20px;
+  border-top: 1px solid var(--vc-line);
+  background: var(--vc-hover);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vc-muted);
+  font-variant-numeric: tabular-nums;
+}
+.procedure-year:first-child,
+.procedure-year + .procedure-row {
+  border-top: 0;
+}
+.procedure-summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.45;
 }
 .procedure-filters {
   display: flex;
@@ -1346,12 +1369,15 @@ button.mrow {
 }
 @media (max-width: 767px) {
   .procedure-row {
-    grid-template-columns: 48px minmax(0, 1fr) auto;
-    gap: 12px;
+    grid-template-columns: 68px minmax(0, 1fr) auto;
+    gap: 16px;
     padding: 12px 16px;
   }
   .procedure-section {
     padding: 14px 16px;
+  }
+  .procedure-year {
+    padding: 6px 16px;
   }
   .procedure-filters {
     padding: 0 16px 12px;
