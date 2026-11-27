@@ -139,9 +139,9 @@ export const appointments = {
 };
 
 export const procedures = {
-  list: async ({ petId, page } = {}) =>
+  list: async ({ petId, type, page } = {}) =>
     fromApiMetaPage(
-      await http.get(ENDPOINTS.procedures.list, { petId, page }),
+      await http.get(ENDPOINTS.procedures.list, { petId, type, page }),
       fromApiProcedure,
     ),
   get: async (id) =>

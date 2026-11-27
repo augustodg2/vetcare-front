@@ -250,8 +250,10 @@ export const procedureHandlers = [
     const q = new URL(request.url).searchParams;
     const page = Math.max(1, Number(q.get("page")) || 1);
     const petId = q.get("petId");
+    const type = q.get("type");
     const rows = store
       .filter((p) => !petId || p.pet.id === petId)
+      .filter((p) => !type || p.type === type)
       .sort((a, b) => b.dateTime.localeCompare(a.dateTime));
     return HttpResponse.json({
       data: rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),

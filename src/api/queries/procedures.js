@@ -3,7 +3,7 @@ import { api } from "..";
 
 export const procedureKeys = {
   all: ["procedures"],
-  pet: (petId, page) => [...procedureKeys.all, "pet", petId, page],
+  pet: (petId, type, page) => [...procedureKeys.all, "pet", petId, type, page],
   detail: (id) => [...procedureKeys.all, "detail", id],
 };
 
@@ -14,10 +14,10 @@ export const useProcedure = (id) =>
     queryFn: () => api.procedures.get(id),
   });
 
-export const usePetProcedures = ({ petId, page = 1 }) =>
+export const usePetProcedures = ({ petId, type, page = 1 }) =>
   useQuery({
     enabled: !!petId,
-    queryKey: procedureKeys.pet(petId, page),
-    queryFn: () => api.procedures.list({ petId, page }),
+    queryKey: procedureKeys.pet(petId, type, page),
+    queryFn: () => api.procedures.list({ petId, type, page }),
     placeholderData: keepPreviousData,
   });
