@@ -1,6 +1,7 @@
 import { Button, Drawer, Group, Stack, Text } from "@mantine/core";
-import { IconCalendarEvent, IconX } from "@tabler/icons-react";
+import { IconCalendarEvent, IconFileText, IconX } from "@tabler/icons-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useCancelAppointment } from "../../api/queries/appointments";
 import { fmtDateTime } from "../../lib/format";
 import { toast } from "../../lib/notify";
@@ -8,7 +9,12 @@ import { APPOINTMENT_STATUS, PROCEDURE_LABEL } from "../../lib/status";
 import { ConfirmDialog, Facts, Pill } from "../ui";
 import { AppointmentModal } from "./AppointmentModal";
 
-export function AppointmentDrawer({ appointment, onClose, onRescheduled }) {
+export function AppointmentDrawer({
+  appointment,
+  onClose,
+  onRescheduled,
+  petHref,
+}) {
   const [mode, setMode] = useState(null);
 
   const cancel = useCancelAppointment({
@@ -30,6 +36,7 @@ export function AppointmentDrawer({ appointment, onClose, onRescheduled }) {
         {appointment && (
           <AppointmentDetails
             appointment={appointment}
+            petHref={petHref?.(appointment.pet)}
             onReschedule={() => setMode("reschedule")}
             onCancel={() => setMode("cancel")}
           />
@@ -62,7 +69,12 @@ export function AppointmentDrawer({ appointment, onClose, onRescheduled }) {
   );
 }
 
-function AppointmentDetails({ appointment: a, onReschedule, onCancel }) {
+function AppointmentDetails({
+  appointment: a,
+  petHref,
+  onReschedule,
+  onCancel,
+}) {
   return (
     <Stack gap="lg">
       <Group justify="space-between" align="flex-start">
@@ -71,6 +83,17 @@ function AppointmentDetails({ appointment: a, onReschedule, onCancel }) {
         </Text>
         <Pill status={a.status} map={APPOINTMENT_STATUS} />
       </Group>
+
+      {petHref && (
+        <Button
+          component={Link}
+          to={petHref}
+          variant="light"
+          leftSection={<IconFileText size={14} />}
+        >
+          Ver ficha do pet
+        </Button>
+      )}
 
       <Facts
         items={[

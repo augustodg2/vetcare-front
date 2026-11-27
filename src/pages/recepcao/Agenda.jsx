@@ -98,6 +98,7 @@ export default function Agenda() {
         appointment={selected}
         onClose={() => setSelectedId(null)}
         onRescheduled={(a) => go(a.dateTime)}
+        petHref={isVet ? (pet) => `/vet/pacientes/${pet.id}` : undefined}
       />
       <Block
         title="Horários"
