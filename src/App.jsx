@@ -6,8 +6,12 @@ import AppLayout from "./layout/AppLayout";
 import PageBoundary from "./layout/PageBoundary";
 
 const AcceptInvite = lazy(() => import("@/features/auth/AcceptInvite"));
-const Agenda = lazy(() => import("@/features/agenda/Agenda"));
-const Atendimento = lazy(() => import("@/features/atendimento/Atendimento"));
+const AppointmentCalendar = lazy(
+  () => import("@/features/appointments/AppointmentCalendar"),
+);
+const VetAppointmentDashboard = lazy(
+  () => import("@/features/appointments/VetAppointmentDashboard"),
+);
 const Caixa = lazy(() => import("@/features/caixa/Caixa"));
 const Login = lazy(() => import("@/features/auth/Login"));
 const Pacientes = lazy(() => import("@/features/pacientes/Pacientes"));
@@ -56,18 +60,18 @@ export default function App() {
       <Route element={<RequireAuth />}>
         <Route element={<AppLayout />}>
           <Route path={ROLES.RECEP.base} element={<RoleGate role="RECEP" />}>
-            <Route path="agenda" element={<Agenda />} />
+            <Route path="agenda" element={<AppointmentCalendar />} />
             <Route path="pacientes" element={<Pacientes />} />
             <Route path="caixa" element={<Caixa />} />
           </Route>
           <Route path={ROLES.VET.base} element={<RoleGate role="VET" />}>
-            <Route path="atendimento" element={<Atendimento />} />
-            <Route path="agenda" element={<Agenda />} />
+            <Route path="atendimento" element={<VetAppointmentDashboard />} />
+            <Route path="agenda" element={<AppointmentCalendar />} />
             <Route path="pacientes" element={<Pacientes />} />
             <Route path="pacientes/:id/*" element={<PatientRoutes />} />
           </Route>
           <Route path={ROLES.ADMIN.base} element={<RoleGate role="ADMIN" />}>
-            <Route path="agenda" element={<Agenda />} />
+            <Route path="agenda" element={<AppointmentCalendar />} />
             <Route path="pacientes" element={<Pacientes />} />
             <Route path="usuarios" element={<Usuarios />} />
           </Route>

@@ -2,11 +2,16 @@ import dayjs from "dayjs";
 import { PROCEDURE_LABEL } from "@/lib/status";
 import { weekStart } from "@/lib/format";
 import { cx } from "@/lib/cx";
-import styles from "./MonthAgenda.module.css";
+import styles from "./AppointmentMonthView.module.css";
 
 const MAX_ITEMS = 3;
 
-export default function MonthAgenda({ appointments, month, onSelect, onDay }) {
+export default function AppointmentMonthView({
+  appointments,
+  month,
+  onSelect,
+  onDay,
+}) {
   const visible = appointments
     .filter((a) => a.status !== "CANCELLED")
     .sort((a, b) => a.dateTime.localeCompare(b.dateTime));

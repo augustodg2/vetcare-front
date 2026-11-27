@@ -18,7 +18,7 @@ import {
   useCancelAppointment,
   useCompleteAppointment,
 } from "@/api/queries/appointments";
-import { AppointmentModal } from "@/features/agenda/AppointmentModal";
+import { AppointmentModal } from "./AppointmentModal";
 import {
   Async,
   Block,
@@ -32,7 +32,7 @@ import { fmtDateTime } from "@/lib/format";
 import { toast } from "@/lib/notify";
 import { APPOINTMENT_STATUS, PROCEDURE_LABEL } from "@/lib/status";
 import { cx } from "@/lib/cx";
-import styles from "./Atendimento.module.css";
+import styles from "./VetAppointmentDashboard.module.css";
 
 const SLOT_MIN = 30;
 const CLOCK_TICK_MS = 60_000;
@@ -45,7 +45,7 @@ function useNow() {
   return now;
 }
 
-export default function Atendimento() {
+export default function VetAppointmentDashboard() {
   const { user } = useSession();
   const now = useNow();
   const today = now.startOf("day");

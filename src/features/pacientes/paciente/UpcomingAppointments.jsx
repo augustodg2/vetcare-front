@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { usePetAppointments } from "@/api/queries/appointments";
 import { rolePath } from "@/auth/roles";
 import { Async, BlockPagination, Empty } from "@/components/ui";
-import { AppointmentModal } from "@/features/agenda/AppointmentModal";
+import { AppointmentModal } from "@/features/appointments/AppointmentModal";
 import { cx } from "@/lib/cx";
 import { relDay } from "@/lib/format";
 import { usePatient } from "./patientRoute";

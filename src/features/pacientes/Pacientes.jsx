@@ -52,7 +52,7 @@ export default function Pacientes() {
   const { user } = useSession();
   const navigate = useNavigate();
   const readOnly = user.role === "VET";
-  const agendaPath = readOnly ? undefined : rolePath(user.role, "agenda");
+  const calendarPath = readOnly ? undefined : rolePath(user.role, "agenda");
   const [search, setSearch] = useQueryState(
     "q",
     parseAsString.withDefault("").withOptions({
@@ -219,7 +219,7 @@ export default function Pacientes() {
       <PetOwnerDrawer
         id={petOwnerForm || petForm || toDelete ? null : openPetOwner}
         onClose={() => setOpenPetOwner(null)}
-        agendaPath={agendaPath}
+        calendarPath={calendarPath}
         onEdit={(t) => setPetOwnerForm({ petOwner: t })}
         onAddPet={(t) => setPetForm({ petOwnerId: t.id, petOwnerName: t.name })}
         onEditPet={(p) => setPetForm({ pet: p })}
@@ -266,7 +266,7 @@ function PetOwnerDrawer({ id, onClose, ...handlers }) {
 
 function PetOwnerDetails({
   id,
-  agendaPath,
+  calendarPath,
   onEdit,
   onAddPet,
   onEditPet,
@@ -392,10 +392,10 @@ function PetOwnerDetails({
                       </div>
                     </Group>
                     <Group gap={4} wrap="nowrap">
-                      {agendaPath && (
+                      {calendarPath && (
                         <ActionIcon
                           component={Link}
-                          to={`${agendaPath}?v=semana&paciente=${p.id}`}
+                          to={`${calendarPath}?v=semana&paciente=${p.id}`}
                           variant="subtle"
                           color="gray"
                           aria-label={`Ver ${p.name} na agenda`}

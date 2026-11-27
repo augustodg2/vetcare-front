@@ -24,18 +24,18 @@ import { usePet, usePets } from "@/api/queries/pets";
 import { useAllVets } from "@/api/queries/vets";
 import { AppointmentModal } from "./AppointmentModal";
 import { AppointmentDrawer } from "./AppointmentDrawer";
-import DayAgenda from "./DayAgenda";
-import WeekAgenda from "./WeekAgenda";
-import MonthAgenda from "./MonthAgenda";
+import AppointmentDayView from "./AppointmentDayView";
+import AppointmentWeekView from "./AppointmentWeekView";
+import AppointmentMonthView from "./AppointmentMonthView";
 import { Async, Block, PageHeader } from "@/components/ui";
 import { ISO, todayISO, weekStart } from "@/lib/format";
 import { cx } from "@/lib/cx";
-import styles from "./Agenda.module.css";
+import styles from "./AppointmentCalendar.module.css";
 
 const VIEWS = ["dia", "semana", "mes"];
 const SCOPES = ["meus", "todos"];
 
-export default function Agenda() {
+export default function AppointmentCalendar() {
   const { user } = useSession();
   const isVet = user.role === "VET";
 
@@ -271,7 +271,7 @@ export default function Agenda() {
           <Async q={appointments} rows={3}>
             {(rows) =>
               month ? (
-                <MonthAgenda
+                <AppointmentMonthView
                   appointments={rows}
                   month={day}
                   onSelect={(a) => setSelectedId(a.id)}
@@ -281,13 +281,13 @@ export default function Agenda() {
                   }}
                 />
               ) : week ? (
-                <WeekAgenda
+                <AppointmentWeekView
                   appointments={rows}
                   start={rangeStart}
                   onSelect={(a) => setSelectedId(a.id)}
                 />
               ) : (
-                <DayAgenda
+                <AppointmentDayView
                   appointments={rows}
                   day={day}
                   onSelect={(a) => setSelectedId(a.id)}

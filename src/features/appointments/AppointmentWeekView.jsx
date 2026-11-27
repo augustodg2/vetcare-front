@@ -3,9 +3,9 @@ import { Dash } from "@/components/ui";
 import { PROCEDURE_LABEL } from "@/lib/status";
 import { cx } from "@/lib/cx";
 import appointmentStyles from "./AppointmentBlock.module.css";
-import styles from "./WeekAgenda.module.css";
+import styles from "./AppointmentWeekView.module.css";
 
-export default function WeekAgenda({ appointments, start, onSelect }) {
+export default function AppointmentWeekView({ appointments, start, onSelect }) {
   const visible = appointments.filter((a) => a.status !== "CANCELLED");
   const today = dayjs();
 

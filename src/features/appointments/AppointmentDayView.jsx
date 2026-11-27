@@ -4,7 +4,7 @@ import { Empty } from "@/components/ui";
 import { PROCEDURE_LABEL } from "@/lib/status";
 import { cx } from "@/lib/cx";
 import appointmentStyles from "./AppointmentBlock.module.css";
-import styles from "./DayAgenda.module.css";
+import styles from "./AppointmentDayView.module.css";
 
 const SLOT_MIN = 30;
 const DEFAULT_START = 7;
@@ -25,7 +25,7 @@ function withLanes(appointments) {
   return { placed, lanes: Math.max(laneEnds.length, 1) };
 }
 
-export default function DayAgenda({ appointments, day, onSelect }) {
+export default function AppointmentDayView({ appointments, day, onSelect }) {
   const scrollRef = useRef(null);
   const visible = appointments
     .filter((a) => a.status !== "CANCELLED")
