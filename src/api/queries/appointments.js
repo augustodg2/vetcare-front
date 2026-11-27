@@ -1,6 +1,7 @@
 import {
   keepPreviousData,
   useMutation,
+  useQueries,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
@@ -12,11 +13,37 @@ const appointmentKeys = {
   pet: (petId, params) => [...appointmentKeys.all, "pet", petId, params],
 };
 
-export const useAppointments = ({ from, to, vetId, petId }) =>
+export const useAppointments = ({ from, to, vetId, petId, enabled = true }) =>
   useQuery({
+    enabled,
     queryKey: appointmentKeys.list({ from, to, vetId, petId }),
     queryFn: () => api.appointments.list({ from, to, vetId, petId }),
     placeholderData: keepPreviousData,
+  });
+
+const monthRange = (month) => ({
+  from: month.startOf("month").toISOString(),
+  to: month.add(1, "month").startOf("month").toISOString(),
+});
+
+export const useMonthAppointments = ({ month, vetId, petId, enabled = true }) =>
+  useQueries({
+    queries: [0, -1, 1].map((offset) => {
+      const { from, to } = monthRange(month.add(offset, "month"));
+      return {
+        enabled,
+        queryKey: appointmentKeys.list({ from, to, vetId, petId }),
+        queryFn: () => api.appointments.list({ from, to, vetId, petId }),
+      };
+    }),
+    combine: ([current, ...neighbors]) => ({
+      data: current.data && [
+        ...current.data,
+        ...neighbors.flatMap((q) => q.data ?? []),
+      ],
+      error: current.error,
+      refetch: current.refetch,
+    }),
   });
 
 const useAppointmentMutation = (mutationFn, { onSuccess, ...options } = {}) => {

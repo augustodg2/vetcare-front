@@ -18,7 +18,10 @@ import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useState } from "react";
 import { useCan, usePaths, useSession } from "@/auth/session";
-import { useAppointments } from "@/api/queries/appointments";
+import {
+  useAppointments,
+  useMonthAppointments,
+} from "@/api/queries/appointments";
 import { usePet, usePets } from "@/api/queries/pets";
 import { useAllVets } from "@/api/queries/vets";
 import { AppointmentModal } from "./AppointmentModal";
@@ -83,12 +86,22 @@ export default function AppointmentCalendar() {
   );
 
   const vets = useAllVets({ enabled: !isVet });
-  const appointments = useAppointments({
+  const filters = {
     vetId: isVet ? (onlyMine ? user.vetId : undefined) : vetId,
     petId,
+  };
+  const rangeAppointments = useAppointments({
+    ...filters,
     from: rangeStart.toISOString(),
     to: rangeEnd.toISOString(),
+    enabled: !month,
   });
+  const monthAppointments = useMonthAppointments({
+    ...filters,
+    month: day,
+    enabled: month,
+  });
+  const appointments = month ? monthAppointments : rangeAppointments;
 
   const [creating, setCreating] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
