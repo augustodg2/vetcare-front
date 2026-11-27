@@ -10,16 +10,20 @@ do VetCare; para trabalhar sem o back-end, a API pode ser simulada no navegador 
   por perfil (Recepcionista, Veterinário e Administrador).
 - **Convites e senhas:** criação de senha pelo link de convite, com regra de senha forte; o
   administrador também pode enviar um link de redefinição de senha.
-- **Agenda:** visões de dia, semana e mês, novo agendamento e detalhes da consulta com os dados do
-  tutor.
-- **Atendimento:** painel do dia do veterinário, com as próximas consultas, o histórico do dia e o
-  cancelamento de consultas.
-- **Ficha do paciente:** histórico clínico com registro de procedimentos (consulta, retorno,
-  vacinação, cirurgia e exame), receitas em texto formatado com impressão em A4 e agendamentos do pet.
-- **Caixa:** movimentações do dia na recepção, registro de pagamentos, cancelamento e estorno.
-- **Pacientes e tutores:** busca por nome, raça, tutor ou CPF; cadastro de pet com tutor novo ou já
-  existente; ficha do tutor, edição e exclusão.
-- **Usuários:** listagem com busca, convite, reenvio de convite, edição e desativação de acesso.
+- **Agenda:** visões de dia, semana e mês, novo agendamento, remarcação, cancelamento, conclusão e
+  detalhes da consulta com os dados do tutor. O veterinário alterna entre a própria agenda e a de
+  todos, mas só altera as suas consultas.
+- **Atendimento:** painel do dia do veterinário, com as próximas consultas e o histórico do dia, onde
+  ele conclui, remarca ou cancela consultas.
+- **Ficha do paciente:** dados do pet e do tutor com edição; histórico clínico filtrado por tipo, com
+  registro de procedimentos (consulta, retorno, vacinação, cirurgia e exame) e observações
+  complementares; receitas em texto formatado com impressão em A4; e agendamentos do pet.
+- **Caixa:** movimentações de cada dia na recepção, registro de pagamentos dos procedimentos,
+  cancelamento e estorno.
+- **Pacientes e tutores:** busca por nome, raça, tutor ou CPF; a recepção e o administrador cadastram
+  pet com tutor novo ou já existente, consultam a ficha do tutor, editam e excluem.
+- **Usuários:** listagem com busca e filtro por situação, convite (com CPF e CRMV para
+  veterinários), reenvio de convite, edição e desativação de acesso.
 - **Integração com a API:** todas as telas ligadas às rotas do back-end, com tratamento de erros e API
   simulada para desenvolvimento.
 
@@ -71,6 +75,11 @@ O app abre em `http://localhost:5181`.
 |---|---|
 | `VITE_API_URL` | Endereço da API |
 | `VITE_ENABLE_MSW` | `true` liga a API simulada; qualquer outro valor usa a API real |
+| `VITE_CLINIC_NAME` | Nome da clínica no receituário impresso (padrão: `VetCare`) |
+| `VITE_CLINIC_CNPJ` | CNPJ da clínica no receituário |
+| `VITE_CLINIC_ADDRESS` | Endereço da clínica no receituário |
+| `VITE_CLINIC_CITY` | Cidade da clínica no receituário |
+| `VITE_CLINIC_PHONE` | Telefone da clínica no receituário |
 
 O `.env.development` traz os valores usados por `npm run dev`. Para mudar algo só na sua máquina,
 crie um `.env.local` (ignorado pelo Git). O `.env.example` serve de modelo.
@@ -86,7 +95,8 @@ atraso por requisição. Os dados são fictícios e ficam em memória: voltam ao
 | Recepcionista | `recepcao@vetcare.com.br` | `password` |
 | Veterinário | `vet@vetcare.com.br` | `password` |
 
-Na simulação, o link de um novo convite aparece no console do navegador, já que nenhum e-mail é enviado.
+Na simulação, os links de convite e de redefinição de senha aparecem no console do navegador, já que
+nenhum e-mail é enviado.
 
 ## Perfis e acesso
 
@@ -149,8 +159,8 @@ src/features/
 
 ## Deploy
 
-A Vercel está configurada com deploys automáticos a partir do repositório. O redirecionamento das
-rotas para `index.html` fica em `vercel.json`.
+A aplicação está publicada na Netlify, em [vetcare-aal.netlify.app](https://vetcare-aal.netlify.app).
+O redirecionamento das rotas para `index.html` fica em `public/_redirects`.
 
 Para publicar em outro lugar, a aplicação é estática: basta servir o conteúdo de `dist/`, com as
 variáveis de ambiente definidas no momento do build.
