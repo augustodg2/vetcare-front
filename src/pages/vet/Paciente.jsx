@@ -3,6 +3,7 @@ import {
   Anchor,
   Avatar,
   Badge,
+  Button,
   Chip,
   Collapse,
   Group,
@@ -23,6 +24,7 @@ import {
   IconEye,
   IconEyeOff,
   IconPaw,
+  IconPencil,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
@@ -31,6 +33,7 @@ import { Link, useParams } from "react-router-dom";
 import { usePetOwner } from "../../api/queries/petOwners";
 import { usePet } from "../../api/queries/pets";
 import { usePetProcedures, useProcedure } from "../../api/queries/procedures";
+import { PetModal, PetOwnerModal } from "../../components/PeopleForms";
 import { htmlToText, RichText } from "../../components/RichText";
 import { Async, Dash, Empty, LoadingRows } from "../../components/ui";
 import { age, ago, fmtDate, hideCpf, kg } from "../../lib/format";
@@ -112,6 +115,7 @@ function SpeciesAvatar({ species, size }) {
 }
 
 function PetHeader({ pet: p }) {
+  const [editing, setEditing] = useState(false);
   const species = SPECIES_LABEL[p.species] ?? p.species;
   const subtitle = [species, p.breed, SEX_LABEL[p.sex] ?? p.sex]
     .filter(Boolean)
@@ -119,6 +123,7 @@ function PetHeader({ pet: p }) {
 
   return (
     <section className="block pet-head">
+      <PetModal opened={editing} onClose={() => setEditing(false)} pet={p} />
       <div className="pet-head-main">
         <SpeciesAvatar species={p.species} size={56} />
         <div className="pet-head-name">
@@ -146,6 +151,11 @@ function PetHeader({ pet: p }) {
             </div>
           </dl>
         </div>
+        <EditButton
+          onClick={() => setEditing(true)}
+          label="Editar dados do pet"
+          style={{ alignSelf: "flex-start" }}
+        />
       </div>
       {p.alerts && (
         <div className="pet-alert" role="note">
@@ -412,9 +422,25 @@ function ProcedureDetail({ id, onBack }) {
 
 const telHref = (phone = "") => `tel:${phone.replace(/\D/g, "")}`;
 
+function EditButton({ onClick, label, style }) {
+  return (
+    <Button
+      variant="default"
+      size="xs"
+      leftSection={<IconPencil size={14} />}
+      onClick={onClick}
+      aria-label={label}
+      style={{ flexShrink: 0, ...style }}
+    >
+      Editar
+    </Button>
+  );
+}
+
 function TutorSummary({ id }) {
   const petOwner = usePetOwner(id);
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
   const t = petOwner.data;
   if (!t) return null;
 
@@ -442,14 +468,31 @@ function TutorSummary({ id }) {
         </span>
       </UnstyledButton>
       <Collapse in={open} id="tutor-details">
-        <PetOwnerInfo petOwner={t} className="tutor-summary-body" />
+        <PetOwnerInfo
+          petOwner={t}
+          className="tutor-summary-body"
+          footer={
+            <Group justify="flex-end">
+              <EditButton
+                onClick={() => setEditing(true)}
+                label="Editar dados do tutor"
+              />
+            </Group>
+          }
+        />
       </Collapse>
+      <PetOwnerModal
+        opened={editing}
+        onClose={() => setEditing(false)}
+        petOwner={t}
+      />
     </section>
   );
 }
 
 function PetOwnerAside({ id }) {
   const petOwner = usePetOwner(id);
+  const [editing, setEditing] = useState(false);
 
   return (
     <section className="block tutor-aside">
@@ -461,8 +504,17 @@ function PetOwnerAside({ id }) {
                 <div className="section-label">Tutor</div>
                 <h2 style={{ overflowWrap: "anywhere" }}>{t.name}</h2>
               </div>
+              <EditButton
+                onClick={() => setEditing(true)}
+                label="Editar dados do tutor"
+              />
             </div>
             <PetOwnerInfo petOwner={t} className="block-body" />
+            <PetOwnerModal
+              opened={editing}
+              onClose={() => setEditing(false)}
+              petOwner={t}
+            />
           </>
         )}
       </Async>
@@ -470,7 +522,7 @@ function PetOwnerAside({ id }) {
   );
 }
 
-function PetOwnerInfo({ petOwner: t, className }) {
+function PetOwnerInfo({ petOwner: t, className, footer }) {
   const [showCpf, setShowCpf] = useState(false);
 
   return (
@@ -514,6 +566,7 @@ function PetOwnerInfo({ petOwner: t, className }) {
         }
       />
       <Info label="Endereço" value={t.address} />
+      {footer}
     </Stack>
   );
 }
