@@ -51,12 +51,17 @@ import {
   Async,
   Block,
   ConfirmDialog,
+  Dash,
   DataTable,
   FormActions,
   PageHeader,
   PersonAvatar,
   Pill,
 } from "@/components/ui";
+import blockStyles from "@/components/ui/Block.module.css";
+import tableStyles from "@/components/ui/DataTable.module.css";
+import layoutStyles from "@/styles/layout.module.css";
+import styles from "./Usuarios.module.css";
 
 // a vet has a CPF/CRMV record, so the role can't move to or from VET on edit
 const NON_VET_ROLES = ROLE_OPTIONS.filter((r) => r.value !== "VET");
@@ -159,7 +164,7 @@ export default function Usuarios() {
           Convidar usuário
         </Button>
       </PageHeader>
-      <div className="stack">
+      <div className={layoutStyles.stack}>
         <Block flush>
           <Group
             justify="space-between"
@@ -223,11 +228,11 @@ export default function Usuarios() {
                           color={u.status === "inativo" ? "gray" : "teal"}
                         />
                         <div>
-                          <div className="cell-main">
+                          <div className={tableStyles.cellMain}>
                             {u.name}
                             {u.id === me.id ? " (você)" : ""}
                           </div>
-                          <div className="cell-sub">{u.email}</div>
+                          <div className={tableStyles.cellSub}>{u.email}</div>
                         </div>
                       </Group>
                     ),
@@ -247,13 +252,13 @@ export default function Usuarios() {
                     label: "Último acesso",
                     render: (u) =>
                       u.status === "convite" ? (
-                        <span className="muted">
+                        <span className={styles.invitedAt}>
                           Convite enviado {relDay(u.invitedAt)}
                         </span>
                       ) : u.lastSeen ? (
                         fmtDateTime(u.lastSeen)
                       ) : (
-                        <span className="faint">—</span>
+                        <Dash />
                       ),
                   },
                   {
@@ -322,7 +327,7 @@ export default function Usuarios() {
           </Async>
 
           {total > pageSize && (
-            <div className="block-foot">
+            <div className={blockStyles.foot}>
               <Text size="sm" c="dimmed">
                 {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)}{" "}
                 de {total}

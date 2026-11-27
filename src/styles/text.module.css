@@ -1,0 +1,11 @@
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.sectionLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vc-muted);
+}

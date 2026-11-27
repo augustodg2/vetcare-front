@@ -115,6 +115,7 @@ src/
   layout/       estrutura das páginas, barra lateral e navegação
   lib/          formatação, avisos, regra de senha e rótulos de estado
   mocks/        API simulada com MSW
+  styles/       CSS global e classes de uso geral
 ```
 
 As telas usam os hooks do TanStack Query, que chamam os serviços de `src/api/index.js`. Os
@@ -138,6 +139,14 @@ src/features/
 - Um componente de funcionalidade pode ser importado por outra, como o `AppointmentModal` da agenda.
 - `src/components/ui/` recebe apenas componentes genéricos, exportados por `@/components/ui`.
 - Use o alias `@/` (que aponta para `src/`) para importar de fora da pasta, e `./` dentro dela.
+
+### Estilos
+
+- Os estilos ficam em CSS Modules, ao lado de quem os usa: `Paciente.jsx` e `Paciente.module.css`.
+- `src/styles/global.css` guarda só o que vale para a aplicação toda: variáveis, `body` e ajustes do
+  Mantine.
+- Em `src/main.jsx`, o CSS do Mantine é importado antes do restante, para que os módulos possam
+  sobrescrevê-lo.
 
 ## Deploy
 

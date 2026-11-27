@@ -2,6 +2,7 @@ import { Table } from "@mantine/core";
 import { Dash } from "./Dash";
 import { Empty } from "./feedback";
 import { usePhone } from "./phone";
+import styles from "./DataTable.module.css";
 
 /**
  * Tabela que no celular vira lista de duas linhas.
@@ -23,19 +24,23 @@ export function DataTable({
   if (phone && mobile) {
     const Row = onRowClick ? "button" : "div";
     return (
-      <div className="mrows">
+      <div className={styles.rows}>
         {rows.map((r) => (
           <Row
             key={r.id}
-            className="mrow"
+            className={styles.row}
             onClick={onRowClick ? () => onRowClick(r) : undefined}
             type={onRowClick ? "button" : undefined}
           >
-            <div className="mrow-main">
-              <div className="mrow-title">{mobile.title(r)}</div>
-              {mobile.sub && <div className="cell-sub">{mobile.sub(r)}</div>}
+            <div className={styles.rowMain}>
+              <div className={styles.rowTitle}>{mobile.title(r)}</div>
+              {mobile.sub && (
+                <div className={styles.cellSub}>{mobile.sub(r)}</div>
+              )}
             </div>
-            {mobile.side && <div className="mrow-side">{mobile.side(r)}</div>}
+            {mobile.side && (
+              <div className={styles.rowSide}>{mobile.side(r)}</div>
+            )}
           </Row>
         ))}
       </div>
@@ -45,7 +50,7 @@ export function DataTable({
   return (
     <Table.ScrollContainer minWidth={minWidth} type="native">
       <Table
-        className="vc-table"
+        className={styles.table}
         highlightOnHover={!!onRowClick}
         style={fixed ? { tableLayout: "fixed" } : undefined}
       >
@@ -54,7 +59,7 @@ export function DataTable({
             {columns.map((c) => (
               <Table.Th
                 key={c.key}
-                className={c.num ? "num" : undefined}
+                className={c.num ? styles.num : undefined}
                 style={c.width ? { width: c.width } : undefined}
               >
                 {c.label}
@@ -66,7 +71,7 @@ export function DataTable({
           {rows.map((r) => (
             <Table.Tr
               key={r.id}
-              className={onRowClick ? "clickable" : undefined}
+              className={onRowClick ? styles.clickable : undefined}
               onClick={onRowClick ? () => onRowClick(r) : undefined}
               tabIndex={onRowClick ? 0 : undefined}
               onKeyDown={
@@ -76,7 +81,10 @@ export function DataTable({
               }
             >
               {columns.map((c) => (
-                <Table.Td key={c.key} className={c.num ? "num" : undefined}>
+                <Table.Td
+                  key={c.key}
+                  className={c.num ? styles.num : undefined}
+                >
                   {c.render ? c.render(r) : (r[c.key] ?? <Dash />)}
                 </Table.Td>
               ))}

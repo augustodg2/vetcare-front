@@ -6,6 +6,8 @@ import { ROLES } from "@/auth/roles";
 import { useSession } from "@/auth/session";
 import { PersonAvatar } from "@/components/ui";
 import Sidebar, { useSidebarCollapsed } from "./Sidebar";
+import { cx } from "@/lib/cx";
+import styles from "./AppLayout.module.css";
 
 export default function AppLayout() {
   const { user, logout } = useSession();
@@ -20,9 +22,9 @@ export default function AppLayout() {
   };
 
   const userRow = (
-    <div className="user-row">
+    <div className={styles.userRow}>
       <PersonAvatar name={user.name} size={32} />
-      <div className="who">
+      <div className={styles.who}>
         <Text size="sm" fw={500}>
           {user.name}
         </Text>
@@ -42,7 +44,7 @@ export default function AppLayout() {
   );
 
   return (
-    <div className={`shell${collapsed ? " collapsed" : ""}`}>
+    <div className={cx(styles.shell, collapsed && styles.collapsed)}>
       <Sidebar
         items={items}
         collapsed={collapsed}
@@ -50,8 +52,8 @@ export default function AppLayout() {
         footer={userRow}
       />
 
-      <header className="topbar">
-        <div className="brand">
+      <header className={styles.topbar}>
+        <div className={styles.brand}>
           <img src="/favicon.svg" alt="" />
           VetCare
         </div>
@@ -66,13 +68,13 @@ export default function AppLayout() {
         </ActionIcon>
       </header>
 
-      <main className="main">
-        <div className="content">
+      <main className={styles.main}>
+        <div className={styles.content}>
           <Outlet />
         </div>
       </main>
 
-      <nav className="bottomnav" aria-label="Navegação">
+      <nav className={styles.bottomNav} aria-label="Navegação">
         {items.map(({ to, label, icon: Icon }) => (
           <NavLink key={to} to={to}>
             <Icon size={20} stroke={1.8} />

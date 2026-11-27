@@ -63,6 +63,11 @@ import {
 import { toast } from "@/lib/notify";
 import { age, ago, fmtDate, hideCpf, kg, relDay } from "@/lib/format";
 import { PROCEDURE_COLOR, PROCEDURE_LABEL, SPECIES_LABEL } from "@/lib/status";
+import { cx } from "@/lib/cx";
+import blockStyles from "@/components/ui/Block.module.css";
+import textStyles from "@/styles/text.module.css";
+import panelStyles from "./recordPanel.module.css";
+import styles from "./Paciente.module.css";
 
 const SEX_LABEL = { M: "Macho", F: "Fêmea" };
 
@@ -75,7 +80,7 @@ export default function Paciente() {
 
   return (
     <>
-      <Link to={rolePath("VET", "pacientes")} className="back-link">
+      <Link to={rolePath("VET", "pacientes")} className={styles.backLink}>
         <IconChevronLeft size={14} />
         Pacientes
       </Link>
@@ -84,7 +89,7 @@ export default function Paciente() {
           <>
             <PetHeader pet={p} />
             <TutorSummary id={p.petOwnerId} />
-            <div className="grid-aside">
+            <div className={styles.gridAside}>
               <PetMain pet={p} />
               <PetOwnerAside id={p.petOwnerId} />
             </div>
@@ -98,8 +103,8 @@ export default function Paciente() {
 function PacienteSkeleton() {
   return (
     <>
-      <section className="block pet-head">
-        <div className="pet-head-main">
+      <section className={cx(blockStyles.block, styles.petHead)}>
+        <div className={styles.petHeadMain}>
           <Skeleton height={56} width={56} radius="md" />
           <Stack gap={8} style={{ flex: 1 }}>
             <Skeleton height={22} width={160} />
@@ -107,11 +112,11 @@ function PacienteSkeleton() {
           </Stack>
         </div>
       </section>
-      <div className="grid-aside">
-        <section className="block">
+      <div className={styles.gridAside}>
+        <section className={blockStyles.block}>
           <LoadingRows rows={6} />
         </section>
-        <section className="block">
+        <section className={blockStyles.block}>
           <LoadingRows rows={4} />
         </section>
       </div>
@@ -127,23 +132,25 @@ function PetHeader({ pet: p }) {
     .join(" · ");
 
   return (
-    <section className="block pet-head">
+    <section className={cx(blockStyles.block, styles.petHead)}>
       <PetModal opened={editing} onClose={() => setEditing(false)} pet={p} />
-      <div className="pet-head-main">
+      <div className={styles.petHeadMain}>
         <SpeciesAvatar species={p.species} size={56} />
-        <div className="pet-head-name">
+        <div className={styles.petHeadName}>
           <h1>{p.name}</h1>
           <Text size="sm" c="dimmed">
             {subtitle}
           </Text>
-          <dl className="pet-stats">
+          <dl className={styles.petStats}>
             <div>
               <dt>Idade</dt>
               <dd>
                 {p.birth ? (
                   <>
                     {age(p.birth)}{" "}
-                    <span className="muted">nasc. {fmtDate(p.birth)}</span>
+                    <span className={styles.birth}>
+                      nasc. {fmtDate(p.birth)}
+                    </span>
                   </>
                 ) : (
                   <Dash />
@@ -163,7 +170,7 @@ function PetHeader({ pet: p }) {
         />
       </div>
       {p.alerts && (
-        <div className="pet-alert" role="note">
+        <div className={styles.petAlert} role="note">
           <IconAlertTriangle size={16} style={{ flexShrink: 0 }} />
           <span>
             <strong>Alerta:</strong> {p.alerts}
@@ -219,7 +226,11 @@ function PetMain({ pet }) {
   }, [procedureId, page, creating, prescriptionId, prescribing]);
 
   return (
-    <section className="block" ref={ref} style={{ scrollMarginTop: 16 }}>
+    <section
+      className={blockStyles.block}
+      ref={ref}
+      style={{ scrollMarginTop: 16 }}
+    >
       {creating ? (
         <NewProcedure
           petId={petId}
@@ -260,7 +271,7 @@ function PetMain({ pet }) {
           }}
           keepMounted={false}
         >
-          <Tabs.List className="pet-tabs">
+          <Tabs.List className={styles.petTabs}>
             <Tabs.Tab value="historico">Histórico clínico</Tabs.Tab>
             <Tabs.Tab value="prescricoes">Prescrições</Tabs.Tab>
             <Tabs.Tab
@@ -328,7 +339,7 @@ function UpcomingAppointments({ pet, range, page, onPage }) {
         pet={pet}
         ownVet
       />
-      <div className="tab-meta tab-toolbar">
+      <div className={cx(styles.tabMeta, styles.tabToolbar)}>
         <span>
           {total > 0
             ? `${total} ${total === 1 ? "agendamento" : "agendamentos"} nos próximos ${UPCOMING_DAYS} dias`
@@ -362,13 +373,13 @@ function UpcomingAppointments({ pet, range, page, onPage }) {
             </Empty>
           ) : (
             <>
-              <div className="procedure-list">
+              <div className={styles.procedureList}>
                 {rows.map((a) => (
                   <UpcomingItem key={a.id} appointment={a} />
                 ))}
               </div>
               {total > pageSize && (
-                <div className="block-foot">
+                <div className={blockStyles.foot}>
                   <Text size="sm" c="dimmed">
                     {(page - 1) * pageSize + 1}–
                     {Math.min(page * pageSize, total)} de {total}
@@ -393,12 +404,12 @@ function UpcomingItem({ appointment: a }) {
   const d = dayjs(a.dateTime);
 
   return (
-    <div className="procedure-row appointment-row">
-      <div className="procedure-when">
-        <span className="d">{d.format("DD MMM")}</span>
-        <span className="ago">{relDay(a.dateTime)}</span>
+    <div className={cx(styles.procedureRow, styles.appointmentRow)}>
+      <div className={styles.procedureWhen}>
+        <span className={styles.date}>{d.format("DD MMM")}</span>
+        <span className={styles.ago}>{relDay(a.dateTime)}</span>
       </div>
-      <div className="procedure-body">
+      <div className={styles.procedureBody}>
         <Group gap="xs" wrap="nowrap">
           <Badge variant="light" color={typeColor(a.type)} size="sm">
             {typeLabel(a.type)}
@@ -407,7 +418,7 @@ function UpcomingItem({ appointment: a }) {
             {d.format("ddd, HH:mm")} · {a.vet.name}
           </Text>
         </Group>
-        {a.obs && <div className="procedure-summary">{a.obs}</div>}
+        {a.obs && <div className={styles.procedureSummary}>{a.obs}</div>}
       </div>
     </div>
   );
@@ -426,9 +437,9 @@ function ClinicalHistory({ petId, type, onType, page, onPage, onOpen, onNew }) {
 
   return (
     <>
-      <div className="history-toolbar">
+      <div className={styles.historyToolbar}>
         <div
-          className="procedure-filters"
+          className={styles.procedureFilters}
           role="group"
           aria-label="Filtrar por tipo"
         >
@@ -471,7 +482,7 @@ function ClinicalHistory({ petId, type, onType, page, onPage, onOpen, onNew }) {
             </Empty>
           ) : (
             <>
-              <div className="procedure-list">
+              <div className={styles.procedureList}>
                 {rows.map((pr, i) => {
                   const d = dayjs(pr.dateTime);
                   const prev = rows[i - 1] && dayjs(rows[i - 1].dateTime);
@@ -479,7 +490,7 @@ function ClinicalHistory({ petId, type, onType, page, onPage, onOpen, onNew }) {
                   return (
                     <Fragment key={pr.id}>
                       {newYear && (
-                        <div className="procedure-year">{d.year()}</div>
+                        <div className={styles.procedureYear}>{d.year()}</div>
                       )}
                       <ProcedureItem
                         procedure={pr}
@@ -491,7 +502,7 @@ function ClinicalHistory({ petId, type, onType, page, onPage, onOpen, onNew }) {
                 })}
               </div>
               {total > pageSize && (
-                <div className="block-foot">
+                <div className={blockStyles.foot}>
                   <Text size="sm" c="dimmed">
                     {(page - 1) * pageSize + 1}–
                     {Math.min(page * pageSize, total)} de {total}
@@ -521,20 +532,20 @@ function ProcedureItem({ procedure: pr, sameDay, onOpen }) {
 
   return (
     <UnstyledButton
-      className="procedure-row"
+      className={styles.procedureRow}
       data-same-day={sameDay || undefined}
       onClick={() => onOpen(pr)}
       aria-label={`Abrir ${typeLabel(pr.type)} de ${fmtDate(pr.dateTime)}`}
     >
-      <div className="procedure-when">
+      <div className={styles.procedureWhen}>
         {!sameDay && (
           <>
-            <span className="d">{d.format("DD MMM")}</span>
-            <span className="ago">{ago(pr.dateTime)}</span>
+            <span className={styles.date}>{d.format("DD MMM")}</span>
+            <span className={styles.ago}>{ago(pr.dateTime)}</span>
           </>
         )}
       </div>
-      <div className="procedure-body">
+      <div className={styles.procedureBody}>
         <Group gap="xs" wrap="nowrap">
           <Badge variant="light" color={typeColor(pr.type)} size="sm">
             {typeLabel(pr.type)}
@@ -543,9 +554,9 @@ function ProcedureItem({ procedure: pr, sameDay, onOpen }) {
             {pr.vet.name}
           </Text>
         </Group>
-        {summary && <div className="procedure-summary">{summary}</div>}
+        {summary && <div className={styles.procedureSummary}>{summary}</div>}
       </div>
-      <IconChevronRight size={18} className="procedure-chevron" />
+      <IconChevronRight size={18} className={styles.procedureChevron} />
     </UnstyledButton>
   );
 }
@@ -556,7 +567,7 @@ function ProcedureDetail({ id, onBack }) {
 
   return (
     <>
-      <div className="block-head procedure-head">
+      <div className={cx(blockStyles.head, panelStyles.head)}>
         <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
           <ActionIcon
             variant="subtle"
@@ -570,7 +581,7 @@ function ProcedureDetail({ id, onBack }) {
             <div style={{ minWidth: 0 }}>
               <Group gap={8} wrap="nowrap">
                 <span
-                  className="type-dot"
+                  className={styles.typeDot}
                   style={{
                     background: `var(--mantine-color-${typeColor(pr.type)}-6)`,
                   }}
@@ -579,7 +590,7 @@ function ProcedureDetail({ id, onBack }) {
                   {typeLabel(pr.type)} · {fmtDate(pr.dateTime)}
                 </h2>
               </Group>
-              <div className="sub">
+              <div className={blockStyles.sub}>
                 {dayjs(pr.dateTime).format("HH:mm")} · {pr.vet.name}
               </div>
             </div>
@@ -591,7 +602,7 @@ function ProcedureDetail({ id, onBack }) {
       <Async q={procedure} rows={6}>
         {(pr) => (
           <>
-            <div className="procedure-section">
+            <div className={panelStyles.section}>
               {pr.notes ? (
                 <RichText html={pr.notes} />
               ) : (
@@ -612,7 +623,7 @@ function Prescriptions({ petId, page, onPage, onOpen, onNew }) {
 
   return (
     <>
-      <div className="tab-meta tab-toolbar">
+      <div className={cx(styles.tabMeta, styles.tabToolbar)}>
         <span>
           {total > 0 &&
             `${total} ${total === 1 ? "prescrição" : "prescrições"}`}
@@ -632,7 +643,7 @@ function Prescriptions({ petId, page, onPage, onOpen, onNew }) {
             <Empty>Nenhuma prescrição registrada para este pet.</Empty>
           ) : (
             <>
-              <div className="procedure-list">
+              <div className={styles.procedureList}>
                 {rows.map((rx) => (
                   <PrescriptionItem
                     key={rx.id}
@@ -642,7 +653,7 @@ function Prescriptions({ petId, page, onPage, onOpen, onNew }) {
                 ))}
               </div>
               {total > pageSize && (
-                <div className="block-foot">
+                <div className={blockStyles.foot}>
                   <Text size="sm" c="dimmed">
                     {(page - 1) * pageSize + 1}–
                     {Math.min(page * pageSize, total)} de {total}
@@ -669,21 +680,21 @@ function PrescriptionItem({ prescription: rx, onOpen }) {
 
   return (
     <UnstyledButton
-      className="procedure-row"
+      className={styles.procedureRow}
       onClick={() => onOpen(rx)}
       aria-label={`Abrir prescrição de ${fmtDate(rx.createdAt)}`}
     >
-      <div className="procedure-when">
-        <span className="d">{d.format("DD MMM YY")}</span>
-        <span className="ago">{ago(rx.createdAt)}</span>
+      <div className={styles.procedureWhen}>
+        <span className={styles.date}>{d.format("DD MMM YY")}</span>
+        <span className={styles.ago}>{ago(rx.createdAt)}</span>
       </div>
-      <div className="procedure-body">
+      <div className={styles.procedureBody}>
         <Text size="xs" c="dimmed" truncate>
           {rx.vet.name}
         </Text>
-        <div className="procedure-summary">{summary}</div>
+        <div className={styles.procedureSummary}>{summary}</div>
       </div>
-      <IconChevronRight size={18} className="procedure-chevron" />
+      <IconChevronRight size={18} className={styles.procedureChevron} />
     </UnstyledButton>
   );
 }
@@ -705,7 +716,7 @@ function PrescriptionDetail({ id, pet, onBack }) {
           crmv={crmv}
         />
       )}
-      <div className="block-head procedure-head">
+      <div className={cx(blockStyles.head, panelStyles.head)}>
         <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
           <ActionIcon
             variant="subtle"
@@ -718,7 +729,7 @@ function PrescriptionDetail({ id, pet, onBack }) {
           <div style={{ minWidth: 0 }}>
             <h2>Prescrição{rx && ` · ${fmtDate(rx.createdAt)}`}</h2>
             {rx && (
-              <div className="sub">
+              <div className={blockStyles.sub}>
                 {dayjs(rx.createdAt).format("HH:mm")} · {rx.vet.name}
               </div>
             )}
@@ -737,7 +748,7 @@ function PrescriptionDetail({ id, pet, onBack }) {
       </div>
       <Async q={prescription} rows={6}>
         {(rx) => (
-          <div className="procedure-section">
+          <div className={panelStyles.section}>
             <RichText html={rx.content} />
           </div>
         )}
@@ -777,14 +788,14 @@ function ExtraNotes({ procedure: pr }) {
   };
 
   return (
-    <div className="procedure-section">
-      <div className="section-label">
+    <div className={panelStyles.section}>
+      <div className={textStyles.sectionLabel}>
         Notas adicionais{count > 0 && ` (${count})`}
       </div>
       {count > 0 && (
-        <Stack gap="sm" mt="sm" className="note-list">
+        <Stack gap="sm" mt="sm" className={styles.noteList}>
           {pr.extraNotes.map((n) => (
-            <div key={n.id} className="note">
+            <div key={n.id} className={styles.note}>
               <Text size="xs" c="dimmed">
                 {fmtDate(n.createdAt)} às {dayjs(n.createdAt).format("HH:mm")}
               </Text>
@@ -862,24 +873,24 @@ function TutorSummary({ id }) {
   if (!t) return null;
 
   return (
-    <section className="block tutor-summary">
+    <section className={cx(blockStyles.block, styles.tutorSummary)}>
       <UnstyledButton
-        className="tutor-toggle"
+        className={styles.tutorToggle}
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls="tutor-details"
       >
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div className="section-label">Tutor</div>
+          <div className={textStyles.sectionLabel}>Tutor</div>
           <Text fw={600} truncate>
             {t.name}
           </Text>
         </div>
-        <span className="tutor-toggle-hint">
+        <span className={styles.tutorToggleHint}>
           {open ? "Ocultar" : "Ver dados"}
           <IconChevronDown
             size={16}
-            className="tutor-chevron"
+            className={styles.tutorChevron}
             data-open={open || undefined}
           />
         </span>
@@ -887,7 +898,7 @@ function TutorSummary({ id }) {
       <Collapse in={open} id="tutor-details">
         <PetOwnerInfo
           petOwner={t}
-          className="tutor-summary-body"
+          className={styles.tutorSummaryBody}
           footer={
             <Group justify="flex-end">
               <EditButton
@@ -912,13 +923,13 @@ function PetOwnerAside({ id }) {
   const [editing, setEditing] = useState(false);
 
   return (
-    <section className="block tutor-aside">
+    <section className={cx(blockStyles.block, styles.tutorAside)}>
       <Async q={petOwner} rows={4}>
         {(t) => (
           <>
-            <div className="block-head">
+            <div className={blockStyles.head}>
               <div style={{ minWidth: 0 }}>
-                <div className="section-label">Tutor</div>
+                <div className={textStyles.sectionLabel}>Tutor</div>
                 <h2 style={{ overflowWrap: "anywhere" }}>{t.name}</h2>
               </div>
               <EditButton
@@ -926,7 +937,7 @@ function PetOwnerAside({ id }) {
                 label="Editar dados do tutor"
               />
             </div>
-            <PetOwnerInfo petOwner={t} className="block-body" />
+            <PetOwnerInfo petOwner={t} className={blockStyles.body} />
             <PetOwnerModal
               opened={editing}
               onClose={() => setEditing(false)}
@@ -948,7 +959,9 @@ function PetOwnerInfo({ petOwner: t, className, footer }) {
         label="CPF"
         value={
           <Group gap={6} wrap="nowrap" component="span">
-            <span className="tnum">{showCpf ? t.cpf : hideCpf(t.cpf)}</span>
+            <span className={textStyles.tnum}>
+              {showCpf ? t.cpf : hideCpf(t.cpf)}
+            </span>
             <ActionIcon
               variant="subtle"
               color="gray"
@@ -966,7 +979,11 @@ function PetOwnerInfo({ petOwner: t, className, footer }) {
         label="Telefone"
         value={
           t.phone && (
-            <Anchor href={telHref(t.phone)} size="sm" className="tnum">
+            <Anchor
+              href={telHref(t.phone)}
+              size="sm"
+              className={textStyles.tnum}
+            >
               {t.phone}
             </Anchor>
           )

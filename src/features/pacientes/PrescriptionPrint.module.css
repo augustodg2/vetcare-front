@@ -1,0 +1,105 @@
+.sheet {
+  display: none;
+  flex-direction: column;
+  min-height: calc(297mm - 28mm);
+  color: #000;
+  font-size: 10.5pt;
+  line-height: 1.45;
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 16mm;
+  }
+  :global(html),
+  :global(body) {
+    background: #fff !important;
+  }
+  :global(body) > *:not(.sheet) {
+    display: none !important;
+  }
+  .sheet {
+    display: flex;
+  }
+}
+.head {
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid #000;
+  text-align: center;
+}
+.clinic {
+  font-size: 15pt;
+  font-weight: 700;
+}
+.muted {
+  font-size: 9pt;
+  color: #444;
+}
+.title {
+  margin: 14px 0 12px;
+  font-size: 13pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.ids {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.box {
+  padding: 8px 10px;
+  border: 1px solid #999;
+  border-radius: 4px;
+}
+.label {
+  margin-bottom: 4px;
+  font-size: 8.5pt;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.field {
+  display: flex;
+  gap: 4px;
+  overflow-wrap: anywhere;
+}
+.fieldLabel {
+  flex-shrink: 0;
+  font-weight: 600;
+}
+.blank {
+  display: inline-block;
+  flex: 1;
+  min-width: 40mm;
+  border-bottom: 1px solid #999;
+}
+.body {
+  flex: 1;
+  margin-top: 18px;
+}
+.body .content {
+  color: #000;
+  font-size: 10.5pt;
+}
+.body .content h3 {
+  color: #000;
+  font-size: 10pt;
+}
+.foot {
+  margin-top: 24px;
+  break-inside: avoid;
+}
+.sign {
+  width: 85mm;
+  margin: 22mm auto 0;
+  text-align: center;
+}
+.signLine {
+  border-top: 1px solid #000;
+  margin-bottom: 4px;
+}
+.signName {
+  font-weight: 600;
+}

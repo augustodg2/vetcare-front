@@ -1,0 +1,27 @@
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--vc-line);
+}
+.fact {
+  padding: 12px 20px;
+  border-right: 1px solid var(--vc-line);
+}
+.fact:last-child {
+  border-right: 0;
+}
+.fact .label {
+  font-size: 12px;
+  color: var(--vc-muted);
+}
+.fact .value {
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 2px;
+}
+@media (max-width: 767px) {
+  .fact {
+    padding: 10px 16px;
+  }
+}

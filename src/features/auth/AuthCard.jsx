@@ -2,12 +2,13 @@ import { Anchor, Button, PasswordInput, Stack, Text } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { Link } from "react-router-dom";
 import { isStrongPassword, PASSWORD_RULE } from "@/lib/password";
+import styles from "./AuthCard.module.css";
 
 export function AuthCard({ title, intro, children }) {
   return (
-    <div className="login">
-      <div className="login-card">
-        <div className="login-brand">
+    <div className={styles.login}>
+      <div className={styles.card}>
+        <div className={styles.brand}>
           <img src="/favicon.svg" alt="" />
           <div>
             <Text fw={600} size="lg" lh={1.2}>
@@ -18,7 +19,7 @@ export function AuthCard({ title, intro, children }) {
             </Text>
           </div>
         </div>
-        <div className="login-panel">
+        <div className={styles.panel}>
           <h1 style={{ margin: "0 0 4px", fontSize: 24, fontWeight: 600 }}>
             {title}
           </h1>

@@ -11,6 +11,9 @@ import { useSession } from "@/auth/session";
 import { toast } from "@/lib/notify";
 import { htmlToText, sanitizeHtml } from "@/components/ui/RichText";
 import { FormActions } from "@/components/ui";
+import { cx } from "@/lib/cx";
+import blockStyles from "@/components/ui/Block.module.css";
+import panelStyles from "./recordPanel.module.css";
 
 const GUIDANCE = "Orientações ao tutor";
 
@@ -35,7 +38,7 @@ function hintFor({ editor, node, pos }) {
 export function NewPrescription({ petId, onBack, onCreated }) {
   return (
     <>
-      <div className="block-head procedure-head">
+      <div className={cx(blockStyles.head, panelStyles.head)}>
         <Group gap="sm" wrap="nowrap">
           <ActionIcon
             variant="subtle"
@@ -48,7 +51,7 @@ export function NewPrescription({ petId, onBack, onCreated }) {
           <h2>Nova prescrição</h2>
         </Group>
       </div>
-      <div className="procedure-section">
+      <div className={panelStyles.section}>
         <PrescriptionForm
           petId={petId}
           onClose={onBack}
@@ -127,7 +130,7 @@ function PrescriptionForm({ petId, onClose, onCreated }) {
         >
           <RichTextEditor
             editor={editor}
-            className="procedure-editor"
+            className={panelStyles.editor}
             data-error={!!form.errors.content || undefined}
           >
             <RichTextEditor.Toolbar>

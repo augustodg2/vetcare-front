@@ -31,6 +31,8 @@ import {
 import { fmtDateTime } from "@/lib/format";
 import { toast } from "@/lib/notify";
 import { APPOINTMENT_STATUS, PROCEDURE_LABEL } from "@/lib/status";
+import { cx } from "@/lib/cx";
+import styles from "./Atendimento.module.css";
 
 const SLOT_MIN = 30;
 const CLOCK_TICK_MS = 60_000;
@@ -109,7 +111,7 @@ export default function Atendimento() {
           `Cancelar a consulta de ${action.appointment.pet.name} em ${fmtDateTime(action.appointment.dateTime)}? O horário fica livre e o registro continua no histórico.`}
       </ConfirmDialog>
 
-      <div className="today-grid">
+      <div className={styles.grid}>
         <Block title="Próximas" flush>
           <Async q={appointments} rows={3}>
             {() =>
@@ -166,15 +168,20 @@ function QueueRow({ appointment: a, now, highlight, past, onAction }) {
 
   return (
     <div
-      className={`today-row${highlight ? " active" : ""}${past ? " past" : ""}${a.status === "CANCELLED" ? " cancelled" : ""}`}
+      className={cx(
+        styles.row,
+        highlight && styles.active,
+        past && styles.past,
+        a.status === "CANCELLED" && styles.cancelled,
+      )}
     >
-      <span className="time">{d.format("HH:mm")}</span>
-      <span className="today-main">
+      <span className={styles.time}>{d.format("HH:mm")}</span>
+      <span className={styles.main}>
         <SpeciesAvatar species={a.pet.species} size={40} />
-        <span className="today-text">
-          <span className="today-pet">{a.pet.name}</span>
-          <span className="today-type">{PROCEDURE_LABEL[a.type]}</span>
-          {a.obs && <span className="today-obs">{a.obs}</span>}
+        <span className={styles.text}>
+          <span className={styles.pet}>{a.pet.name}</span>
+          <span className={styles.type}>{PROCEDURE_LABEL[a.type]}</span>
+          {a.obs && <span className={styles.obs}>{a.obs}</span>}
         </span>
       </span>
       {when ? (

@@ -29,6 +29,8 @@ import WeekAgenda from "./WeekAgenda";
 import MonthAgenda from "./MonthAgenda";
 import { Async, Block, PageHeader } from "@/components/ui";
 import { ISO, todayISO, weekStart } from "@/lib/format";
+import { cx } from "@/lib/cx";
+import styles from "./Agenda.module.css";
 
 const VIEWS = ["dia", "semana", "mes"];
 const SCOPES = ["meus", "todos"];
@@ -130,7 +132,7 @@ export default function Agenda() {
   };
 
   return (
-    <div className="fill-page">
+    <div className={styles.page} data-fill-page>
       <PageHeader
         title={onlyMine ? "Minha agenda" : "Agenda"}
         finding={
@@ -163,11 +165,11 @@ export default function Agenda() {
         }
         canManage={(a) => !isVet || a.vet.id === user.vetId}
       />
-      <Block flush className="fill-block">
-        <div className="ag-toolbar">
-          <div className="ag-nav">
+      <Block flush className={styles.panel}>
+        <div className={styles.toolbar}>
+          <div className={styles.nav}>
             <SegmentedControl
-              className="ag-views"
+              className={styles.views}
               aria-label="Visão"
               value={view}
               onChange={setView}
@@ -212,7 +214,7 @@ export default function Agenda() {
                 <Button
                   variant="subtle"
                   color="dark"
-                  className="ag-period"
+                  className={styles.period}
                   rightSection={<IconChevronDown size={14} />}
                   onClick={() => setPickerOpen((o) => !o)}
                 >
@@ -229,7 +231,7 @@ export default function Agenda() {
             </Popover>
           </div>
           <Button
-            className="ag-filters-toggle"
+            className={styles.filtersToggle}
             variant={activeFilters ? "light" : "default"}
             leftSection={<IconAdjustmentsHorizontal size={16} />}
             onClick={() => setFiltersOpen((o) => !o)}
@@ -237,7 +239,7 @@ export default function Agenda() {
           >
             Filtros{activeFilters ? ` · ${activeFilters}` : ""}
           </Button>
-          <div className={`ag-filters${filtersOpen ? " open" : ""}`}>
+          <div className={cx(styles.filters, filtersOpen && styles.open)}>
             {isVet ? (
               <SegmentedControl
                 aria-label="Agendamentos"
@@ -265,7 +267,7 @@ export default function Agenda() {
             <PetFilter value={petId} onChange={(id) => setPetId(id)} />
           </div>
         </div>
-        <div className="fill-body">
+        <div className={styles.body}>
           <Async q={appointments} rows={3}>
             {(rows) =>
               month ? (

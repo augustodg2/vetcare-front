@@ -21,6 +21,9 @@ import { toast } from "@/lib/notify";
 import { PROCEDURE_LABEL } from "@/lib/status";
 import { htmlToText, sanitizeHtml } from "@/components/ui/RichText";
 import { FormActions } from "@/components/ui";
+import { cx } from "@/lib/cx";
+import blockStyles from "@/components/ui/Block.module.css";
+import panelStyles from "./recordPanel.module.css";
 
 const TYPE_OPTIONS = Object.entries(PROCEDURE_LABEL).map(([value, label]) => ({
   value,
@@ -54,7 +57,7 @@ const toDateTime = (date, time) => {
 export function NewProcedure({ petId, onBack, onCreated }) {
   return (
     <>
-      <div className="block-head procedure-head">
+      <div className={cx(blockStyles.head, panelStyles.head)}>
         <Group gap="sm" wrap="nowrap">
           <ActionIcon
             variant="subtle"
@@ -67,7 +70,7 @@ export function NewProcedure({ petId, onBack, onCreated }) {
           <h2>Registrar procedimento</h2>
         </Group>
       </div>
-      <div className="procedure-section">
+      <div className={panelStyles.section}>
         <ProcedureForm petId={petId} onClose={onBack} onCreated={onCreated} />
       </div>
     </>
@@ -201,7 +204,7 @@ function ProcedureForm({ petId, onClose, onCreated }) {
         >
           <RichTextEditor
             editor={editor}
-            className="procedure-editor"
+            className={panelStyles.editor}
             data-error={!!form.errors.notes || undefined}
           >
             <RichTextEditor.Toolbar>

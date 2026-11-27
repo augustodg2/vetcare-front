@@ -1,0 +1,7 @@
+.empty {
+  padding: 28px 20px;
+  text-align: center;
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+}

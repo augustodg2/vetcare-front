@@ -39,6 +39,7 @@ import {
   toISO,
 } from "@/lib/format";
 import { Facts, FormActions } from "@/components/ui";
+import textStyles from "@/styles/text.module.css";
 
 const SPECIES_OPTIONS = [
   { value: "DOG", label: "Cão" },
@@ -368,7 +369,7 @@ function ExistingOwnerPicker({ form, onCovered }) {
                 items={[
                   [
                     "CPF",
-                    <span key="cpf" className="tnum">
+                    <span key="cpf" className={textStyles.tnum}>
                       {hideCpf(owner.cpf)}
                     </span>,
                   ],

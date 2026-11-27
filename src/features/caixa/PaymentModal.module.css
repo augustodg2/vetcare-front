@@ -1,0 +1,6 @@
+.summary {
+  background: var(--vc-ground);
+  border: 1px solid var(--vc-line);
+  border-radius: 8px;
+  padding: 12px 16px;
+}

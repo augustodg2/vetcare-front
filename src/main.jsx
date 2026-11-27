@@ -1,3 +1,9 @@
+import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
+import "@mantine/notifications/styles.css";
+import "@mantine/tiptap/styles.css";
+import "./styles/global.css";
+
 import { MantineProvider } from "@mantine/core";
 import { DatesProvider } from "@mantine/dates";
 import { Notifications } from "@mantine/notifications";
@@ -13,12 +19,7 @@ import App from "./App";
 import { SessionProvider } from "./auth/session";
 import { theme } from "./theme";
 
-import "@mantine/core/styles.css";
-import "@mantine/dates/styles.css";
-import "@mantine/notifications/styles.css";
-import "@mantine/tiptap/styles.css";
 import "dayjs/locale/pt-br";
-import "./styles.css";
 
 async function enableMocking() {
   if (import.meta.env.VITE_ENABLE_MSW !== "true") return;

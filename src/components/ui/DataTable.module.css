@@ -1,0 +1,83 @@
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.table thead tr {
+  border-bottom: 1px solid var(--vc-line);
+}
+.table th {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--vc-muted);
+  white-space: nowrap;
+}
+.table td {
+  font-size: 14px;
+}
+.table tbody tr {
+  border-color: var(--vc-line);
+}
+.table tr.clickable {
+  cursor: pointer;
+}
+.table th:first-child,
+.table td:first-child {
+  padding-left: 20px;
+}
+.table th:last-child,
+.table td:last-child {
+  padding-right: 20px;
+}
+.cellMain {
+  font-weight: 500;
+}
+.cellSub {
+  font-size: 12.5px;
+  color: var(--vc-muted);
+}
+
+.rows {
+  border-top: 1px solid var(--vc-line);
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--vc-line);
+  width: 100%;
+  background: none;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.row:last-child {
+  border-bottom: 0;
+}
+button.row {
+  cursor: pointer;
+}
+.rowMain {
+  min-width: 0;
+}
+.rowTitle {
+  font-weight: 500;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rowSide {
+  flex-shrink: 0;
+  text-align: right;
+  display: grid;
+  gap: 2px;
+  justify-items: end;
+  font-size: 14px;
+}

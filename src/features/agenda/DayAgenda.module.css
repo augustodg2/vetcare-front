@@ -1,0 +1,70 @@
+.scroll {
+  max-height: max(360px, calc(100dvh - 300px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-top: 1px solid var(--vc-line);
+}
+.timeline {
+  --hour: 120px;
+  position: relative;
+  margin: 0 20px 16px;
+}
+@media (min-width: 768px) {
+  .scroll {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+  }
+  .timeline {
+    --hour: 64px;
+  }
+}
+.row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-bottom: 1px solid var(--vc-line);
+}
+.row::after {
+  content: "";
+  position: absolute;
+  left: 56px;
+  right: 0;
+  top: 50%;
+  border-top: 1px dashed var(--vc-line);
+}
+.hour {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: 48px;
+  font-size: 12px;
+  color: var(--vc-muted);
+  font-variant-numeric: tabular-nums;
+}
+.track {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 56px;
+  right: 0;
+  border-left: 1px solid var(--vc-line);
+}
+.now {
+  position: absolute;
+  left: -4px;
+  right: 0;
+  border-top: 2px solid var(--mantine-color-red-6);
+  pointer-events: none;
+  z-index: 1;
+}
+.now::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: -5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mantine-color-red-6);
+}

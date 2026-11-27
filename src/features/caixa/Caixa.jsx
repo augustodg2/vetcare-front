@@ -17,6 +17,7 @@ import {
   Async,
   Block,
   ConfirmDialog,
+  Dash,
   DataTable,
   Empty,
   Kpis,
@@ -35,6 +36,9 @@ import {
   useProceduresById,
   useRefundPayment,
 } from "./queries";
+import tableStyles from "@/components/ui/DataTable.module.css";
+import layoutStyles from "@/styles/layout.module.css";
+import styles from "./Caixa.module.css";
 
 const SETTLED = ["PAID", "REFUNDED"];
 
@@ -195,7 +199,7 @@ export default function Caixa() {
           `Estornar ${brl(action.payment.total)} para o tutor? O pagamento fica como estornado e os procedimentos não voltam a ficar sem pagamento.`}
       </ConfirmDialog>
 
-      <div className="stack">
+      <div className={layoutStyles.stack}>
         {cash.data === undefined ? (
           <KpisLoading n={4} />
         ) : (
@@ -235,11 +239,11 @@ export default function Caixa() {
                     (p) => !settledIds.has(p.id),
                   );
                   return (
-                    <div className="charge-row" key={g.pet.id}>
+                    <div className={styles.chargeRow} key={g.pet.id}>
                       <SpeciesAvatar species={g.pet.species} size={40} />
-                      <div className="charge-main">
-                        <div className="charge-pet">{g.pet.name}</div>
-                        <div className="charge-items">
+                      <div className={styles.chargeMain}>
+                        <div className={styles.chargePet}>{g.pet.name}</div>
+                        <div className={styles.chargeItems}>
                           {g.procedures.map((p) => {
                             const paid = settledIds.has(p.id);
                             return (
@@ -315,8 +319,7 @@ export default function Caixa() {
                   {
                     key: "pet",
                     label: "Paciente",
-                    render: (p) =>
-                      petsOf(p) || <span className="faint">—</span>,
+                    render: (p) => petsOf(p) || <Dash />,
                   },
                   {
                     key: "items",
@@ -324,7 +327,9 @@ export default function Caixa() {
                     render: (p) => (
                       <>
                         {itemsLabel(p)}
-                        {p.notes && <div className="cell-sub">{p.notes}</div>}
+                        {p.notes && (
+                          <div className={tableStyles.cellSub}>{p.notes}</div>
+                        )}
                       </>
                     ),
                   },
@@ -337,7 +342,7 @@ export default function Caixa() {
                       <>
                         {brl(p.total)}
                         {p.discount > 0 && (
-                          <div className="cell-sub">
+                          <div className={tableStyles.cellSub}>
                             desconto {brl(p.discount)}
                           </div>
                         )}
@@ -369,7 +374,7 @@ export default function Caixa() {
                     `${dayjs(p.createdAt).format("HH:mm")} · ${p.method} · ${itemsLabel(p)}`,
                   side: (p) => (
                     <>
-                      <span className="num">{brl(p.total)}</span>
+                      <span className={tableStyles.num}>{brl(p.total)}</span>
                       {p.status === "PAID" ? (
                         <PaymentMenu
                           onAction={(type) => setAction({ type, payment: p })}

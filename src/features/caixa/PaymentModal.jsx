@@ -25,6 +25,7 @@ import { brl, toCents } from "@/lib/format";
 import { toast } from "@/lib/notify";
 import { PAYMENT_METHODS, PROCEDURE_LABEL } from "@/lib/status";
 import { useCreatePayment, usePaymentsSince } from "./queries";
+import styles from "./PaymentModal.module.css";
 
 const NOTES_MAX = 2000;
 const SEARCH_DEBOUNCE_MS = 300;
@@ -295,7 +296,7 @@ function PaymentForm({ charge, onClose }) {
           {...form.getInputProps("notes")}
         />
 
-        <Stack gap={4} className="pay-summary">
+        <Stack gap={4} className={styles.summary}>
           <Group justify="space-between">
             <Text size="sm" c="dimmed">
               Subtotal ({values.items.length}{" "}

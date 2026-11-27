@@ -1,0 +1,291 @@
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--vc-muted);
+  text-decoration: none;
+}
+.backLink:hover {
+  color: var(--vc-ink);
+}
+
+.gridAside {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: var(--vc-gutter);
+  align-items: start;
+}
+@media (max-width: 1023px) {
+  .gridAside {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.petHead {
+  margin-bottom: var(--vc-gutter);
+  overflow: hidden;
+}
+.petHeadMain {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+}
+.petHeadName {
+  min-width: 0;
+  flex: 1;
+}
+.petHeadName h1 {
+  margin: 0 0 2px;
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.petStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 24px;
+  margin: 4px 0 0;
+}
+.petStats > div {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.petStats dt {
+  font-size: 13px;
+  color: var(--vc-muted);
+}
+.petStats dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.petStats dd .birth {
+  margin-left: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--vc-muted);
+}
+.petAlert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  border-top: 1px solid var(--mantine-color-red-2);
+  background: var(--mantine-color-red-0);
+  color: var(--mantine-color-red-8);
+  font-size: 14px;
+}
+.petAlert strong {
+  font-weight: 600;
+}
+@media (max-width: 767px) {
+  .petHeadMain {
+    padding: 14px 16px;
+  }
+  .petAlert {
+    padding: 9px 16px;
+    align-items: flex-start;
+  }
+  .petAlert svg {
+    margin-top: 2px;
+  }
+}
+
+.procedureList {
+  border-top: 1px solid var(--vc-line);
+}
+.procedureRow {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  padding: 14px 20px;
+  text-align: left;
+  border-top: 1px solid var(--vc-line);
+}
+.procedureRow:first-child {
+  border-top: 0;
+}
+.procedureRow:hover {
+  background: var(--vc-hover);
+}
+.procedureRow:focus-visible {
+  outline: 2px solid var(--vc-teal);
+  outline-offset: -2px;
+}
+.procedureWhen {
+  display: grid;
+  align-self: start;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+}
+.procedureWhen .date {
+  font-size: 15px;
+  font-weight: 600;
+}
+.procedureWhen .ago {
+  font-size: 12px;
+  color: var(--vc-muted);
+  white-space: nowrap;
+}
+.procedureRow[data-same-day] {
+  border-top-style: dashed;
+}
+.procedureYear {
+  padding: 6px 20px;
+  border-top: 1px solid var(--vc-line);
+  background: var(--vc-hover);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vc-muted);
+  font-variant-numeric: tabular-nums;
+}
+.procedureYear:first-child,
+.procedureYear + .procedureRow {
+  border-top: 0;
+}
+.procedureSummary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.procedureFilters {
+  display: flex;
+  gap: 6px;
+  padding: 0 20px 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.procedureFilters > * {
+  flex-shrink: 0;
+}
+.procedureBody {
+  min-width: 0;
+}
+.appointmentRow {
+  grid-template-columns: 76px minmax(0, 1fr);
+}
+.appointmentRow:hover {
+  background: none;
+}
+.petTabs {
+  padding: 0 20px;
+}
+.tabMeta {
+  padding: 12px 20px 10px;
+  font-size: 13px;
+  color: var(--vc-muted);
+  min-height: calc(1.5em + 22px);
+}
+.tabToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.historyToolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px 14px;
+}
+.historyToolbar .procedureFilters {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+}
+.procedureChevron {
+  color: var(--vc-muted);
+}
+.typeDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tutorSummary {
+  display: none;
+}
+@media (max-width: 1023px) {
+  .tutorSummary {
+    display: block;
+    margin: calc(var(--vc-gutter) * -0.5) 0 var(--vc-gutter);
+  }
+  .tutorAside {
+    display: none;
+  }
+  .tutorToggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 16px;
+  }
+  .tutorToggleHint {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--vc-teal);
+  }
+  .tutorToggle:focus-visible {
+    outline: 2px solid var(--vc-teal);
+    outline-offset: -2px;
+  }
+  .tutorChevron {
+    flex-shrink: 0;
+    transition: transform 150ms ease;
+  }
+  .tutorChevron[data-open] {
+    transform: rotate(180deg);
+  }
+  .tutorSummaryBody {
+    padding: 12px 16px 16px;
+    border-top: 1px solid var(--vc-line);
+  }
+}
+@media (max-width: 767px) {
+  .procedureRow {
+    grid-template-columns: 68px minmax(0, 1fr) auto;
+    gap: 16px;
+    padding: 12px 16px;
+  }
+  .procedureYear {
+    padding: 6px 16px;
+  }
+  .procedureFilters {
+    padding: 0 16px 12px;
+  }
+  .historyToolbar {
+    padding: 10px 16px 12px;
+  }
+  .appointmentRow {
+    grid-template-columns: 68px minmax(0, 1fr);
+  }
+  .petTabs {
+    padding: 0 16px;
+  }
+  .tabMeta {
+    padding: 10px 16px 8px;
+  }
+}
+.noteList .note {
+  padding-left: 12px;
+  border-left: 2px solid var(--vc-line);
+}

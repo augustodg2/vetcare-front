@@ -2,6 +2,9 @@ import dayjs from "dayjs";
 import { useEffect, useRef } from "react";
 import { Empty } from "@/components/ui";
 import { PROCEDURE_LABEL } from "@/lib/status";
+import { cx } from "@/lib/cx";
+import appointmentStyles from "./AppointmentBlock.module.css";
+import styles from "./DayAgenda.module.css";
 
 const SLOT_MIN = 30;
 const DEFAULT_START = 7;
@@ -54,16 +57,20 @@ export default function DayAgenda({ appointments, day, onSelect }) {
     day && now.isSame(day, "day") && nowMin >= start * 60 && nowMin < end * 60;
 
   return (
-    <div className="ag-scroll" ref={scrollRef}>
-      <div className="ag" style={{ height: at(end - start) }}>
+    <div className={styles.scroll} ref={scrollRef}>
+      <div className={styles.timeline} style={{ height: at(end - start) }}>
         {Array.from({ length: end - start }, (_, i) => (
-          <div key={i} className="ag-row" style={{ top: at(i), height: at(1) }}>
-            <span className="ag-hour">
+          <div
+            key={i}
+            className={styles.row}
+            style={{ top: at(i), height: at(1) }}
+          >
+            <span className={styles.hour}>
               {String(start + i).padStart(2, "0")}:00
             </span>
           </div>
         ))}
-        <div className="ag-track">
+        <div className={styles.track}>
           {placed.map((a) => {
             const d = dayjs(a.dateTime);
             return (
@@ -72,7 +79,11 @@ export default function DayAgenda({ appointments, day, onSelect }) {
                 key={a.id}
                 data-anchor={!showNow && a === placed[0] ? "" : undefined}
                 onClick={() => onSelect?.(a)}
-                className={`ag-block ${a.status}`}
+                className={cx(
+                  appointmentStyles.block,
+                  appointmentStyles.inline,
+                  a.status === "DONE" && appointmentStyles.done,
+                )}
                 style={{
                   top: px(minutesOfDay(d), 1),
                   height: at(SLOT_MIN / 60, -2),
@@ -81,17 +92,19 @@ export default function DayAgenda({ appointments, day, onSelect }) {
                 }}
                 title={`${d.format("HH:mm")} · ${a.pet.name} · ${PROCEDURE_LABEL[a.type]} · ${a.vet.name}`}
               >
-                <span className="ag-pet">
+                <span className={appointmentStyles.pet}>
                   {d.format("HH:mm")} {a.pet.name}
                 </span>
-                <span className="ag-type">{PROCEDURE_LABEL[a.type]}</span>
-                <span className="ag-vet-name">{a.vet.name}</span>
+                <span className={appointmentStyles.type}>
+                  {PROCEDURE_LABEL[a.type]}
+                </span>
+                <span className={appointmentStyles.vet}>{a.vet.name}</span>
               </button>
             );
           })}
           {showNow && (
             <span
-              className="ag-now"
+              className={styles.now}
               data-anchor=""
               style={{ top: px(nowMin) }}
             />

@@ -35,6 +35,7 @@ import {
 } from "@/lib/status";
 import { ConfirmDialog, Pill, SpeciesAvatar } from "@/components/ui";
 import { AppointmentModal } from "./AppointmentModal";
+import textStyles from "@/styles/text.module.css";
 
 export function AppointmentDrawer({
   appointment,
@@ -168,7 +169,7 @@ function AppointmentDetails({
           )}
 
           <div>
-            <Text fw={600} size="xl" className="tnum">
+            <Text fw={600} size="xl" className={textStyles.tnum}>
               {capitalize(when.format("ddd, D [de] MMM · HH:mm"))}
             </Text>
             <Group gap="xs" mt="xs" wrap="nowrap">
@@ -187,7 +188,7 @@ function AppointmentDetails({
 
           {a.obs && (
             <div>
-              <div className="section-label">Observações</div>
+              <div className={textStyles.sectionLabel}>Observações</div>
               <Text size="sm" mt={4} style={{ whiteSpace: "pre-line" }}>
                 {a.obs}
               </Text>
@@ -196,14 +197,14 @@ function AppointmentDetails({
 
           {petOwner && (
             <div>
-              <div className="section-label">Tutor</div>
+              <div className={textStyles.sectionLabel}>Tutor</div>
               <Group gap="xs" mt={4} wrap="wrap">
                 <Text size="sm">{petOwner.name}</Text>
                 {petOwner.phone && (
                   <Anchor
                     href={telHref(petOwner.phone)}
                     size="sm"
-                    className="tnum"
+                    className={textStyles.tnum}
                   >
                     <Group gap={4} wrap="nowrap" component="span">
                       <IconPhone size={14} />

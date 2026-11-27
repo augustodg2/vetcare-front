@@ -31,6 +31,7 @@ import {
   Async,
   Block,
   ConfirmDialog,
+  Dash,
   DataTable,
   Empty,
   Facts,
@@ -40,6 +41,10 @@ import {
 import { age, hideCpf, kg } from "@/lib/format";
 import { SPECIES_LABEL } from "@/lib/status";
 import { toast } from "@/lib/notify";
+import blockStyles from "@/components/ui/Block.module.css";
+import tableStyles from "@/components/ui/DataTable.module.css";
+import layoutStyles from "@/styles/layout.module.css";
+import textStyles from "@/styles/text.module.css";
 
 const SEARCH_DEBOUNCE_MS = 500;
 
@@ -102,7 +107,7 @@ export default function Pacientes() {
         {p.alerts}
       </Text>
     ) : (
-      <span className="faint">—</span>
+      <Dash />
     );
 
   return (
@@ -118,7 +123,7 @@ export default function Pacientes() {
         )}
       </PageHeader>
 
-      <div className="stack">
+      <div className={layoutStyles.stack}>
         <Block flush>
           <Group
             justify="space-between"
@@ -168,8 +173,8 @@ export default function Pacientes() {
                       <Group gap="sm" wrap="nowrap">
                         <SpeciesAvatar species={p.species} size={36} />
                         <div>
-                          <div className="cell-main">{p.name}</div>
-                          <div className="cell-sub">
+                          <div className={tableStyles.cellMain}>{p.name}</div>
+                          <div className={tableStyles.cellSub}>
                             {SPECIES_LABEL[p.species] ?? p.species} · {p.breed}
                           </div>
                         </div>
@@ -204,7 +209,7 @@ export default function Pacientes() {
           </Async>
 
           {total > pageSize && (
-            <div className="block-foot">
+            <div className={blockStyles.foot}>
               <Text size="sm" c="dimmed">
                 {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)}{" "}
                 de {total}
@@ -318,7 +323,7 @@ function PetOwnerDetails({
                 [
                   "CPF",
                   <Group key="cpf" gap={6} wrap="nowrap">
-                    <span className="tnum">
+                    <span className={textStyles.tnum}>
                       {showCpf ? t.cpf : hideCpf(t.cpf)}
                     </span>
                     <ActionIcon

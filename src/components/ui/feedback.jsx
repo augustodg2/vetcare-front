@@ -1,8 +1,9 @@
 import { Button, Skeleton, Stack, Text } from "@mantine/core";
+import styles from "./feedback.module.css";
 
 export function Empty({ children, action }) {
   return (
-    <div className="empty">
+    <div className={styles.empty}>
       <Text c="dimmed" size="sm">
         {children}
       </Text>

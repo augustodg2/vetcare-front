@@ -1,0 +1,42 @@
+:root {
+  --vc-ground: #f6f9f9;
+  --vc-surface: #ffffff;
+  --vc-ink: #132a2d;
+  --vc-muted: #55666b;
+  --vc-faint: #8a9a9e;
+  --vc-line: #e3eaea;
+  --vc-hover: #edf3f3;
+  --vc-teal: #0d9488;
+  --vc-teal-ink: #066a62;
+  --vc-teal-tint: #e4f7f5;
+  --vc-gutter: 24px;
+  --mantine-color-default-border: var(--vc-line);
+  --mantine-color-dimmed: var(--vc-muted);
+}
+
+/* tons de texto das pílulas e textos secundários com contraste AA (ganham das variáveis do Mantine) */
+:root:root[data-mantine-color-scheme] {
+  --mantine-color-dimmed: #55666b;
+  --mantine-color-yellow-light-color: #8a5a00;
+  --mantine-color-orange-light-color: #a8440a;
+  --mantine-color-blue-light-color: #1c5d99;
+  --mantine-color-teal-light-color: #066a62;
+  --mantine-color-gray-light-color: #4a5458;
+  --mantine-color-red-light-color: #b42323;
+  --mantine-color-grape-light-color: #7a3593;
+}
+
+html body {
+  background: var(--vc-ground);
+  color: var(--vc-ink);
+  -webkit-font-smoothing: antialiased;
+  scrollbar-gutter: stable;
+  max-height: 100vh;
+}
+
+/* tamanho mínimo das pílulas */
+.mantine-Badge-root.mantine-Badge-root {
+  --badge-fz-xs: 11px;
+  --badge-fz-sm: 11px;
+  --badge-fz-md: 12px;
+}

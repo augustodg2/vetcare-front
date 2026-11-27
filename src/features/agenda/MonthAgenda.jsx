@@ -1,6 +1,8 @@
 import dayjs from "dayjs";
 import { PROCEDURE_LABEL } from "@/lib/status";
 import { weekStart } from "@/lib/format";
+import { cx } from "@/lib/cx";
+import styles from "./MonthAgenda.module.css";
 
 const MAX_ITEMS = 3;
 
@@ -14,13 +16,13 @@ export default function MonthAgenda({ appointments, month, onSelect, onDay }) {
   const dows = Array.from({ length: 7 }, (_, i) => start.add(i, "day"));
 
   return (
-    <div className="mo">
-      <div className="mo-dows">
+    <div className={styles.month}>
+      <div className={styles.weekdays}>
         {dows.map((d) => (
           <span key={d.day()}>{d.format("ddd")}</span>
         ))}
       </div>
-      <div className="mo-grid">
+      <div className={styles.grid}>
         {Array.from({ length: weeks * 7 }, (_, i) => {
           const day = start.add(i, "day");
           const items = visible.filter((a) =>
@@ -31,37 +33,47 @@ export default function MonthAgenda({ appointments, month, onSelect, onDay }) {
           return (
             <div
               key={i}
-              className={`mo-day${outside ? " outside" : ""}${items.length ? "" : " empty"}`}
+              className={cx(
+                styles.day,
+                outside && styles.outside,
+                !items.length && styles.empty,
+              )}
             >
               <button
                 type="button"
-                className={`mo-date${day.isSame(today, "day") ? " today" : ""}`}
+                className={cx(
+                  styles.date,
+                  day.isSame(today, "day") && styles.today,
+                )}
                 onClick={() => onDay?.(day)}
                 aria-label={day.format("dddd, D [de] MMMM")}
               >
-                <span className="mo-dow">{day.format("ddd")}</span>
-                <span className="mo-n">{day.format("D")}</span>
+                <span className={styles.weekday}>{day.format("ddd")}</span>
+                <span className={styles.number}>{day.format("D")}</span>
               </button>
-              <div className="mo-list">
+              <div className={styles.list}>
                 {items.slice(0, MAX_ITEMS).map((a) => {
                   const d = dayjs(a.dateTime);
                   return (
                     <button
                       type="button"
                       key={a.id}
-                      className={`mo-item ${a.status}`}
+                      className={cx(
+                        styles.item,
+                        a.status === "DONE" && styles.done,
+                      )}
                       onClick={() => onSelect?.(a)}
                       title={`${d.format("HH:mm")} · ${a.pet.name} · ${PROCEDURE_LABEL[a.type]} · ${a.vet.name}`}
                     >
-                      <span className="t">{d.format("HH:mm")}</span>
-                      <span className="p">{a.pet.name}</span>
+                      <span className={styles.time}>{d.format("HH:mm")}</span>
+                      <span className={styles.pet}>{a.pet.name}</span>
                     </button>
                   );
                 })}
                 {extra > 0 && (
                   <button
                     type="button"
-                    className="mo-more"
+                    className={styles.more}
                     onClick={() => onDay?.(day)}
                   >
                     +{extra} {extra === 1 ? "consulta" : "consultas"}
@@ -73,7 +85,7 @@ export default function MonthAgenda({ appointments, month, onSelect, onDay }) {
         })}
       </div>
       {!visible.some((a) => dayjs(a.dateTime).isSame(month, "month")) && (
-        <p className="mo-none">Nenhuma consulta neste mês</p>
+        <p className={styles.none}>Nenhuma consulta neste mês</p>
       )}
     </div>
   );

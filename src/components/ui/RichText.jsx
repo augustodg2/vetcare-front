@@ -1,5 +1,7 @@
 import DOMPurify from "dompurify";
 import { useMemo } from "react";
+import { cx } from "@/lib/cx";
+import styles from "./RichText.module.css";
 
 const BLOCK_END = /<\/(p|h[1-6]|li|div|blockquote)>|<br\s*\/?>/gi;
 const BREAK = String.fromCharCode(0x2063);
@@ -21,9 +23,12 @@ export function htmlToText(html = "", { skipHeadings = false } = {}) {
     .join(" · ");
 }
 
-export function RichText({ html }) {
+export function RichText({ html, className }) {
   const clean = useMemo(() => sanitizeHtml(html), [html]);
   return (
-    <div className="rich-text" dangerouslySetInnerHTML={{ __html: clean }} />
+    <div
+      className={cx(styles.richText, className)}
+      dangerouslySetInnerHTML={{ __html: clean }}
+    />
   );
 }

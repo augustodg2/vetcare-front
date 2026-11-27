@@ -4,14 +4,15 @@ import { CLINIC } from "@/lib/clinic";
 import { age, fmtDate } from "@/lib/format";
 import { SPECIES_LABEL } from "@/lib/status";
 import { RichText } from "@/components/ui/RichText";
+import styles from "./PrescriptionPrint.module.css";
 
 const SEX_LABEL = { M: "Macho", F: "Fêmea" };
 
 function Field({ label, value }) {
   return (
-    <div className="rx-field">
-      <span className="rx-field-label">{label}:</span>
-      {value ? <span>{value}</span> : <span className="rx-blank" />}
+    <div className={styles.field}>
+      <span className={styles.fieldLabel}>{label}:</span>
+      {value ? <span>{value}</span> : <span className={styles.blank} />}
     </div>
   );
 }
@@ -27,24 +28,24 @@ export function PrescriptionPrint({ prescription: rx, pet, petOwner, crmv }) {
     .join(" · ");
 
   return createPortal(
-    <div className="print-sheet rx-sheet">
-      <header className="rx-head">
-        <div className="rx-clinic">{CLINIC.name}</div>
-        {clinicLine && <div className="rx-muted">{clinicLine}</div>}
+    <div className={styles.sheet}>
+      <header className={styles.head}>
+        <div className={styles.clinic}>{CLINIC.name}</div>
+        {clinicLine && <div className={styles.muted}>{clinicLine}</div>}
       </header>
 
-      <h1 className="rx-title">Receituário</h1>
+      <h1 className={styles.title}>Receituário</h1>
 
-      <section className="rx-ids">
-        <div className="rx-box">
-          <div className="rx-label">Tutor</div>
+      <section className={styles.ids}>
+        <div className={styles.box}>
+          <div className={styles.label}>Tutor</div>
           <Field label="Nome" value={petOwner?.name} />
           <Field label="CPF" value={petOwner?.cpf} />
           <Field label="Endereço" value={petOwner?.address} />
           <Field label="Telefone" value={petOwner?.phone} />
         </div>
-        <div className="rx-box">
-          <div className="rx-label">Paciente</div>
+        <div className={styles.box}>
+          <div className={styles.label}>Paciente</div>
           <Field label="Nome" value={pet.name} />
           <Field
             label="Espécie"
@@ -61,32 +62,32 @@ export function PrescriptionPrint({ prescription: rx, pet, petOwner, crmv }) {
         </div>
       </section>
 
-      <div className="rx-body">
-        <RichText html={rx.content} />
+      <div className={styles.body}>
+        <RichText html={rx.content} className={styles.content} />
       </div>
 
-      <footer className="rx-foot">
-        <div className="rx-date">
+      <footer className={styles.foot}>
+        <div>
           {CLINIC.city ? (
             `${CLINIC.city}, `
           ) : (
             <>
-              <span className="rx-blank" />,{" "}
+              <span className={styles.blank} />,{" "}
             </>
           )}
           {issued.format("D [de] MMMM [de] YYYY")}
         </div>
-        <div className="rx-sign">
-          <div className="rx-sign-line" />
-          <div className="rx-sign-name">{rx.vet.name}</div>
+        <div className={styles.sign}>
+          <div className={styles.signLine} />
+          <div className={styles.signName}>{rx.vet.name}</div>
           <div>
             {crmv || (
               <>
-                CRMV: <span className="rx-blank" />
+                CRMV: <span className={styles.blank} />
               </>
             )}
           </div>
-          <div className="rx-muted">
+          <div className={styles.muted}>
             Assinatura e carimbo do médico-veterinário
           </div>
         </div>

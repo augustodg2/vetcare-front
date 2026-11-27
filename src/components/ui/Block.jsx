@@ -1,20 +1,15 @@
 import { Group } from "@mantine/core";
+import { cx } from "@/lib/cx";
+import styles from "./Block.module.css";
 
-export function Block({
-  title,
-  sub,
-  actions,
-  children,
-  flush,
-  className = "",
-}) {
+export function Block({ title, sub, actions, children, flush, className }) {
   return (
-    <section className={`block ${className}`}>
+    <section className={cx(styles.block, className)}>
       {(title || actions) && (
-        <div className="block-head">
+        <div className={styles.head}>
           <div style={{ minWidth: 0 }}>
             {title && <h2>{title}</h2>}
-            {sub && <div className="sub">{sub}</div>}
+            {sub && <div className={styles.sub}>{sub}</div>}
           </div>
           {actions && (
             <Group gap="xs" wrap="wrap">
@@ -23,7 +18,7 @@ export function Block({
           )}
         </div>
       )}
-      {flush ? children : <div className="block-body">{children}</div>}
+      {flush ? children : <div className={styles.body}>{children}</div>}
     </section>
   );
 }
