@@ -1,7 +1,7 @@
 # Camada de API do front
 
 As telas **nunca** chamam `fetch` direto: elas usam as funções de `index.js` (todas devolvem `Promise`).
-Todas as funções (`auth`, `users`, `petOwners`, `pets`) usam a API real (`http.js` + `ENDPOINTS`); as rotas só são simuladas pelo MSW (`src/mocks/handlers/`) quando `VITE_ENABLE_MSW=true`.
+Todas as funções usam a API real (`http.js` + `ENDPOINTS`); as rotas só são simuladas pelo MSW (`src/mocks/handlers/`) quando `VITE_ENABLE_MSW=true`.
 
 As telas não chamam `index.js` direto: usam os hooks do React Query em `src/api/queries/` (`usePetOwners`, `useCreatePet`, `useUsers`, ...), que guardam as chaves de cache e invalidam as listas após cada mutação.
 
@@ -14,74 +14,58 @@ A tradução fica em `mappers.js`; as telas continuam usando os nomes antigos no
 | API                                                              | Telas                           |
 | ---------------------------------------------------------------- | ------------------------------- |
 | `birthDate` (`YYYY-MM-DD`)                                       | `birth`                         |
-| `notes`                                                          | `alerts`                        |
+| `notes` do pet                                                   | `alerts`                        |
 | `petOwner` / `petOwnerId`                                        | `petOwner` / `petOwnerId`       |
 | `cpf`, `phone` (só dígitos)                                      | mascarados para exibição        |
 | `{ data, total, page, pageSize }`                                | `{ rows, total, pageSize }`     |
+| `{ data, meta: { total, pagesize } }`                            | `{ rows, total, pageSize }`     |
 | `status` do usuário: `ACTIVE` / `PENDING_INVITE` / `DEACTIVATED` | `ativo` / `convite` / `inativo` |
 | `lastAccessAt` / `inviteSentAt`                                  | `lastSeen` / `invitedAt`        |
+| `paymentMethod` do pagamento                                     | `method`                        |
 
 Ao enviar, CPF e telefone vão só com dígitos, o CPF não é editável (o `PATCH` do tutor não o envia) e o tutor de um pet não muda (o `PATCH` do pet não envia `petOwnerId`).
 
-Erros: se a API devolver `{ "message": "..." }`, o texto aparece no aviso vermelho da tela.
+Erros: se a API devolver `{ "message": "..." }` (ou um array de mensagens, como no `ValidationPipe` do Nest), o primeiro texto aparece no aviso vermelho da tela.
 
-## Rotas sugeridas (uma por função)
+## Rotas (uma por função)
 
-| Função                                                 | Rota sugerida                                                                                                                                    | Quem usa                         |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------- |
-| `auth.login({ email, password })`                      | `POST /auth/login` → `{ token, user: { id, name, email, role } }`                                                                                | Login                            |
-| `auth.me()`                                            | `GET /users/me` → `{ id, name, email, role }`                                                                                                    | Sessão (ao recarregar)           |
-| `users.list({ search, page, status })`                 | `GET /users?search=&page=&status=ACTIVE,PENDING_INVITE` → `{ data, total, page, pageSize }` (só admin; `status` opcional, vírgula separa vários) | Admin › Usuários                 |
-| `users.invite({ name, email, role })`                  | `POST /users/invite` (só admin; 409 se o e-mail já existir)                                                                                      | Admin › Convidar usuário         |
-| `users.update(id, { name, role })`                     | `PATCH /users/:id` (só admin; e-mail não é editável)                                                                                             | Admin › Editar usuário           |
-| `users.deactivate(id)`                                 | `POST /users/:id/deactivate` (só admin)                                                                                                          | Admin › Desativar acesso         |
-| `vets.create({ userId, cpf, crmv })`                   | `POST /vets` (chamado após o convite de um usuário VET; `cpf` só dígitos)                                                                        | Admin › Convidar usuário         |
-| `vets.remove(id)`                                      | `DELETE /vets/:id` (chamado ao desativar um usuário VET; `user.vet.id`)                                                                          | Admin › Desativar acesso         |
-| `users.acceptInvite(token, { password })`              | `POST /users/invite/:token/accept` → `{ token }` (pública)                                                                                       | Página `/convite/:token`         |
-| `users.resendInvite(id)`                               | `POST /users/:id/resend-invite` (só admin; 409 se o convite não estiver pendente)                                                                | Admin › Reenviar convite         |
-| `users.sendPasswordReset(id)`                          | `POST /users/:id/reset-password` (só admin; e-mail com link de 24h para `/redefinir-senha/:token`; 409 se o usuário não estiver ativo)           | Admin › Link de nova senha       |
-| `auth.resetPassword(token, { password })`              | `POST /auth/reset-password/:token` (pública)                                                                                                     | Página `/redefinir-senha/:token` |
-| `petOwners.list({ search, page })`                     | `GET /pet-owners?search=&page=` → `{ data, total, page, pageSize }` (com `pets[]`)                                                               | Recepção › Pacientes             |
-| `petOwners.get(id)`                                    | `GET /pet-owners/:id` (com `pets[]`; 404 se não existir ou foi excluído)                                                                         | Ficha do tutor                   |
-| `petOwners.create(data)`                               | `POST /pet-owners` (aceita `pets[]` junto; 409 se o CPF já existir) → `PetOwner`                                                                 | Cadastro de tutor e pet          |
-| `petOwners.update(id, data)`                           | `PATCH /pet-owners/:id` com `{ name, phone, email, address }` (CPF não é editável)                                                               | Editar tutor                     |
-| `petOwners.remove(id)`                                 | `DELETE /pet-owners/:id` (exclusão lógica, inclui os pets; 404 se não existir)                                                                   | Excluir tutor                    |
-| `pets.list({ search, page })`                          | `GET /pets?search=&page=` → `{ data, total, page, pageSize }` (com `petOwner`)                                                                   | Recepção › Pacientes             |
-| `pets.get(id)`                                         | `GET /pets/:id` (com `petOwner`)                                                                                                                 | Ficha do pet                     |
-| `pets.create(data)`                                    | `POST /pets` com `petOwnerId` → `Pet`                                                                                                            | Novo pet                         |
-| `pets.update(id, data)`                                | `PATCH /pets/:id` sem `petOwnerId` (o tutor não muda)                                                                                            | Editar pet                       |
-| `pets.remove(id)`                                      | `DELETE /pets/:id`                                                                                                                               | Excluir pet                      |
-| `appointments.range(from, to)`                         | `GET /appointments?from=&to=`                                                                                                                    | Agenda (dia/semana)              |
-| `appointments.requests()`                              | `GET /appointments?status=solicitada`                                                                                                            | Agenda › Pedidos dos tutores     |
-| `appointments.get(id)`                                 | `GET /appointments/:id`                                                                                                                          | Detalhes da consulta             |
-| `appointments.forVet(vetId, date)`                     | `GET /appointments?vetId=&date=`                                                                                                                 | Veterinário › Atendimentos       |
-| `appointments.forTutor(tutorId)`                       | `GET /tutors/:id/appointments`                                                                                                                   | Portal › Consultas               |
-| `appointments.slots({ date, vetId, type })`            | `GET /appointments/slots?date=&vetId=&type=`                                                                                                     | Formulário de agendamento        |
-| `appointments.create(data)`                            | `POST /appointments`                                                                                                                             | Recepção › Novo agendamento      |
-| `appointments.request(data)`                           | `POST /appointments/requests`                                                                                                                    | Portal › Agendar consulta        |
-| `appointments.update(id, data)`                        | `PUT /appointments/:id`                                                                                                                          | Remarcar                         |
-| `appointments.confirmRequest(id, vetId)`               | `POST /appointments/:id/confirm`                                                                                                                 | Agenda › Confirmar pedido        |
-| `appointments.setStatus(id, status, reason)`           | `PATCH /appointments/:id/status`                                                                                                                 | Chegada, cancelar, recusar       |
-| `appointments.cancelByTutor(id)`                       | `POST /appointments/:id/cancel`                                                                                                                  | Portal › Cancelar                |
-| `care.start(id)`                                       | `POST /appointments/:id/start`                                                                                                                   | Iniciar atendimento              |
-| `care.finish(id, { record, prescription })`            | `POST /appointments/:id/finish`                                                                                                                  | Concluir atendimento             |
-| `records.create(data)`                                 | `POST /pets/:id/records`                                                                                                                         | Prontuário › Novo registro       |
-| `charges.pending()`                                    | `GET /charges?status=pendente`                                                                                                                   | Caixa                            |
-| `charges.paidOn(date)`                                 | `GET /charges?status=pago&date=`                                                                                                                 | Caixa                            |
-| `charges.pay(id, { method, installments })`            | `POST /charges/:id/pay`                                                                                                                          | Registrar pagamento              |
-| `charges.createPaid(data)`                             | `POST /charges` (lançamento avulso)                                                                                                              | Registrar pagamento › Avulso     |
-| `vaccines.list()`                                      | `GET /vaccines`                                                                                                                                  | Veterinário › Vacinas            |
-| `vaccines.forTutor(tutorId)`                           | `GET /tutors/:id/vaccines`                                                                                                                       | Portal › Vacinas                 |
-| `vaccines.apply(data)`                                 | `POST /vaccines/apply`                                                                                                                           | Registrar aplicação              |
-| `reminders.forTutor(tutorId)` / `reminders.save(data)` | `GET /tutors/:id/reminders` · `PUT /pets/:id/reminder`                                                                                           | Portal › Lembrete de vacina      |
-| `prescriptions.list({ petId, vetId, page })`           | `GET /prescriptions?petId=&vetId=&page=&pagesize=` → `{ data, meta }` (mais recente primeiro)                                                    | Paciente › Prescrições           |
-| `prescriptions.get(id)`                                | `GET /prescriptions/:id`                                                                                                                         | Paciente › Prescrição            |
-| `prescriptions.create({ content, petId, vetId })`      | `POST /prescriptions` (sem edição nem exclusão)                                                                                                  | Paciente › Nova prescrição       |
-| `documents.forTutor(tutorId)`                          | `GET /tutors/:id/documents`                                                                                                                      | Portal › Receitas                |
-| `dashboard.overview()`                                 | `GET /dashboard/overview`                                                                                                                        | Admin › Dashboard                |
-| `finance.month('YYYY-MM')`                             | `GET /finance?month=`                                                                                                                            | Admin › Financeiro               |
-| `finance.add(data)` / `finance.remove(id)`             | `POST /finance/movements` · `DELETE /finance/movements/:id`                                                                                      | Nova movimentação                |
-| `reports.list()` / `reports.generate(params)`          | `GET /reports` · `POST /reports`                                                                                                                 | Admin › Relatórios               |
-| `notifications.list(viewer)` / `markAllRead(viewer)`   | `GET /notifications` · `POST /notifications/read`                                                                                                | Avisos (todos os perfis)         |
-
-O formato de cada objeto (campos de consulta, pet, cobrança etc.) está em `src/data/seed.js`: é o contrato que as telas esperam.
+| Função                                                         | Rota                                                                                        | Quem usa                         |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------- |
+| `auth.login({ email, password })`                              | `POST /auth/login` → `{ access_token, user }`                                               | Login                            |
+| `auth.me()`                                                    | `GET /users/me`                                                                             | Sessão (ao recarregar)           |
+| `auth.acceptInvite(token, { password })`                       | `POST /auth/invite/:token/accept` (pública)                                                 | Página `/convite/:token`         |
+| `auth.resetPassword(token, { password })`                      | `POST /auth/reset-password/:token` (pública)                                                | Página `/redefinir-senha/:token` |
+| `users.list({ search, page, status })`                         | `GET /users?search=&page=&status=ACTIVE,PENDING_INVITE` → `{ data, total, page, pageSize }` | Admin › Usuários                 |
+| `users.invite({ name, email, role })`                          | `POST /users/invite` (409 se o e-mail já existir)                                           | Admin › Convidar usuário         |
+| `users.update(id, { name, role })`                             | `PATCH /users/:id` (e-mail não é editável)                                                  | Admin › Editar usuário           |
+| `users.deactivate(id)`                                         | `POST /users/:id/deactivate`                                                                | Admin › Desativar acesso         |
+| `users.resendInvite(id)`                                       | `POST /users/:id/resend-invite` (409 se o convite não estiver pendente)                     | Admin › Reenviar convite         |
+| `users.sendPasswordReset(id)`                                  | `POST /users/:id/reset-password` (link de 24h para `/redefinir-senha/:token`)               | Admin › Link de nova senha       |
+| `vets.list({ search, page })` / `vets.listAll()`               | `GET /vets?search=&page=` (`listAll` busca todas as páginas)                                | Agenda, agendamento              |
+| `vets.create({ userId, cpf, crmv })`                           | `POST /vets` (chamado após o convite de um usuário VET)                                     | Admin › Convidar usuário         |
+| `vets.remove(id)`                                              | `DELETE /vets/:id` (chamado ao desativar um usuário VET)                                    | Admin › Desativar acesso         |
+| `petOwners.list({ search, page })`                             | `GET /pet-owners?search=&page=` (com `pets[]`)                                              | Pacientes                        |
+| `petOwners.get(id)`                                            | `GET /pet-owners/:id` (com `pets[]`)                                                        | Ficha do tutor                   |
+| `petOwners.create(data)`                                       | `POST /pet-owners` (aceita `pets[]` junto; 409 se o CPF já existir)                         | Cadastro de tutor e pet          |
+| `petOwners.update(id, data)`                                   | `PATCH /pet-owners/:id` com `{ name, phone, email, address }`                               | Editar tutor                     |
+| `petOwners.remove(id)`                                         | `DELETE /pet-owners/:id` (exclusão lógica, inclui os pets)                                  | Excluir tutor                    |
+| `pets.list({ search, page })`                                  | `GET /pets?search=&page=` (com `petOwner`)                                                  | Pacientes                        |
+| `pets.get(id)`                                                 | `GET /pets/:id` (com `petOwner`)                                                            | Ficha do paciente                |
+| `pets.create(data)`                                            | `POST /pets` com `petOwnerId`                                                               | Novo pet                         |
+| `pets.update(id, data)`                                        | `PATCH /pets/:id` sem `petOwnerId`                                                          | Editar pet                       |
+| `pets.remove(id)`                                              | `DELETE /pets/:id`                                                                          | Excluir pet                      |
+| `appointments.list({ from, to, vetId, petId, status })`        | `GET /appointments?from=&to=&vetId=&petId=&status=` → `{ data }` (sem paginação)            | Agenda, Atendimento              |
+| `appointments.byPet(petId, { from, to, status, order, page })` | `GET /appointments?petId=&...&page=` → `{ data, total, page, pageSize }`                    | Ficha do paciente                |
+| `appointments.create(data)`                                    | `POST /appointments`                                                                        | Novo agendamento                 |
+| `appointments.update(id, data)`                                | `PATCH /appointments/:id` com `{ dateTime, type, obs }`                                     | Remarcar                         |
+| `appointments.cancel(id)` / `appointments.complete(id)`        | `PATCH /appointments/:id/cancel` · `PATCH /appointments/:id/complete`                       | Agenda, Atendimento              |
+| `procedures.list({ petId, type, dateFrom, dateTo, page })`     | `GET /procedures?...` → `{ data, meta }` (`listAll` busca todas as páginas)                 | Histórico clínico, Caixa         |
+| `procedures.get(id)`                                           | `GET /procedures/:id`                                                                       | Detalhe do procedimento, Caixa   |
+| `procedures.create(data)`                                      | `POST /procedures`                                                                          | Novo procedimento                |
+| `procedures.addNote(id, content)`                              | `POST /procedures/:id/notes`                                                                | Observações do procedimento      |
+| `prescriptions.list({ petId, vetId, page })`                   | `GET /prescriptions?petId=&vetId=&page=` → `{ data, meta }` (mais recente primeiro)         | Paciente › Receitas              |
+| `prescriptions.get(id)`                                        | `GET /prescriptions/:id`                                                                    | Paciente › Receita               |
+| `prescriptions.create({ content, petId, vetId })`              | `POST /prescriptions` (sem edição nem exclusão)                                             | Paciente › Nova receita          |
+| `payments.list({ status, dateFrom, dateTo, page })`            | `GET /payments?...` → `{ data, meta }` (`listAll` busca todas as páginas)                   | Caixa                            |
+| `payments.create(data)`                                        | `POST /payments` com `{ paymentMethod, discount, notes, items[] }`                          | Registrar pagamento              |
+| `payments.cancel(id)` / `payments.refund(id)`                  | `PATCH /payments/:id/cancel` · `PATCH /payments/:id/refund`                                 | Caixa                            |

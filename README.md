@@ -1,19 +1,25 @@
 # VetCare · front-end
 
-Front-end do VetCare, sistema de gestão para clínica veterinária: cadastro de pacientes e
-tutores e controle de acesso da equipe. Todas as telas consomem a API do VetCare; para trabalhar sem
-o back-end, a API pode ser simulada no navegador com o MSW.
+Front-end do VetCare, sistema de gestão para clínica veterinária: agenda, atendimento, prontuário,
+caixa, cadastro de pacientes e tutores e controle de acesso da equipe. Todas as telas consomem a API
+do VetCare; para trabalhar sem o back-end, a API pode ser simulada no navegador com o MSW.
 
-## Entrega 2
-
-Esta versão corresponde à **entrega 2** do trabalho, com as seguintes entregas:
+## Funcionalidades
 
 - **Autenticação:** login por e-mail e senha, sessão mantida ao recarregar a página e acesso separado
-  por perfil (Administrador e Recepcionista).
-- **Convites:** criação de senha pelo link de convite, com regra de senha forte.
+  por perfil (Recepcionista, Veterinário e Administrador).
+- **Convites e senhas:** criação de senha pelo link de convite, com regra de senha forte; o
+  administrador também pode enviar um link de redefinição de senha.
+- **Agenda:** visões de dia, semana e mês, novo agendamento e detalhes da consulta com os dados do
+  tutor.
+- **Atendimento:** painel do dia do veterinário, com as próximas consultas, o histórico do dia e o
+  cancelamento de consultas.
+- **Ficha do paciente:** histórico clínico com registro de procedimentos (consulta, retorno,
+  vacinação, cirurgia e exame), receitas em texto formatado com impressão em A4 e agendamentos do pet.
+- **Caixa:** movimentações do dia na recepção, registro de pagamentos, cancelamento e estorno.
 - **Pacientes e tutores:** busca por nome, raça, tutor ou CPF; cadastro de pet com tutor novo ou já
   existente; ficha do tutor, edição e exclusão.
-- **Usuários:** listagem com busca, convite, edição e desativação de acesso.
+- **Usuários:** listagem com busca, convite, reenvio de convite, edição e desativação de acesso.
 - **Integração com a API:** todas as telas ligadas às rotas do back-end, com tratamento de erros e API
   simulada para desenvolvimento.
 
@@ -29,6 +35,8 @@ Esta versão corresponde à **entrega 2** do trabalho, com as seguintes entregas
 | [nuqs](https://nuqs.dev) | Busca e paginação guardadas na URL |
 | [dayjs](https://day.js.org) | Datas em português |
 | [Tabler Icons](https://tabler.io/icons) | Ícones |
+| [Tiptap](https://tiptap.dev) | Editor de texto das receitas e dos procedimentos |
+| [DOMPurify](https://github.com/cure53/DOMPurify) | Sanitização do HTML gerado pelo editor antes de exibi-lo |
 | [MSW 2](https://mswjs.io) | API simulada no navegador durante o desenvolvimento |
 | [PostCSS](https://postcss.org) | Processamento do CSS, com o preset do Mantine |
 | [Prettier](https://prettier.io) | Formatação do código |
@@ -76,17 +84,23 @@ atraso por requisição. Os dados são fictícios e ficam em memória: voltam ao
 |---|---|---|
 | Administrador | `admin@vetcare.com.br` | `password` |
 | Recepcionista | `recepcao@vetcare.com.br` | `password` |
+| Veterinário | `vet@vetcare.com.br` | `password` |
 
 Na simulação, o link de um novo convite aparece no console do navegador, já que nenhum e-mail é enviado.
 
 ## Perfis e acesso
 
-| Página | Administrador | Recepcionista |
-|---|---|---|
-| Pacientes | `/admin/pacientes` | `/recepcao/pacientes` |
-| Usuários | `/admin/usuarios` | — |
+| Página | Recepcionista | Veterinário | Administrador |
+|---|---|---|---|
+| Atendimento | — | `/vet/atendimento` | — |
+| Agenda | `/recepcao/agenda` | `/vet/agenda` | `/admin/agenda` |
+| Pacientes | `/recepcao/pacientes` | `/vet/pacientes` | `/admin/pacientes` |
+| Ficha do paciente | — | `/vet/pacientes/:id` | — |
+| Caixa | `/recepcao/caixa` | — | — |
+| Usuários | — | — | `/admin/usuarios` |
 
-Cada perfil só entra nas próprias páginas. As rotas públicas são `/login` e `/convite/:token`.
+Cada perfil só entra nas próprias páginas. As rotas públicas são `/login`, `/convite/:token` e
+`/redefinir-senha/:token`.
 
 ## Estrutura
 
@@ -96,7 +110,6 @@ src/
     queries/    hooks do TanStack Query usados pelas telas
   auth/         sessão e perfis
   components/   peças compartilhadas e formulários
-  data/         dados da antiga demonstração (sem uso nas telas)
   layout/       estrutura das páginas, barra lateral e navegação
   lib/          formatação, avisos, regra de senha e rótulos de estado
   mocks/        API simulada com MSW
@@ -109,8 +122,8 @@ endereços ficam em `src/api/endpoints.js` e a conversão entre o formato da API
 
 ## Deploy
 
-Nesta entrega, a Vercel estava configurada com deploys automáticos a partir do repositório. O
-redirecionamento das rotas para `index.html` fica em `vercel.json`.
+A Vercel está configurada com deploys automáticos a partir do repositório. O redirecionamento das
+rotas para `index.html` fica em `vercel.json`.
 
 Para publicar em outro lugar, a aplicação é estática: basta servir o conteúdo de `dist/`, com as
 variáveis de ambiente definidas no momento do build.
