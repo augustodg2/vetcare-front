@@ -3,6 +3,7 @@ import {
   Anchor,
   Avatar,
   Badge,
+  Chip,
   Group,
   Pagination,
   Skeleton,
@@ -163,6 +164,7 @@ function PetMain({ petId }) {
     parseAsString.withOptions({ history: "push" }),
   );
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [type, setType] = useQueryState("tipo", parseAsString);
   const ref = useRef(null);
 
   useEffect(() => {
@@ -179,6 +181,11 @@ function PetMain({ petId }) {
       ) : (
         <ClinicalHistory
           petId={petId}
+          type={type}
+          onType={(t) => {
+            setType(t);
+            setPage(null);
+          }}
           page={page}
           onPage={setPage}
           onOpen={(pr) => setProcedureId(pr.id)}
@@ -188,8 +195,16 @@ function PetMain({ petId }) {
   );
 }
 
-function ClinicalHistory({ petId, page, onPage, onOpen }) {
-  const history = usePetProcedures({ petId, page });
+const TYPE_FILTERS = [
+  "CONSULTATION",
+  "EXAM",
+  "VACCINATION",
+  "SURGERY",
+  "RETURN",
+];
+
+function ClinicalHistory({ petId, type, onType, page, onPage, onOpen }) {
+  const history = usePetProcedures({ petId, type, page });
   const total = history.data?.total;
 
   return (
@@ -200,14 +215,44 @@ function ClinicalHistory({ petId, page, onPage, onOpen }) {
           {total > 0 && (
             <div className="sub">
               {total} {total === 1 ? "registro" : "registros"}
+              {type && ` de ${typeLabel(type).toLowerCase()}`}
             </div>
           )}
         </div>
       </div>
+      <div
+        className="procedure-filters"
+        role="group"
+        aria-label="Filtrar por tipo"
+      >
+        <Chip.Group
+          value={type ?? "ALL"}
+          onChange={(v) => onType(v === "ALL" ? null : v)}
+        >
+          <Chip value="ALL" size="xs" variant="outline">
+            Todos
+          </Chip>
+          {TYPE_FILTERS.map((t) => (
+            <Chip
+              key={t}
+              value={t}
+              size="xs"
+              variant="outline"
+              color={typeColor(t)}
+            >
+              {typeLabel(t)}
+            </Chip>
+          ))}
+        </Chip.Group>
+      </div>
       <Async q={history} rows={4}>
         {({ rows, total, pageSize }) =>
           rows.length === 0 ? (
-            <Empty>Nenhum procedimento registrado para este pet.</Empty>
+            <Empty>
+              {type
+                ? `Nenhum registro de ${typeLabel(type).toLowerCase()} para este pet.`
+                : "Nenhum procedimento registrado para este pet."}
+            </Empty>
           ) : (
             <>
               <div className="procedure-list">
