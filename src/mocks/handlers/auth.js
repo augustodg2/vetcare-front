@@ -1,11 +1,19 @@
 import { http, HttpResponse } from "msw";
 import { ENDPOINTS } from "../../api/endpoints";
 import { STATUS } from "../../api/statusCodes";
+import { vetStore } from "./appointments";
 import { store, TOKEN_PREFIX, userFromRequest } from "./users";
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 
-const sessionUser = ({ id, name, email, role }) => ({ id, name, email, role });
+const sessionUser = ({ id, name, email, role }) => ({
+  id,
+  name,
+  email,
+  role,
+  vetId:
+    (role === "VET" && vetStore.find((v) => v.user.name === name)?.id) || null,
+});
 
 export const authHandlers = [
   http.post(`${API_URL}${ENDPOINTS.auth.login}`, async ({ request }) => {

@@ -100,11 +100,6 @@ export const pets = {
   get: async (id) => fromApiPet(await http.get(ENDPOINTS.pets.byId(id))),
   create: async (data) =>
     fromApiPet(await http.post(ENDPOINTS.pets.create, toApiCreatePet(data))),
-  appointments: async (id, { page } = {}) =>
-    fromApiPage(
-      await http.get(ENDPOINTS.pets.appointments(id), { page }),
-      fromApiAppointment,
-    ),
   update: async (id, data) =>
     fromApiPet(await http.patch(ENDPOINTS.pets.byId(id), toApiUpdatePet(data))),
   remove: (id) => http.delete(ENDPOINTS.pets.byId(id)),
@@ -120,6 +115,18 @@ export const appointments = {
     });
     return res.data.map(fromApiAppointment);
   },
+  byPet: async (petId, { from, to, status, order, page } = {}) =>
+    fromApiPage(
+      await http.get(ENDPOINTS.appointments.list, {
+        petId,
+        from,
+        to,
+        status,
+        order,
+        page,
+      }),
+      fromApiAppointment,
+    ),
   update: async (id, data) =>
     fromApiAppointment(
       await http.patch(

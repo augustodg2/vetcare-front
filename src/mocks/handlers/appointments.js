@@ -93,44 +93,16 @@ export const appointmentHandlers = [
     });
   }),
 
-  http.get(
-    `${API_URL}${ENDPOINTS.pets.appointments(":id")}`,
-    ({ params, request }) => {
-      const page = Math.max(
-        1,
-        Number(new URL(request.url).searchParams.get("page")) || 1,
-      );
-      const mine = appointmentStore.appointments
-        .filter((a) => a.pet.id === params.id)
-        .sort((a, b) => b.dateTime.localeCompare(a.dateTime));
-      return HttpResponse.json({
-        data: mine.slice(
-          (page - 1) * HISTORY_PAGE_SIZE,
-          page * HISTORY_PAGE_SIZE,
-        ),
-        total: mine.length,
-        page,
-        pageSize: HISTORY_PAGE_SIZE,
-      });
-    },
-  ),
-
   http.get(`${API_URL}${ENDPOINTS.appointments.list}`, ({ request }) => {
     const q = new URL(request.url).searchParams;
+    const petId = q.get("petId");
     const from = new Date(q.get("from")).getTime();
     const to = new Date(q.get("to")).getTime();
-    const caller = userFromRequest(request);
-    const ownVet =
-      caller?.role === "VET" &&
-      vetStore.find((v) => v.user.name === caller.name);
-    if (caller?.role === "VET" && !ownVet) {
-      return HttpResponse.json(
-        { message: "Cadastro de veterinário não encontrado para este usuário" },
-        { status: STATUS.FORBIDDEN },
-      );
-    }
-    const vetId = ownVet ? ownVet.id : q.get("vetId");
+    const vetId = q.get("vetId");
     const status = q.get("status");
+    const type = q.get("type");
+    const desc = q.get("order") === "desc";
+    const page = q.get("page") && Math.max(1, Number(q.get("page")) || 1);
 
     const data = appointmentStore.appointments
       .filter((a) => {
@@ -139,12 +111,24 @@ export const appointmentHandlers = [
           t >= from &&
           t < to &&
           (!vetId || a.vet.id === vetId) &&
-          (!status || a.status === status)
+          (!petId || a.pet.id === petId) &&
+          (!status || a.status === status) &&
+          (!type || a.type === type)
         );
       })
-      .sort((a, b) => a.dateTime.localeCompare(b.dateTime));
+      .sort((a, b) =>
+        desc
+          ? b.dateTime.localeCompare(a.dateTime)
+          : a.dateTime.localeCompare(b.dateTime),
+      );
 
-    return HttpResponse.json({ data, total: data.length });
+    if (!page) return HttpResponse.json({ data, total: data.length });
+    return HttpResponse.json({
+      data: data.slice((page - 1) * HISTORY_PAGE_SIZE, page * HISTORY_PAGE_SIZE),
+      total: data.length,
+      page,
+      pageSize: HISTORY_PAGE_SIZE,
+    });
   }),
 
   http.patch(

@@ -10,6 +10,7 @@ import {
   Pagination,
   Skeleton,
   Stack,
+  Tabs,
   Text,
   UnstyledButton,
 } from "@mantine/core";
@@ -30,13 +31,14 @@ import dayjs from "dayjs";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { usePetAppointments } from "../../api/queries/appointments";
 import { usePetOwner } from "../../api/queries/petOwners";
 import { usePet } from "../../api/queries/pets";
 import { usePetProcedures, useProcedure } from "../../api/queries/procedures";
 import { PetModal, PetOwnerModal } from "../../components/PeopleForms";
 import { htmlToText, RichText } from "../../components/RichText";
 import { Async, Dash, Empty, LoadingRows } from "../../components/ui";
-import { age, ago, fmtDate, hideCpf, kg } from "../../lib/format";
+import { age, ago, fmtDate, hideCpf, kg, relDay } from "../../lib/format";
 import {
   PROCEDURE_COLOR,
   PROCEDURE_LABEL,
@@ -176,6 +178,21 @@ function PetMain({ petId }) {
   );
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [type, setType] = useQueryState("tipo", parseAsString);
+  const [tab, setTab] = useQueryState(
+    "aba",
+    parseAsString.withDefault("historico"),
+  );
+  const [upcomingRange] = useState(() => {
+    const now = dayjs();
+    return {
+      from: now.toISOString(),
+      to: now.add(UPCOMING_DAYS, "day").toISOString(),
+      status: "ACTIVE",
+      order: "asc",
+    };
+  });
+  const upcomingTotal = usePetAppointments({ petId, ...upcomingRange }).data
+    ?.total;
   const ref = useRef(null);
 
   useEffect(() => {
@@ -190,19 +207,126 @@ function PetMain({ petId }) {
       {procedureId ? (
         <ProcedureDetail id={procedureId} onBack={() => setProcedureId(null)} />
       ) : (
-        <ClinicalHistory
-          petId={petId}
-          type={type}
-          onType={(t) => {
-            setType(t);
+        <Tabs
+          value={tab}
+          onChange={(t) => {
+            setTab(t === "historico" ? null : t);
             setPage(null);
           }}
-          page={page}
-          onPage={setPage}
-          onOpen={(pr) => setProcedureId(pr.id)}
-        />
+          keepMounted={false}
+        >
+          <Tabs.List className="pet-tabs">
+            <Tabs.Tab value="historico">Histórico clínico</Tabs.Tab>
+            <Tabs.Tab
+              value="agendamentos"
+              rightSection={
+                upcomingTotal > 0 && (
+                  <Badge size="xs" circle variant="light">
+                    {upcomingTotal}
+                  </Badge>
+                )
+              }
+            >
+              Agendamentos
+            </Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="historico">
+            <ClinicalHistory
+              petId={petId}
+              type={type}
+              onType={(t) => {
+                setType(t);
+                setPage(null);
+              }}
+              page={page}
+              onPage={setPage}
+              onOpen={(pr) => setProcedureId(pr.id)}
+            />
+          </Tabs.Panel>
+          <Tabs.Panel value="agendamentos">
+            <UpcomingAppointments
+              petId={petId}
+              range={upcomingRange}
+              page={page}
+              onPage={setPage}
+            />
+          </Tabs.Panel>
+        </Tabs>
       )}
     </section>
+  );
+}
+
+const UPCOMING_DAYS = 31;
+
+function UpcomingAppointments({ petId, range, page, onPage }) {
+  const upcoming = usePetAppointments({ petId, ...range, page });
+  const total = upcoming.data?.total;
+
+  return (
+    <>
+      <div className="tab-meta">
+        {total > 0
+          ? `${total} ${total === 1 ? "agendamento" : "agendamentos"} nos próximos ${UPCOMING_DAYS} dias`
+          : `Próximos ${UPCOMING_DAYS} dias`}
+      </div>
+      <Async q={upcoming} rows={3}>
+        {({ rows, total, pageSize }) =>
+          rows.length === 0 ? (
+            <Empty>
+              Nenhum agendamento para este pet nos próximos {UPCOMING_DAYS}{" "}
+              dias.
+            </Empty>
+          ) : (
+            <>
+              <div className="procedure-list">
+                {rows.map((a) => (
+                  <UpcomingItem key={a.id} appointment={a} />
+                ))}
+              </div>
+              {total > pageSize && (
+                <div className="block-foot">
+                  <Text size="sm" c="dimmed">
+                    {(page - 1) * pageSize + 1}–
+                    {Math.min(page * pageSize, total)} de {total}
+                  </Text>
+                  <Pagination
+                    value={page}
+                    onChange={onPage}
+                    total={Math.ceil(total / pageSize)}
+                    size="sm"
+                  />
+                </div>
+              )}
+            </>
+          )
+        }
+      </Async>
+    </>
+  );
+}
+
+function UpcomingItem({ appointment: a }) {
+  const d = dayjs(a.dateTime);
+
+  return (
+    <div className="procedure-row appointment-row">
+      <div className="procedure-when">
+        <span className="d">{d.format("DD MMM")}</span>
+        <span className="ago">{relDay(a.dateTime)}</span>
+      </div>
+      <div className="procedure-body">
+        <Group gap="xs" wrap="nowrap">
+          <Badge variant="light" color={typeColor(a.type)} size="sm">
+            {typeLabel(a.type)}
+          </Badge>
+          <Text size="xs" c="dimmed" truncate>
+            {d.format("ddd, HH:mm")} · {a.vet.name}
+          </Text>
+        </Group>
+        {a.obs && <div className="procedure-summary">{a.obs}</div>}
+      </div>
+    </div>
   );
 }
 
@@ -220,16 +344,13 @@ function ClinicalHistory({ petId, type, onType, page, onPage, onOpen }) {
 
   return (
     <>
-      <div className="block-head">
-        <div>
-          <h2>Histórico clínico</h2>
-          {total > 0 && (
-            <div className="sub">
-              {total} {total === 1 ? "registro" : "registros"}
-              {type && ` de ${typeLabel(type).toLowerCase()}`}
-            </div>
-          )}
-        </div>
+      <div className="tab-meta">
+        {total > 0 && (
+          <>
+            {total} {total === 1 ? "registro" : "registros"}
+            {type && ` de ${typeLabel(type).toLowerCase()}`}
+          </>
+        )}
       </div>
       <div
         className="procedure-filters"

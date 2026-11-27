@@ -1324,6 +1324,21 @@ button.mrow {
 .procedure-body {
   min-width: 0;
 }
+.appointment-row {
+  grid-template-columns: 76px minmax(0, 1fr);
+}
+.appointment-row:hover {
+  background: none;
+}
+.pet-tabs {
+  padding: 0 20px;
+}
+.tab-meta {
+  padding: 12px 20px 10px;
+  font-size: 13px;
+  color: var(--vc-muted);
+  min-height: calc(1.5em + 22px);
+}
 .procedure-chevron {
   color: var(--vc-muted);
 }
@@ -1400,6 +1415,15 @@ button.mrow {
   }
   .procedure-filters {
     padding: 0 16px 12px;
+  }
+  .appointment-row {
+    grid-template-columns: 68px minmax(0, 1fr);
+  }
+  .pet-tabs {
+    padding: 0 16px;
+  }
+  .tab-meta {
+    padding: 10px 16px 8px;
   }
 }
 .section-label {

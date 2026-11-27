@@ -9,7 +9,7 @@ import { api } from "..";
 export const appointmentKeys = {
   all: ["appointments"],
   list: (params) => [...appointmentKeys.all, "list", params],
-  pet: (petId, page) => [...appointmentKeys.all, "pet", petId, page],
+  pet: (petId, params) => [...appointmentKeys.all, "pet", petId, params],
 };
 
 export const useAppointments = ({ from, to, vetId, enabled = true }) =>
@@ -44,10 +44,18 @@ export const useUpdateAppointment = (options) =>
 export const useCancelAppointment = (options) =>
   useAppointmentMutation(api.appointments.cancel, options);
 
-export const usePetAppointments = ({ petId, page = 1 }) =>
+export const usePetAppointments = ({
+  petId,
+  from,
+  to,
+  status,
+  order,
+  page = 1,
+}) =>
   useQuery({
     enabled: !!petId,
-    queryKey: appointmentKeys.pet(petId, page),
-    queryFn: () => api.pets.appointments(petId, { page }),
+    queryKey: appointmentKeys.pet(petId, { from, to, status, order, page }),
+    queryFn: () =>
+      api.appointments.byPet(petId, { from, to, status, order, page }),
     placeholderData: keepPreviousData,
   });

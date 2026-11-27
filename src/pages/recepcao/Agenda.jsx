@@ -54,7 +54,7 @@ export default function Agenda() {
 
   const vets = useAllVets({ enabled: !isVet });
   const appointments = useAppointments({
-    vetId: isVet ? null : vetId,
+    vetId: isVet ? user.vetId : vetId,
     from: rangeStart.toISOString(),
     to: rangeEnd.toISOString(),
   });

@@ -1,5 +1,18 @@
-import { Button, Drawer, Group, Pagination, Stack, Text } from "@mantine/core";
-import { IconPlus } from "@tabler/icons-react";
+import {
+  ActionIcon,
+  Button,
+  Drawer,
+  Group,
+  Pagination,
+  Stack,
+  Text,
+} from "@mantine/core";
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconPlus,
+} from "@tabler/icons-react";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { usePetAppointments } from "../../api/queries/appointments";
 import { fmtDateTime } from "../../lib/format";
@@ -7,12 +20,16 @@ import { APPOINTMENT_STATUS, PROCEDURE_LABEL } from "../../lib/status";
 import { Async, Empty, Pill } from "../ui";
 import { AppointmentModal } from "./AppointmentModal";
 
+const thisMonth = () => dayjs().startOf("month");
+
 export function PetHistoryDrawer({ pet, onClose }) {
+  const [month, setMonth] = useState(thisMonth);
   const [page, setPage] = useState(1);
   const [booking, setBooking] = useState(false);
   const petId = pet?.id;
 
   useEffect(() => {
+    setMonth(thisMonth());
     setPage(1);
     setBooking(false);
   }, [petId]);
@@ -28,6 +45,11 @@ export function PetHistoryDrawer({ pet, onClose }) {
         {pet && (
           <PetHistory
             pet={pet}
+            month={month}
+            onMonth={(m) => {
+              setMonth(m);
+              setPage(1);
+            }}
             page={page}
             onPage={setPage}
             onBook={() => setBooking(true)}
@@ -44,8 +66,14 @@ export function PetHistoryDrawer({ pet, onClose }) {
   );
 }
 
-function PetHistory({ pet, page, onPage, onBook }) {
-  const history = usePetAppointments({ petId: pet.id, page });
+function PetHistory({ pet, month, onMonth, page, onPage, onBook }) {
+  const history = usePetAppointments({
+    petId: pet.id,
+    from: month.toISOString(),
+    to: month.add(1, "month").toISOString(),
+    order: "desc",
+    page,
+  });
 
   return (
     <Stack gap="md">
@@ -65,10 +93,32 @@ function PetHistory({ pet, page, onPage, onBook }) {
         </Button>
       </Group>
 
+      <Group justify="space-between" wrap="nowrap">
+        <ActionIcon
+          variant="subtle"
+          color="gray"
+          onClick={() => onMonth(month.subtract(1, "month"))}
+          aria-label="Mês anterior"
+        >
+          <IconChevronLeft size={18} />
+        </ActionIcon>
+        <Text size="sm" fw={500} tt="capitalize">
+          {month.format("MMMM [de] YYYY")}
+        </Text>
+        <ActionIcon
+          variant="subtle"
+          color="gray"
+          onClick={() => onMonth(month.add(1, "month"))}
+          aria-label="Próximo mês"
+        >
+          <IconChevronRight size={18} />
+        </ActionIcon>
+      </Group>
+
       <Async q={history} rows={4}>
         {({ rows, total, pageSize }) =>
           rows.length === 0 ? (
-            <Empty>Nenhum agendamento para este pet.</Empty>
+            <Empty>Nenhum agendamento neste mês.</Empty>
           ) : (
             <>
               <Stack
