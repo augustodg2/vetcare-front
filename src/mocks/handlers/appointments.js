@@ -1,39 +1,14 @@
-import dayjs from "dayjs";
 import { http, HttpResponse } from "msw";
 import { ENDPOINTS } from "@/api/endpoints";
 import { STATUS } from "@/api/statusCodes";
-import { store as petOwnerStore } from "./petOwners";
+import { dayAt, todayFromNow } from "../dates";
+import { vetStore, vetSummary } from "../vets";
+import { petSummary, store as petOwnerStore } from "./petOwners";
 import { userFromRequest } from "./users";
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 const VET_PAGE_SIZE = 10;
 const HISTORY_PAGE_SIZE = 10;
-
-export const vetStore = [
-  { id: "v1", crmv: "CRMV-SP 11234", cpf: "52998224725", name: "Camila Rocha" },
-  { id: "v2", crmv: "CRMV-SP 20987", cpf: "11144477735", name: "Rafael Nunes" },
-  { id: "v3", crmv: "CRMV-SP 33456", cpf: "39053344705", name: "Paula Mendes" },
-].map(({ name, ...v }) => ({
-  ...v,
-  createdAt: new Date().toISOString(),
-  deletedAt: null,
-  user: { name },
-}));
-
-const pets = {
-  p1: { id: "p1", name: "Thor", species: "DOG" },
-  p2: { id: "p2", name: "Mel", species: "CAT" },
-  p3: { id: "p3", name: "Bolt", species: "DOG" },
-};
-
-const at = (dayOffset, hour, minute = 0) =>
-  dayjs()
-    .add(dayOffset, "day")
-    .hour(hour)
-    .minute(minute)
-    .second(0)
-    .millisecond(0)
-    .toISOString();
 
 const appt = (
   id,
@@ -43,19 +18,16 @@ const appt = (
   type,
   status = "ACTIVE",
   obs = null,
-) => {
-  const vet = vetStore.find((v) => v.id === vetId);
-  return {
-    id,
-    dateTime,
-    createdAt: new Date().toISOString(),
-    obs,
-    status,
-    type,
-    pet: pets[petId],
-    vet: { id: vet.id, name: vet.user.name },
-  };
-};
+) => ({
+  id,
+  dateTime,
+  createdAt: new Date().toISOString(),
+  obs,
+  status,
+  type,
+  pet: petSummary(petId),
+  vet: vetSummary(vetId),
+});
 
 const FORBIDDEN_MESSAGE = "Você só pode alterar as suas próprias consultas";
 
@@ -68,14 +40,82 @@ const canManage = (request, appointment) => {
 
 const appointmentStore = {
   appointments: [
-    appt("a1", "v1", "p1", at(0, 9), "CONSULTATION", "DONE"),
-    appt("a2", "v1", "p2", at(0, 10, 30), "VACCINATION"),
-    appt("a3", "v1", "p3", at(0, 14), "RETURN", "ACTIVE", "Revisar curativo"),
-    appt("a4", "v2", "p1", at(0, 9, 30), "EXAM"),
-    appt("a5", "v2", "p2", at(0, 15), "CONSULTATION"),
-    appt("a6", "v2", "p3", at(0, 16), "SURGERY", "CANCELLED"),
-    appt("a7", "v3", "p2", at(1, 11), "CONSULTATION"),
-    appt("a8", "v1", "p1", at(1, 10), "RETURN"),
+    appt(
+      "a1",
+      "v1",
+      "p1",
+      todayFromNow(-180),
+      "CONSULTATION",
+      "DONE",
+      "Coceira nas orelhas",
+    ),
+    appt("a2", "v1", "p2", todayFromNow(-90), "VACCINATION", "DONE"),
+    appt(
+      "a3",
+      "v1",
+      "p3",
+      todayFromNow(-10),
+      "RETURN",
+      "ACTIVE",
+      "Retorno da distensão muscular",
+    ),
+    appt(
+      "a4",
+      "v1",
+      "p4",
+      todayFromNow(120),
+      "EXAM",
+      "ACTIVE",
+      "Trazer exames anteriores",
+    ),
+    appt(
+      "a5",
+      "v1",
+      "p5",
+      todayFromNow(60),
+      "CONSULTATION",
+      "CANCELLED",
+      "Tutora pediu para remarcar",
+    ),
+    appt(
+      "a6",
+      "v2",
+      "p6",
+      todayFromNow(30),
+      "CONSULTATION",
+      "ACTIVE",
+      "Tosse seca há 3 dias, piora à noite",
+    ),
+    appt(
+      "a7",
+      "v2",
+      "p2",
+      dayAt(3, 8),
+      "SURGERY",
+      "ACTIVE",
+      "Castração. Jejum de 8 h",
+    ),
+    appt(
+      "a8",
+      "v1",
+      "p1",
+      dayAt(15, 10),
+      "RETURN",
+      "ACTIVE",
+      "Reavaliar otite",
+    ),
+    appt("a9", "v1", "p3", dayAt(40, 11), "VACCINATION"),
+    appt("a10", "v2", "p2", dayAt(-7, 10), "CONSULTATION", "DONE"),
+    appt(
+      "a11",
+      "v2",
+      "p3",
+      dayAt(-14, 15),
+      "CONSULTATION",
+      "DONE",
+      "Mancando da pata traseira",
+    ),
+    appt("a12", "v2", "p4", dayAt(-60, 9), "SURGERY", "DONE"),
   ],
 };
 
@@ -85,9 +125,10 @@ export const appointmentHandlers = [
       1,
       Number(new URL(request.url).searchParams.get("page")) || 1,
     );
+    const vets = vetStore.filter((v) => !v.deletedAt);
     return HttpResponse.json({
-      data: vetStore.slice((page - 1) * VET_PAGE_SIZE, page * VET_PAGE_SIZE),
-      total: vetStore.length,
+      data: vets.slice((page - 1) * VET_PAGE_SIZE, page * VET_PAGE_SIZE),
+      total: vets.length,
       page,
       pageSize: VET_PAGE_SIZE,
     });
@@ -124,7 +165,10 @@ export const appointmentHandlers = [
 
     if (!page) return HttpResponse.json({ data, total: data.length });
     return HttpResponse.json({
-      data: data.slice((page - 1) * HISTORY_PAGE_SIZE, page * HISTORY_PAGE_SIZE),
+      data: data.slice(
+        (page - 1) * HISTORY_PAGE_SIZE,
+        page * HISTORY_PAGE_SIZE,
+      ),
       total: data.length,
       page,
       pageSize: HISTORY_PAGE_SIZE,

@@ -2,6 +2,7 @@ import { isStrongPassword, PASSWORD_RULE } from "@/lib/password";
 import { http, HttpResponse } from "msw";
 import { ENDPOINTS } from "@/api/endpoints";
 import { STATUS } from "@/api/statusCodes";
+import { vetStore } from "../vets";
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 const PAGE_SIZE = 8;
@@ -17,7 +18,7 @@ const active = (id, name, email, role, lastAccessDays) => ({
   role,
   password: "password",
   status: "ACTIVE",
-  lastAccessAt: ago(lastAccessDays),
+  lastAccessAt: lastAccessDays === null ? null : ago(lastAccessDays),
   inviteSentAt: null,
 });
 
@@ -38,37 +39,34 @@ const deactivated = (...args) => ({
   status: "DEACTIVATED",
 });
 
+const asVet = (user) => {
+  const { id, cpf, crmv } = vetStore.find((v) => v.userId === user.id);
+  return { ...user, vet: { id, cpf, crmv } };
+};
+
 export const store = {
   users: [
-    active("u1", "Renata Freitas", "admin@vetcare.com.br", "ADMIN", 0),
-    active("u2", "Juliana Prado", "recepcao@vetcare.com.br", "RECEP", 1),
-    active("u10", "Camila Rocha", "vet@vetcare.com.br", "VET", 1),
-    active("u3", "Bruno Carvalho", "bruno.carvalho@vetcare.com.br", "RECEP", 3),
-    active("u4", "Camila Duarte", "camila.duarte@vetcare.com.br", "ADMIN", 5),
-    active("u5", "Diego Moreira", "diego.moreira@vetcare.com.br", "RECEP", 8),
-    active("u6", "Elisa Tavares", "elisa.tavares@vetcare.com.br", "RECEP", 12),
-    active("u7", "Fábio Nunes", "fabio.nunes@vetcare.com.br", "RECEP", 20),
-    pending("u8", "Gabriela Lins", "gabriela.lins@vetcare.com.br", "RECEP", 2),
-    pending(
-      "u9",
-      "Henrique Alves",
-      "henrique.alves@vetcare.com.br",
-      "ADMIN",
-      6,
+    active("u1", "Beatriz Nunes", "admin@vetcare.com.br", "ADMIN", 1),
+    active("u2", "Joana Prado", "recepcao@vetcare.com.br", "RECEP", 0),
+    pending("u3", "Lucas Viana", "lucas.viana@vetcare.com.br", "RECEP", 2),
+    asVet(active("u4", "Dra. Camila Torres", "vet@vetcare.com.br", "VET", 0)),
+    asVet(
+      active(
+        "u5",
+        "Dr. Rafael Moura",
+        "rafael.moura@vetcare.com.br",
+        "VET",
+        null,
+      ),
     ),
-    deactivated(
-      "u12",
-      "Isabela Rocha",
-      "isabela.rocha@vetcare.com.br",
-      "RECEP",
-      40,
-    ),
-    deactivated(
-      "u11",
-      "João Pedro Maia",
-      "joao.maia@vetcare.com.br",
-      "RECEP",
-      70,
+    asVet(
+      deactivated(
+        "u6",
+        "Dr. Henrique Sales",
+        "henrique.sales@vetcare.com.br",
+        "VET",
+        30,
+      ),
     ),
   ],
 };

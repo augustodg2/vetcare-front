@@ -1,7 +1,7 @@
-import dayjs from "dayjs";
 import { http, HttpResponse } from "msw";
 import { ENDPOINTS } from "@/api/endpoints";
 import { STATUS } from "@/api/statusCodes";
+import { dayAt, todayFromNow } from "../dates";
 import { procedureStore } from "./procedures";
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
@@ -35,11 +35,71 @@ const build = ({ paymentMethod, discount = 0, notes, items, createdAt }) => {
   };
 };
 
+const seeded = ({ procedure, amount, status, updatedAt, ...data }) => {
+  const payment = build({
+    ...data,
+    items: [{ procedureId: procedure.id, amount }],
+  });
+  return {
+    ...payment,
+    status: status ?? payment.status,
+    updatedAt: updatedAt ?? payment.updatedAt,
+  };
+};
+
+const [thorVisit, thorExam, melVaccine, boltVisit, , melVisit, lunaSurgery] =
+  procedureStore;
+
 const store = [
-  build({
+  seeded({
+    procedure: thorVisit,
+    amount: 180,
     paymentMethod: "PIX",
-    items: [{ procedureId: procedureStore[0].id, amount: 120 }],
-    createdAt: dayjs().hour(9).minute(40).second(0).toISOString(),
+    createdAt: todayFromNow(-135),
+  }),
+  seeded({
+    procedure: thorExam,
+    amount: 90,
+    paymentMethod: "Cartão de débito",
+    status: "REFUNDED",
+    notes: "Citologia cobrada à parte por engano: já incluída na consulta.",
+    createdAt: todayFromNow(-134),
+    updatedAt: todayFromNow(-120),
+  }),
+  seeded({
+    procedure: melVaccine,
+    amount: 120,
+    paymentMethod: "Dinheiro",
+    discount: 20,
+    notes: "Desconto de fidelidade.",
+    createdAt: todayFromNow(-70),
+  }),
+  seeded({
+    procedure: melVaccine,
+    amount: 120,
+    paymentMethod: "Cartão de crédito",
+    status: "CANCELED",
+    notes: "Maquininha recusou o cartão.",
+    createdAt: todayFromNow(-75),
+    updatedAt: todayFromNow(-72),
+  }),
+  seeded({
+    procedure: boltVisit,
+    amount: 180,
+    paymentMethod: "PIX",
+    createdAt: dayAt(-14, 15, 50),
+  }),
+  seeded({
+    procedure: melVisit,
+    amount: 200,
+    paymentMethod: "Cartão de crédito",
+    createdAt: dayAt(-7, 11),
+  }),
+  seeded({
+    procedure: lunaSurgery,
+    amount: 950,
+    paymentMethod: "Cartão de crédito",
+    createdAt: dayAt(-60, 17),
   }),
 ];
 

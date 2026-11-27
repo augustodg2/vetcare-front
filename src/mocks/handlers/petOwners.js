@@ -17,27 +17,6 @@ const pet = (id, name, species, breed, sex, birthDate, weight, notes = "") => ({
   notes,
 });
 
-let nextSeedPetId = 6;
-
-const SEED_ADDRESSES = [
-  "Rua Oscar Freire, 379 · Jardim Paulista, São Paulo",
-  "Rua dos Pinheiros, 870 · Pinheiros, São Paulo",
-  "Av. Brigadeiro Faria Lima, 2232 · Jardim Paulistano, São Paulo",
-  "Rua Teodoro Sampaio, 1020 · Pinheiros, São Paulo",
-  "Rua Bela Cintra, 655 · Consolação, São Paulo",
-  "Av. Rebouças, 3970 · Pinheiros, São Paulo",
-  "Rua Fradique Coutinho, 1110 · Vila Madalena, São Paulo",
-  "Rua Tabapuã, 540 · Itaim Bibi, São Paulo",
-  "Rua Vergueiro, 2045 · Vila Mariana, São Paulo",
-  "Av. Santo Amaro, 1800 · Vila Nova Conceição, São Paulo",
-  "Rua Domingos de Morais, 1300 · Vila Mariana, São Paulo",
-  "Rua Haddock Lobo, 745 · Cerqueira César, São Paulo",
-  "Rua Mourato Coelho, 390 · Pinheiros, São Paulo",
-  "Rua Joaquim Floriano, 466 · Itaim Bibi, São Paulo",
-  "Av. Angélica, 2100 · Higienópolis, São Paulo",
-  "Rua Apinajés, 1240 · Perdizes, São Paulo",
-];
-
 export const store = {
   petOwners: [
     {
@@ -65,14 +44,14 @@ export const store = {
       id: "po2",
       name: "Carlos Mota",
       cpf: "45678912345",
-      phone: "11976543210",
+      phone: "1133224455",
       email: "carlos.mota@email.com",
-      address: "Av. Paulista, 1000 · Bela Vista, São Paulo",
+      address: "",
       pets: [pet("p3", "Bolt", "DOG", "Border Collie", "M", "2020-11-20", 18)],
     },
     {
       id: "po3",
-      name: "Ana Beatriz Souza",
+      name: "Ana Souza",
       cpf: "12345678909",
       phone: "11965432109",
       email: "ana.souza@email.com",
@@ -84,125 +63,39 @@ export const store = {
           "CAT",
           "Siamês",
           "F",
-          "2018-05-30",
+          "2010-05-30",
           3.8,
           "Doença renal crônica",
         ),
+        pet("p5", "Pipoca", "CAT", "SRD", "M", null, null),
       ],
     },
     {
       id: "po4",
-      name: "Pedro Almeida",
+      name: "Roberto Lima",
       cpf: "98765432100",
-      phone: "11954321098",
-      email: "pedro.almeida@email.com",
-      address: "Rua Augusta, 220 · Consolação, São Paulo",
-      pets: [pet("p5", "Pipo", "DOG", "Shih Tzu", "M", "2022-02-10", 6.5)],
-    },
-    ...[
-      ["Fernanda Lima", "11122233344", [["Rex", "DOG", "SRD", "M", 8]]],
-      [
-        "Gustavo Rocha",
-        "22233344455",
-        [
-          ["Nina", "CAT", "Persa", "F", 4.1],
-          ["Zeus", "DOG", "Pastor Alemão", "M", 34],
-        ],
-      ],
-      ["Helena Duarte", "33344455566", [["Amora", "DOG", "Poodle", "F", 5]]],
-      [
-        "Igor Menezes",
-        "44455566677",
-        [
-          ["Simba", "CAT", "SRD", "M", 5.3],
-          ["Nala", "CAT", "SRD", "F", 3.9],
-        ],
-      ],
-      [
-        "Juliana Castro",
-        "55566677788",
-        [
-          ["Pipoca", "DOG", "Beagle", "F", 11],
-          ["Mingau", "CAT", "Ragdoll", "M", 6],
-        ],
-      ],
-      [
-        "Lucas Teixeira",
-        "66677788899",
-        [["Bento", "DOG", "Labrador", "M", 29]],
-      ],
-      [
-        "Mariana Furtado",
-        "77788899900",
-        [
-          ["Frida", "DOG", "Dachshund", "F", 7.2],
-          ["Oliver", "CAT", "Maine Coon", "M", 7.8],
-        ],
-      ],
-      ["Nelson Barros", "88899900011", [["Max", "DOG", "Rottweiler", "M", 41]]],
-      [
-        "Olívia Ferraz",
-        "99900011122",
-        [
-          ["Bela", "DOG", "Yorkshire", "F", 3.1],
-          ["Fred", "CAT", "SRD", "M", 4.6],
-        ],
-      ],
-      ["Paulo Nogueira", "10120230344", [["Toby", "DOG", "Pug", "M", 9.4]]],
-      [
-        "Quitéria Lopes",
-        "20230340455",
-        [
-          ["Lola", "DOG", "Bulldog Francês", "F", 12],
-          ["Cleo", "CAT", "Siamês", "F", 3.6],
-        ],
-      ],
-      ["Rafael Pinto", "30340450566", [["Duque", "DOG", "Boxer", "M", 27]]],
-      [
-        "Sabrina Moraes",
-        "40450560677",
-        [
-          ["Maya", "DOG", "Spitz Alemão", "F", 3.4],
-          ["Tigre", "CAT", "Bengal", "M", 5.9],
-        ],
-      ],
-      ["Tiago Vasconcelos", "50560670788", [["Chico", "CAT", "SRD", "M", 5]]],
-      [
-        "Úrsula Campos",
-        "60670780899",
-        [
-          ["Lord", "DOG", "Golden Retriever", "M", 33],
-          ["Safira", "CAT", "Azul Russo", "F", 4.3],
-        ],
-      ],
-      [
-        "Vinícius Prado",
-        "70780890900",
-        [
-          ["Nico", "DOG", "Schnauzer", "M", 8.7],
-          ["Princesa", "DOG", "Lhasa Apso", "F", 6.1],
-        ],
-      ],
-    ].map(([name, cpf, pets], i) => ({
-      id: `po${i + 5}`,
-      name,
-      cpf,
-      phone: `1194000${1000 + i}`,
-      email: `${name.split(" ")[0].toLowerCase()}@email.com`,
-      address: SEED_ADDRESSES[i % SEED_ADDRESSES.length],
-      pets: pets.map(([petName, species, breed, sex, weight]) =>
+      phone: "11991234567",
+      email: "roberto.lima@email.com",
+      address: "Av. Pompeia, 870 · Pompeia, São Paulo",
+      pets: [
         pet(
-          `p${nextSeedPetId++}`,
-          petName,
-          species,
-          breed,
-          sex,
-          "2020-01-15",
-          weight,
+          "p6",
+          "Amora",
+          "DOG",
+          "Shih Tzu",
+          "F",
+          "2015-09-14",
+          7.1,
+          "Cardiopata: sopro grau II",
         ),
-      ),
-    })),
+      ],
+    },
   ],
+};
+
+export const petSummary = (id) => {
+  const found = store.petOwners.flatMap((o) => o.pets).find((p) => p.id === id);
+  return found && { id: found.id, name: found.name, species: found.species };
 };
 
 const matches = (search, ...fields) => {

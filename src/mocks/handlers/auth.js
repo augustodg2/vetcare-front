@@ -1,7 +1,7 @@
 import { http, HttpResponse } from "msw";
 import { ENDPOINTS } from "@/api/endpoints";
 import { STATUS } from "@/api/statusCodes";
-import { vetStore } from "./appointments";
+import { vetStore } from "../vets";
 import { store, TOKEN_PREFIX, userFromRequest } from "./users";
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";

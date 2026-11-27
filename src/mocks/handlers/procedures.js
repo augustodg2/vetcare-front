@@ -1,51 +1,28 @@
-import dayjs from "dayjs";
 import { http, HttpResponse } from "msw";
 import { ENDPOINTS } from "@/api/endpoints";
 import { STATUS } from "@/api/statusCodes";
-import { vetStore } from "./appointments";
+import { dayAt, todayFromNow } from "../dates";
+import { vetStore, vetSummary } from "../vets";
+import { petSummary } from "./petOwners";
 
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 const PAGE_SIZE = 10;
 
-const pets = {
-  p1: { id: "p1", name: "Thor", species: "DOG" },
-  p2: { id: "p2", name: "Mel", species: "CAT" },
-  p3: { id: "p3", name: "Bolt", species: "DOG" },
-};
-
-const daysAgo = (n, hour = 10) =>
-  dayjs()
-    .subtract(n, "day")
-    .hour(hour)
-    .minute(0)
-    .second(0)
-    .millisecond(0)
-    .toISOString();
-
 let nextId = 1;
-const procedure = (
-  petId,
-  vetId,
-  type,
-  ago,
-  notes,
-  extraNotes = [],
-  hour = 10,
-) => {
-  const vet = vetStore.find((v) => v.id === vetId);
-  const dateTime = daysAgo(ago, hour);
+const procedure = (petId, vetId, type, dateTime, notes, extraNotes = []) => {
+  const id = `pr${nextId++}`;
   return {
-    id: `pr${nextId++}`,
+    id,
     type,
     notes,
     dateTime,
     createdAt: dateTime,
-    pet: pets[petId],
-    vet: { id: vet.id, name: vet.user.name },
-    extraNotes: extraNotes.map(([content, after], i) => ({
-      id: `pn${nextId}-${i}`,
+    pet: petSummary(petId),
+    vet: vetSummary(vetId),
+    extraNotes: extraNotes.map(([content, createdAt], i) => ({
+      id: `pn-${id}-${i}`,
       content,
-      createdAt: daysAgo(ago - after, 16),
+      createdAt,
     })),
   };
 };
@@ -74,37 +51,10 @@ const consultation = ({
 
 export const procedureStore = [
   procedure(
-    "p2",
-    "v2",
-    "VACCINATION",
-    0,
-    paragraph("V5 felina anual aplicada. Sem reações."),
-    [],
-    9,
-  ),
-  procedure(
-    "p3",
-    "v1",
-    "RETURN",
-    0,
-    paragraph("Retorno da distensão muscular. Sem claudicação, alta."),
-    [],
-    10,
-  ),
-  procedure(
-    "p3",
-    "v1",
-    "EXAM",
-    0,
-    paragraph("Radiografia do membro pélvico esquerdo sem alterações."),
-    [],
-    11,
-  ),
-  procedure(
     "p1",
     "v1",
     "CONSULTATION",
-    6,
+    todayFromNow(-150),
     consultation({
       anamnesis:
         "Tutora relata coceira intensa nas orelhas há cerca de uma semana, com balançar de cabeça frequente e odor forte. Sem alteração de apetite. Banho em pet shop há 10 dias.",
@@ -112,7 +62,7 @@ export const procedureStore = [
         "Temperatura retal: 38,7 °C",
         "FC: 104 bpm · FR: 24 mpm",
         "Mucosas normocoradas, TPC &lt; 2 s",
-        "Peso: 32,4 kg · escore corporal 5/9",
+        "Peso: 32,5 kg · escore corporal 5/9",
       ],
       assessment:
         "Conduto auditivo bilateral eritematoso, com secreção ceruminosa acastanhada. Dor à manipulação do pavilhão direito. Membrana timpânica íntegra à otoscopia.",
@@ -121,125 +71,61 @@ export const procedureStore = [
       prognosis:
         "Bom, com tratamento tópico por 14 dias e limpeza dos condutos. Retorno em 15 dias.",
     }),
-    [["Tutora relatou melhora da coceira após 3 dias.", 3]],
+    [
+      [
+        "Tutora orientada sobre a limpeza dos condutos antes de cada aplicação.",
+        todayFromNow(-130),
+      ],
+    ],
   ),
   procedure(
     "p1",
     "v1",
     "EXAM",
-    6,
+    todayFromNow(-140),
     paragraph(
       "Citologia otológica: <strong>Malassezia</strong> em grande quantidade, sem bactérias em bastonete.",
     ),
   ),
   procedure(
-    "p1",
-    "v2",
+    "p2",
+    "v1",
     "VACCINATION",
-    40,
+    todayFromNow(-80),
+    paragraph("V5 felina anual aplicada. Sem reações."),
+  ),
+  procedure(
+    "p3",
+    "v2",
+    "CONSULTATION",
+    dayAt(-14, 15, 10),
+    consultation({
+      anamnesis:
+        "Tutor relata que o Bolt começou a mancar da pata traseira esquerda depois de uma corrida no parque, há 2 dias. Come e brinca normalmente.",
+      parameters: [
+        "Temperatura retal: 38,5 °C",
+        "FC: 96 bpm · FR: 22 mpm",
+        "Peso: 18 kg · escore corporal 5/9",
+      ],
+      assessment:
+        "Claudicação grau II no membro pélvico esquerdo, com dor à palpação da musculatura da coxa. Testes de gaveta e de compressão tibial negativos.",
+      diagnosis: "Distensão muscular no membro pélvico esquerdo.",
+      prognosis:
+        "Bom. Anti-inflamatório por 5 dias, repouso de 10 dias e retorno em 2 semanas.",
+    }),
+  ),
+  procedure(
+    "p1",
+    "v3",
+    "VACCINATION",
+    dayAt(-40, 15),
     paragraph("V10 anual aplicada. Sem reações."),
   ),
   procedure(
-    "p1",
-    "v2",
-    "VACCINATION",
-    41,
-    paragraph("Antirrábica anual aplicada."),
-  ),
-  procedure(
-    "p1",
-    "v1",
-    "RETURN",
-    75,
-    paragraph("Retorno pós-castração. Pontos retirados, cicatrização boa."),
-  ),
-  procedure(
-    "p1",
-    "v3",
-    "SURGERY",
-    85,
-    paragraph("Orquiectomia eletiva sem intercorrências. Alta no mesmo dia.") +
-      list([
-        "Meloxicam 0,1 mg/kg a cada 24 h por 3 dias",
-        "Colar elisabetano por 10 dias",
-      ]),
-    [
-      ["Ligação de acompanhamento: animal comendo e ativo.", 1],
-      ["Tutora enviou foto da incisão, sem sinais de infecção.", 4],
-    ],
-  ),
-  procedure(
-    "p1",
-    "v3",
-    "EXAM",
-    92,
-    paragraph("Hemograma e bioquímico pré-operatórios dentro da normalidade."),
-  ),
-  procedure(
-    "p1",
-    "v1",
-    "CONSULTATION",
-    95,
-    consultation({
-      anamnesis:
-        "Tutor deseja castração eletiva. Animal sem queixas, vacinação em dia, vermifugado há 2 meses.",
-      parameters: [
-        "Temperatura retal: 38,5 °C",
-        "FC: 96 bpm · FR: 20 mpm",
-        "Ausculta cardiopulmonar sem alterações",
-        "Peso: 31,8 kg",
-      ],
-      diagnosis: "Animal hígido, apto para procedimento anestésico (ASA I).",
-      prognosis: "Excelente. Solicitados exames pré-operatórios.",
-    }),
-  ),
-  procedure(
-    "p1",
-    "v2",
-    "CONSULTATION",
-    160,
-    consultation({
-      anamnesis:
-        "Dois episódios de vômito nos últimos 3 dias, logo após a troca brusca de ração. Fezes pastosas. Segue ativo e bebendo água.",
-      parameters: [
-        "Temperatura retal: 38,9 °C",
-        "Hidratação adequada",
-        "Abdômen sem dor à palpação",
-      ],
-      diagnosis: "Gastroenterite alimentar leve por troca abrupta de dieta.",
-      prognosis:
-        "Bom. Orientada transição gradual de 7 dias e dieta leve por 48 h.",
-    }),
-  ),
-  procedure("p1", "v2", "VACCINATION", 400, paragraph("V10 anual aplicada.")),
-  procedure(
-    "p1",
-    "v2",
-    "VACCINATION",
-    401,
-    paragraph("Antirrábica anual aplicada."),
-  ),
-  procedure(
-    "p1",
-    "v1",
-    "CONSULTATION",
-    420,
-    consultation({
-      anamnesis: "Check-up anual, sem queixas.",
-      parameters: [
-        "Temperatura retal: 38,6 °C",
-        "Peso: 31 kg · escore corporal 5/9",
-        "Dentes com tártaro leve",
-      ],
-      diagnosis: "Animal saudável. Doença periodontal grau 1.",
-      prognosis: "Excelente. Recomendada escovação diária.",
-    }),
-  ),
-  procedure(
     "p2",
-    "v3",
+    "v2",
     "CONSULTATION",
-    12,
+    dayAt(-7, 10, 20),
     consultation({
       anamnesis:
         "Perda de apetite há 2 dias, mais quieta que o normal. Sem vômitos. Mudança recente de casa.",
@@ -254,41 +140,24 @@ export const procedureStore = [
       prognosis:
         "Bom. Fluidoterapia subcutânea, estimulante de apetite e reavaliação em 48 h.",
     }),
-    [["Voltou a comer normalmente.", 2]],
+    [
+      ["Ultrassom abdominal sem alterações.", dayAt(-6, 16)],
+      ["Voltou a comer normalmente.", dayAt(-5, 9)],
+    ],
   ),
   procedure(
-    "p2",
-    "v3",
-    "EXAM",
-    12,
-    paragraph("Ultrassom abdominal sem alterações."),
-  ),
-  procedure(
-    "p2",
+    "p4",
     "v2",
-    "VACCINATION",
-    200,
-    paragraph("V5 felina anual aplicada."),
-  ),
-  procedure(
-    "p3",
-    "v1",
-    "CONSULTATION",
-    30,
-    consultation({
-      anamnesis:
-        "Começou a mancar da pata traseira esquerda após corrida no parque, ontem à tarde.",
-      parameters: [
-        "Temperatura retal: 38,4 °C",
-        "Claudicação grau 2/4 no membro pélvico esquerdo",
-        "Teste de gaveta negativo",
-      ],
-      assessment:
-        "Dor à palpação da musculatura da coxa, sem crepitação articular.",
-      diagnosis: "Distensão muscular no membro pélvico esquerdo.",
-      prognosis:
-        "Bom. Repouso e anti-inflamatório por 5 dias; se não melhorar, radiografia.",
-    }),
+    "SURGERY",
+    dayAt(-60, 9),
+    paragraph(
+      "Tratamento periodontal sob anestesia, com extração de dois dentes. Fluidoterapia reforçada pela doença renal crônica.",
+    ) +
+      list([
+        "Alimentação pastosa por 7 dias",
+        "Evitar anti-inflamatórios não esteroidais",
+      ]),
+    [["Ligação de acompanhamento: comendo bem e sem dor.", dayAt(-59, 16)]],
   ),
 ];
 
@@ -375,7 +244,7 @@ export const procedureHandlers = [
       notes,
       dateTime,
       createdAt: new Date().toISOString(),
-      pet: pets[petId] ?? { id: petId, name: "", species: "" },
+      pet: petSummary(petId),
       vet: { id: vet.id, name: vet.user.name },
       extraNotes: [],
     };
