@@ -63,10 +63,10 @@ export default function Pacientes() {
   const [debounced] = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [newPatient, setNewPatient] = useState(false);
-  const [petOwnerForm, setPetOwnerForm] = useState(null); // { petOwner }
-  const [petForm, setPetForm] = useState(null); // { pet?, petOwnerId, petOwnerName }
+  const [petOwnerForm, setPetOwnerForm] = useState(null);
+  const [petForm, setPetForm] = useState(null);
   const [openPetOwner, setOpenPetOwner] = useState(null);
-  const [toDelete, setToDelete] = useState(null); // { kind, row }
+  const [toDelete, setToDelete] = useState(null);
   const deletePetOwner = useDeletePetOwner({
     onSuccess: (_, id) => {
       toast.ok(`${toDelete.row.name} foi excluído.`);
@@ -88,7 +88,6 @@ export default function Pacientes() {
   const pageSize = pets.data?.pageSize;
   const pages =
     total && pageSize ? Math.max(1, Math.ceil(total / pageSize)) : null;
-  // after deleting the last row of the last page, fall back to the new last page
   const lastPage = pages ?? 1;
   useEffect(() => {
     if (pets.data && !pets.isPlaceholderData && page > lastPage)

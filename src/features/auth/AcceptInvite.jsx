@@ -12,9 +12,7 @@ export default function AcceptInvite() {
     try {
       const user = await accept.mutateAsync({ token, password });
       navigate(roleHome(user.role), { replace: true });
-    } catch {
-      // the global mutation handler already showed the API message
-    }
+    } catch {}
   };
 
   return (

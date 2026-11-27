@@ -16,11 +16,6 @@ export function Num({ children }) {
   return <span className={styles.num}>{children}</span>;
 }
 
-/**
- * Tabela que no celular vira lista de duas linhas.
- * columns: [{ key, label, render(row), num, width }]
- * mobile: { title(row), sub(row), side(row) }
- */
 export function DataTable({
   columns,
   rows,

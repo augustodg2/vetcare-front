@@ -63,10 +63,8 @@ import {
 import layoutStyles from "@/styles/layout.module.css";
 import styles from "./Usuarios.module.css";
 
-// a vet has a CPF/CRMV record, so the role can't move to or from VET on edit
 const NON_VET_ROLES = ROLE_OPTIONS.filter((r) => r.value !== "VET");
 
-// deactivated users are hidden by default; "todos" lists everyone
 const STATUS_FILTERS = [
   {
     value: "abertos",
@@ -123,7 +121,6 @@ export default function Usuarios() {
   const pageSize = q.data?.pageSize;
   const pages =
     total && pageSize ? Math.max(1, Math.ceil(total / pageSize)) : null;
-  // when the current page no longer exists, fall back to the last one
   const lastPage = pages ?? 1;
   useEffect(() => {
     if (q.data && !q.isPlaceholderData && page > lastPage) setPage(lastPage);
@@ -133,7 +130,7 @@ export default function Usuarios() {
     try {
       await deactivateUser.mutateAsync(deactivate);
     } catch {
-      return; // the global handler already showed the error
+      return;
     }
     toast.ok(`Acesso de ${deactivate.name} desativado.`);
     setDeactivate(null);
@@ -420,7 +417,7 @@ function InviteForm({ onClose }) {
             }),
           });
         } catch {
-          return; // the global handler already showed the error
+          return;
         }
         toast.ok(`Convite enviado para ${v.email.trim()}.`);
         onClose();
@@ -534,7 +531,7 @@ function EditUserForm({ user, onClose }) {
             role: v.role,
           });
         } catch {
-          return; // the global handler already showed the error
+          return;
         }
         toast.ok("Usuário atualizado.");
         onClose();

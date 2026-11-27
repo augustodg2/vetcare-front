@@ -17,7 +17,7 @@ const pet = (id, name, species, breed, sex, birthDate, weight, notes = "") => ({
   notes,
 });
 
-let nextSeedPetId = 6; // p1–p5 are written by hand below
+let nextSeedPetId = 6;
 
 const SEED_ADDRESSES = [
   "Rua Oscar Freire, 379 · Jardim Paulista, São Paulo",
@@ -38,7 +38,6 @@ const SEED_ADDRESSES = [
   "Rua Apinajés, 1240 · Perdizes, São Paulo",
 ];
 
-// in-memory store, shared by the owner and pet handlers
 export const store = {
   petOwners: [
     {
@@ -100,7 +99,6 @@ export const store = {
       address: "Rua Augusta, 220 · Consolação, São Paulo",
       pets: [pet("p5", "Pipo", "DOG", "Shih Tzu", "M", "2022-02-10", 6.5)],
     },
-    // 16 more owners with 25 pets: 30 pets from 20 owners in total
     ...[
       ["Fernanda Lima", "11122233344", [["Rex", "DOG", "SRD", "M", 8]]],
       [
@@ -270,7 +268,6 @@ export const petHandlers = [
       const found = findPet(params.id);
       if (!found) return notFound("Pet not found");
 
-      // petOwnerId is ignored: a pet cannot change owner
       const { name, species, breed, sex, birthDate, weight, notes } =
         await request.json();
       const data = { name, species, breed, sex, birthDate, weight, notes };
@@ -376,7 +373,6 @@ export const petOwnerHandlers = [
   http.delete(`${API_URL}${ENDPOINTS.petOwners.byId(":id")}`, ({ params }) => {
     const petOwner = store.petOwners.find((o) => o.id === params.id);
     if (!petOwner || petOwner.deletedAt) return notFound("Pet owner not found");
-    // soft delete: hidden from lists and GET by id, pets included
     petOwner.deletedAt = new Date().toISOString();
     return new HttpResponse(null, { status: 204 });
   }),

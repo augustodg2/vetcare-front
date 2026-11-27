@@ -1,4 +1,3 @@
-// O ValidationPipe do Nest devolve `message` como array; as demais respostas, como string.
 const firstMessage = (data) =>
   Array.isArray(data?.message) ? data.message[0] : data?.message;
 

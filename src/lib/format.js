@@ -111,10 +111,8 @@ export const UFS = [
   "TO",
 ];
 
-// CRMV number (up to 6 digits) + UF -> "CRMV-SP 123456"
 export const formatCrmv = (number, uf) => `CRMV-${uf} ${number}`;
 
-// 123.456.789-10 -> 123.***.***-10
 export function hideCpf(v) {
   const d = onlyDigits(v);
   return d.length === 11 ? `${d.slice(0, 3)}.***.***-${d.slice(9)}` : "";
@@ -129,7 +127,6 @@ export function maskPhone(v) {
 
 export const isEmail = (v = "") => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
-// primeiro dia (segunda) da semana de uma data
 export const weekStart = (d) => {
   const day = dayjs(d).startOf("day");
   return day.subtract((day.day() + 6) % 7, "day");

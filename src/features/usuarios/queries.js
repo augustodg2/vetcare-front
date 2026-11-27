@@ -26,7 +26,6 @@ export const useInviteUser = () => {
       if (vet) await api.vets.create({ userId: user.id, ...vet });
       return user;
     },
-    // also refresh when the vet step fails: the user was already invited
     onSettled: () => queryClient.invalidateQueries({ queryKey: userKeys.all }),
   });
 };

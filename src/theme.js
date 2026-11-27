@@ -1,7 +1,5 @@
 import { createTheme } from "@mantine/core";
 
-// Escada do teal da marca (#0d9488 é o tom 7). O teal cheio vai só em marcas pequenas:
-// botão principal, séries de dados, ícone ativo. Os tons claros carregam as áreas.
 const teal = [
   "#e4f7f5",
   "#c9eee9",

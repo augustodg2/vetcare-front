@@ -23,9 +23,6 @@ import {
   toApiUpdatePetOwner,
 } from "./mappers";
 
-// Serviços do VetCare. As telas só chamam estas funções, todas assíncronas e
-// ligadas à API real (http.js + ENDPOINTS). O README desta pasta lista as rotas.
-
 const fetchAllPages = async (fetchPage) => {
   const rows = [];
   for (let page = 1; ; page++) {
@@ -34,8 +31,6 @@ const fetchAllPages = async (fetchPage) => {
     if (!res.rows.length || rows.length >= res.total) return rows;
   }
 };
-
-// ============================== autenticação ==============================
 
 const auth = {
   login: ({ email, password }) =>
@@ -47,7 +42,6 @@ const auth = {
     http.post(ENDPOINTS.auth.resetPassword(token), { password }),
 };
 
-// ============================== usuários ==============================
 const users = {
   list: async ({ search, page, status } = {}) =>
     fromApiPage(
@@ -67,7 +61,6 @@ const users = {
   sendPasswordReset: (id) => http.post(ENDPOINTS.users.sendPasswordReset(id)),
 };
 
-// ============================== veterinários ==============================
 const vets = {
   list: async ({ search, page } = {}) =>
     fromApiPage(
@@ -89,7 +82,6 @@ const vets = {
   remove: (id) => http.delete(ENDPOINTS.vets.byId(id)),
 };
 
-// ============================== tutores e pacientes ==============================
 const petOwners = {
   list: async ({ search, page } = {}) =>
     fromApiPage(

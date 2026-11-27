@@ -19,7 +19,6 @@ export const authHandlers = [
   http.post(`${API_URL}${ENDPOINTS.auth.login}`, async ({ request }) => {
     const { email, password } = await request.json();
     const user = store.users.find((u) => u.email === email);
-    // pending invites have no password; deactivated users cannot log in
     if (!user || user.status !== "ACTIVE" || password !== user.password) {
       return HttpResponse.json(
         { message: "Invalid credentials" },

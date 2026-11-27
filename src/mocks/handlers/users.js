@@ -6,7 +6,6 @@ import { STATUS } from "@/api/statusCodes";
 const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 const PAGE_SIZE = 8;
 
-// the token is derived from the email so sessions survive page reloads
 export const TOKEN_PREFIX = "mock-token-";
 
 const ago = (days) => new Date(Date.now() - days * 86_400_000).toISOString();
@@ -39,7 +38,6 @@ const deactivated = (...args) => ({
   status: "DEACTIVATED",
 });
 
-// in-memory store shared by the auth and users handlers
 export const store = {
   users: [
     active("u1", "Renata Freitas", "admin@vetcare.com.br", "ADMIN", 0),
@@ -80,7 +78,6 @@ let nextId = 1000;
 const err = (status, message) =>
   HttpResponse.json({ statusCode: status, message }, { status });
 
-// never expose the password or the invite token
 const publicUser = ({ password, inviteToken, resetToken, ...u }) => u;
 
 export const userFromRequest = (request) => {
@@ -88,7 +85,6 @@ export const userFromRequest = (request) => {
   return store.users.find((u) => TOKEN_PREFIX + u.email === token);
 };
 
-// null when the caller is an authenticated admin, otherwise the error response
 const requireAdmin = (request) => {
   const user = userFromRequest(request);
   if (!user || user.status !== "ACTIVE")
@@ -155,7 +151,6 @@ export const userHandlers = [
       inviteToken: `convite-${id}-${Math.random().toString(36).slice(2, 10)}`,
     };
     store.users.push(user);
-    // no e-mail in dev: the link is logged instead
     console.info(
       `[mock] convite para ${email}: ${window.location.origin}/convite/${user.inviteToken}`,
     );
@@ -294,7 +289,7 @@ export const userHandlers = [
       const user = store.users.find((u) => u.id === params.id);
       if (!user) return err(404, "Usuário não encontrado.");
       user.status = "DEACTIVATED";
-      user.inviteToken = null; // cancels any pending invite
+      user.inviteToken = null;
       return new HttpResponse(null, { status: 204 });
     },
   ),

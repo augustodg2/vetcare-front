@@ -37,7 +37,6 @@ const useInvalidatePets = () => {
     ]);
 };
 
-// `options.onSuccess` runs after the caches are invalidated
 const usePetMutation = (mutationFn, { onSuccess, ...options } = {}) => {
   const invalidate = useInvalidatePets();
   return useMutation({

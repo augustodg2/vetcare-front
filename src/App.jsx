@@ -23,7 +23,6 @@ function RequireAuth() {
   return isKnownRole(user.role) ? <Outlet /> : <SignOut />;
 }
 
-// cada perfil só entra nas próprias páginas
 function RoleGate({ role }) {
   const { user } = useSession();
   if (!isKnownRole(user.role)) return <SignOut />;

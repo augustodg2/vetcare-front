@@ -60,7 +60,6 @@ export const useDeletePetOwner = ({ onSuccess, ...options } = {}) => {
     onSuccess: async (...args) => {
       const [, id] = args;
       await Promise.all([
-        // skip the deleted owner's detail: refetching it would 404 while the drawer is still open
         queryClient.invalidateQueries({
           queryKey: petOwnerKeys.all,
           predicate: (q) => q.queryKey[2] !== id,

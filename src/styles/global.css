@@ -12,7 +12,6 @@
   --vc-gutter: 24px;
 }
 
-/* tons de texto das pílulas e textos secundários com contraste AA (ganham das variáveis do Mantine) */
 :root:root[data-mantine-color-scheme] {
   --mantine-color-dimmed: #55666b;
   --mantine-color-yellow-light-color: #8a5a00;
@@ -32,7 +31,6 @@ html body {
   max-height: 100vh;
 }
 
-/* tamanho mínimo das pílulas */
 .mantine-Badge-root.mantine-Badge-root {
   --badge-fz-xs: 11px;
   --badge-fz-sm: 11px;

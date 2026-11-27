@@ -21,9 +21,7 @@ export function useSidebarCollapsed() {
     setCollapsed((c) => {
       try {
         localStorage.setItem(STORAGE_KEY, c ? "0" : "1");
-      } catch {
-        /* ignore */
-      }
+      } catch {}
       return !c;
     });
   return [collapsed, toggle];

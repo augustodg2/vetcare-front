@@ -9,7 +9,6 @@ export const useResetPassword = () =>
       api.auth.resetPassword(token, { password }),
   });
 
-// Accepting an invite signs the person in: the response carries a session token.
 export const useAcceptInvite = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -19,7 +18,6 @@ export const useAcceptInvite = () => {
         { password },
       );
       tokenStore.set(sessionToken);
-      // drop whatever a previous session left behind, keeping the auth query
       queryClient.removeQueries({ predicate: (q) => q.queryKey[0] !== "auth" });
       queryClient.setQueryData(authKeys.me, user);
       return user;

@@ -1,7 +1,6 @@
 import { Skeleton } from "@mantine/core";
 import styles from "./Kpis.module.css";
 
-// Indicadores num contêiner só, divididos por linhas finas
 export function Kpis({ items }) {
   return (
     <div className={styles.kpis} style={{ "--n": items.length }}>
