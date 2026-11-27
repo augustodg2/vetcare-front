@@ -5,6 +5,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { ROLES } from "@/auth/roles";
 import { useSession } from "@/auth/session";
 import { PersonAvatar } from "@/components/ui";
+import PageBoundary from "./PageBoundary";
 import Sidebar, { useSidebarCollapsed } from "./Sidebar";
 import { cx } from "@/lib/cx";
 import styles from "./AppLayout.module.css";
@@ -70,7 +71,9 @@ export default function AppLayout() {
 
       <main className={styles.main}>
         <div className={styles.content}>
-          <Outlet />
+          <PageBoundary>
+            <Outlet />
+          </PageBoundary>
         </div>
       </main>
 

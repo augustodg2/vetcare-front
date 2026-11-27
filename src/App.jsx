@@ -1,16 +1,19 @@
+import { lazy } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { isKnownRole, ROLES, roleHome } from "./auth/roles";
 import { SignOut, useSession } from "./auth/session";
 import AppLayout from "./layout/AppLayout";
-import AcceptInvite from "@/features/auth/AcceptInvite";
-import Agenda from "@/features/agenda/Agenda";
-import Atendimento from "@/features/atendimento/Atendimento";
-import Caixa from "@/features/caixa/Caixa";
-import Login from "@/features/auth/Login";
-import Paciente from "@/features/pacientes/Paciente";
-import Pacientes from "@/features/pacientes/Pacientes";
-import ResetPassword from "@/features/auth/ResetPassword";
-import Usuarios from "@/features/usuarios/Usuarios";
+import PageBoundary from "./layout/PageBoundary";
+
+const AcceptInvite = lazy(() => import("@/features/auth/AcceptInvite"));
+const Agenda = lazy(() => import("@/features/agenda/Agenda"));
+const Atendimento = lazy(() => import("@/features/atendimento/Atendimento"));
+const Caixa = lazy(() => import("@/features/caixa/Caixa"));
+const Login = lazy(() => import("@/features/auth/Login"));
+const Paciente = lazy(() => import("@/features/pacientes/Paciente"));
+const Pacientes = lazy(() => import("@/features/pacientes/Pacientes"));
+const ResetPassword = lazy(() => import("@/features/auth/ResetPassword"));
+const Usuarios = lazy(() => import("@/features/usuarios/Usuarios"));
 
 function RequireAuth() {
   const { user } = useSession();
@@ -38,9 +41,17 @@ function Home() {
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/convite/:token" element={<AcceptInvite />} />
-      <Route path="/redefinir-senha/:token" element={<ResetPassword />} />
+      <Route
+        element={
+          <PageBoundary>
+            <Outlet />
+          </PageBoundary>
+        }
+      >
+        <Route path="/login" element={<Login />} />
+        <Route path="/convite/:token" element={<AcceptInvite />} />
+        <Route path="/redefinir-senha/:token" element={<ResetPassword />} />
+      </Route>
       <Route element={<RequireAuth />}>
         <Route element={<AppLayout />}>
           <Route path={ROLES.RECEP.base} element={<RoleGate role="RECEP" />}>

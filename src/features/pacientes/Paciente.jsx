@@ -33,7 +33,7 @@ import {
   parseAsString,
   useQueryState,
 } from "nuqs";
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, lazy, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { usePetAppointments } from "@/api/queries/appointments";
 import { rolePath } from "@/auth/roles";
@@ -48,9 +48,8 @@ import {
 import { useAllVets } from "@/api/queries/vets";
 import { AppointmentModal } from "@/features/agenda/AppointmentModal";
 import { PetModal, PetOwnerModal } from "./PeopleForms";
-import { NewPrescription } from "./PrescriptionForm";
 import { PrescriptionPrint } from "./PrescriptionPrint";
-import { NewProcedure } from "./ProcedureForm";
+import PageBoundary from "@/layout/PageBoundary";
 import { htmlToText, RichText } from "@/components/ui/RichText";
 import {
   Async,
@@ -71,6 +70,13 @@ import { cx } from "@/lib/cx";
 import textStyles from "@/styles/text.module.css";
 import panelStyles from "./recordPanel.module.css";
 import styles from "./Paciente.module.css";
+
+const NewProcedure = lazy(() =>
+  import("./ProcedureForm").then((m) => ({ default: m.NewProcedure })),
+);
+const NewPrescription = lazy(() =>
+  import("./PrescriptionForm").then((m) => ({ default: m.NewPrescription })),
+);
 
 const SEX_LABEL = { M: "Macho", F: "Fêmea" };
 
@@ -231,28 +237,32 @@ function PetMain({ pet }) {
   return (
     <Block flush ref={ref} style={{ scrollMarginTop: 16 }}>
       {creating ? (
-        <NewProcedure
-          petId={petId}
-          onBack={() => setCreating(null)}
-          onCreated={(pr) => {
-            setCreating(null);
-            setType(null);
-            setPage(null);
-            setTab(null);
-            setProcedureId(pr.id);
-          }}
-        />
+        <PageBoundary>
+          <NewProcedure
+            petId={petId}
+            onBack={() => setCreating(null)}
+            onCreated={(pr) => {
+              setCreating(null);
+              setType(null);
+              setPage(null);
+              setTab(null);
+              setProcedureId(pr.id);
+            }}
+          />
+        </PageBoundary>
       ) : prescribing ? (
-        <NewPrescription
-          petId={petId}
-          onBack={() => setPrescribing(null)}
-          onCreated={(rx) => {
-            setPrescribing(null);
-            setPage(null);
-            setTab("prescricoes");
-            setPrescriptionId(rx.id);
-          }}
-        />
+        <PageBoundary>
+          <NewPrescription
+            petId={petId}
+            onBack={() => setPrescribing(null)}
+            onCreated={(rx) => {
+              setPrescribing(null);
+              setPage(null);
+              setTab("prescricoes");
+              setPrescriptionId(rx.id);
+            }}
+          />
+        </PageBoundary>
       ) : procedureId ? (
         <ProcedureDetail id={procedureId} onBack={() => setProcedureId(null)} />
       ) : prescriptionId ? (
