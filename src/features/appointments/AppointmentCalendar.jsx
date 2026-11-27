@@ -17,8 +17,7 @@ import dayjs from "dayjs";
 import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useState } from "react";
-import { rolePath } from "@/auth/roles";
-import { useSession } from "@/auth/session";
+import { useCan, usePaths, useSession } from "@/auth/session";
 import { useAppointments } from "@/api/queries/appointments";
 import { usePet, usePets } from "@/api/queries/pets";
 import { useAllVets } from "@/api/queries/vets";
@@ -37,7 +36,9 @@ const SCOPES = ["meus", "todos"];
 
 export default function AppointmentCalendar() {
   const { user } = useSession();
-  const isVet = user.role === "VET";
+  const can = useCan();
+  const paths = usePaths();
+  const isVet = can("scopeOwnAgenda");
 
   const [dateParam, setDate] = useQueryState(
     "d",
@@ -161,7 +162,7 @@ export default function AppointmentCalendar() {
         onClose={() => setSelectedId(null)}
         onRescheduled={(a) => go(a.dateTime)}
         petHref={
-          isVet ? (pet) => rolePath("VET", `pacientes/${pet.id}`) : undefined
+          can("openPatientRecord") ? (pet) => paths.patient(pet.id) : undefined
         }
         canManage={(a) => !isVet || a.vet.id === user.vetId}
       />

@@ -5,7 +5,7 @@ import { parseAsInteger, useQueryState } from "nuqs";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { usePetAppointments } from "@/api/queries/appointments";
-import { rolePath } from "@/auth/roles";
+import { usePaths } from "@/auth/session";
 import { Async, BlockPagination, Empty } from "@/components/ui";
 import { AppointmentModal } from "@/features/appointments/AppointmentModal";
 import { cx } from "@/lib/cx";
@@ -18,6 +18,7 @@ export const UPCOMING_DAYS = 31;
 
 export function UpcomingAppointments() {
   const { pet, upcomingRange: range } = usePetContext();
+  const paths = usePaths();
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const upcoming = usePetAppointments({ petId: pet.id, ...range, page });
   const total = upcoming.data?.total;
@@ -40,7 +41,7 @@ export function UpcomingAppointments() {
         <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
           <Button
             component={Link}
-            to={`${rolePath("VET", "agenda")}?v=semana&paciente=${pet.id}`}
+            to={paths.agenda({ petId: pet.id })}
             variant="default"
             size="xs"
             leftSection={<IconCalendar size={14} />}

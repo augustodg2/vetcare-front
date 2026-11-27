@@ -21,8 +21,7 @@ import {
 import { debounce, parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { rolePath } from "@/auth/roles";
-import { useSession } from "@/auth/session";
+import { useCan, usePaths } from "@/auth/session";
 import { useDeletePetOwner, usePetOwner } from "@/api/queries/petOwners";
 import { useDeletePet, usePets } from "@/api/queries/pets";
 import { NewPetModal, PetModal, PetOwnerModal } from "./PetForms";
@@ -49,10 +48,13 @@ import textStyles from "@/styles/text.module.css";
 const SEARCH_DEBOUNCE_MS = 500;
 
 export default function Pets() {
-  const { user } = useSession();
+  const can = useCan();
+  const paths = usePaths();
   const navigate = useNavigate();
-  const readOnly = user.role === "VET";
-  const calendarPath = readOnly ? undefined : rolePath(user.role, "agenda");
+  const readOnly = !can("editPatients");
+  const calendarHref = readOnly
+    ? undefined
+    : (petId) => paths.agenda({ petId });
   const [search, setSearch] = useQueryState(
     "q",
     parseAsString.withDefault("").withOptions({
@@ -158,8 +160,8 @@ export default function Pets() {
                     : "Nenhum paciente cadastrado."
                 }
                 onRowClick={(p) =>
-                  readOnly
-                    ? navigate(rolePath("VET", `pacientes/${p.id}`))
+                  can("openPatientRecord")
+                    ? navigate(paths.patient(p.id))
                     : setOpenPetOwner(p.petOwnerId)
                 }
                 fixed
@@ -219,7 +221,7 @@ export default function Pets() {
       <PetOwnerDrawer
         id={petOwnerForm || petForm || toDelete ? null : openPetOwner}
         onClose={() => setOpenPetOwner(null)}
-        calendarPath={calendarPath}
+        calendarHref={calendarHref}
         onEdit={(t) => setPetOwnerForm({ petOwner: t })}
         onAddPet={(t) => setPetForm({ petOwnerId: t.id, petOwnerName: t.name })}
         onEditPet={(p) => setPetForm({ pet: p })}
@@ -263,7 +265,7 @@ function PetOwnerDrawer({ id, onClose, ...handlers }) {
 
 function PetOwnerDetails({
   id,
-  calendarPath,
+  calendarHref,
   onEdit,
   onAddPet,
   onEditPet,
@@ -389,10 +391,10 @@ function PetOwnerDetails({
                       </div>
                     </Group>
                     <Group gap={4} wrap="nowrap">
-                      {calendarPath && (
+                      {calendarHref && (
                         <ActionIcon
                           component={Link}
-                          to={`${calendarPath}?v=semana&paciente=${p.id}`}
+                          to={calendarHref(p.id)}
                           variant="subtle"
                           color="gray"
                           aria-label={`Ver ${p.name} na agenda`}

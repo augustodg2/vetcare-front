@@ -8,6 +8,7 @@ import {
   useMemo,
 } from "react";
 import { tokenStore } from "@/api/http";
+import { can, rolePaths } from "./roles";
 import { authKeys, useMe } from "@/api/queries/auth";
 
 const SessionContext = createContext(null);
@@ -44,6 +45,16 @@ export function SessionProvider({ children }) {
 }
 
 export const useSession = () => useContext(SessionContext);
+
+export function useCan() {
+  const { user } = useSession();
+  return useCallback((capability) => can(user, capability), [user]);
+}
+
+export function usePaths() {
+  const { user } = useSession();
+  return useMemo(() => rolePaths(user.role), [user.role]);
+}
 
 export function SignOut() {
   const { logout } = useSession();

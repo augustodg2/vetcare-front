@@ -11,8 +11,7 @@ import {
 import dayjs from "dayjs";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { rolePath } from "@/auth/roles";
-import { useSession } from "@/auth/session";
+import { usePaths, useSession } from "@/auth/session";
 import {
   useAppointments,
   useCancelAppointment,
@@ -37,8 +36,6 @@ import styles from "./VetAppointmentDashboard.module.css";
 const SLOT_MIN = 30;
 const CLOCK_TICK_MS = 60_000;
 
-const petHref = (pet) => rolePath("VET", `pacientes/${pet.id}`);
-
 function useNow() {
   const [now, setNow] = useState(() => dayjs());
   useInterval(() => setNow(dayjs()), CLOCK_TICK_MS, { autoInvoke: true });
@@ -47,6 +44,7 @@ function useNow() {
 
 export default function VetAppointmentDashboard() {
   const { user } = useSession();
+  const paths = usePaths();
   const now = useNow();
   const today = now.startOf("day");
   const [action, setAction] = useState(null);
@@ -196,7 +194,7 @@ function QueueRow({ appointment: a, now, highlight, past, onAction }) {
       ) : (
         <Button
           component={Link}
-          to={petHref(a.pet)}
+          to={paths.patient(a.pet.id)}
           variant="default"
           size="xs"
           rightSection={<IconChevronRight size={14} />}
@@ -218,7 +216,7 @@ function QueueRow({ appointment: a, now, highlight, past, onAction }) {
           {past && (
             <Menu.Item
               component={Link}
-              to={petHref(a.pet)}
+              to={paths.patient(a.pet.id)}
               leftSection={<IconFileText size={14} />}
             >
               Ver ficha
