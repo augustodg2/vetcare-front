@@ -1,8 +1,19 @@
-import { Button, Drawer, Group, Stack, Text } from "@mantine/core";
 import {
+  Alert,
+  Anchor,
+  Badge,
+  Button,
+  Drawer,
+  Group,
+  Skeleton,
+  Stack,
+  Text,
+} from "@mantine/core";
+import {
+  IconAlertTriangle,
   IconCalendarEvent,
   IconCheck,
-  IconFileText,
+  IconPhone,
   IconX,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
@@ -12,10 +23,17 @@ import {
   useCancelAppointment,
   useCompleteAppointment,
 } from "../../api/queries/appointments";
+import { usePetOwner } from "../../api/queries/petOwners";
+import { usePet } from "../../api/queries/pets";
 import { fmtDateTime } from "../../lib/format";
 import { toast } from "../../lib/notify";
-import { APPOINTMENT_STATUS, PROCEDURE_LABEL } from "../../lib/status";
-import { ConfirmDialog, Facts, Pill } from "../ui";
+import {
+  APPOINTMENT_STATUS,
+  PROCEDURE_COLOR,
+  PROCEDURE_LABEL,
+  SPECIES_LABEL,
+} from "../../lib/status";
+import { ConfirmDialog, Pill, SpeciesAvatar } from "../ui";
 import { AppointmentModal } from "./AppointmentModal";
 
 export function AppointmentDrawer({
@@ -29,7 +47,7 @@ export function AppointmentDrawer({
 
   const cancel = useCancelAppointment({
     onSuccess: () => {
-      toast.ok(`Consulta de ${appointment.pet.name} cancelada.`);
+      toast.ok(`Agendamento de ${appointment.pet.name} cancelado.`);
       setMode(null);
       onClose();
     },
@@ -37,7 +55,7 @@ export function AppointmentDrawer({
 
   const complete = useCompleteAppointment({
     onSuccess: () => {
-      toast.ok(`Consulta de ${appointment.pet.name} concluída.`);
+      toast.ok(`Agendamento de ${appointment.pet.name} concluído.`);
       onClose();
     },
   });
@@ -47,7 +65,7 @@ export function AppointmentDrawer({
       <Drawer
         opened={!!appointment && !mode}
         onClose={onClose}
-        title="Consulta"
+        title="Agendamento"
         size="md"
       >
         {appointment && (
@@ -80,15 +98,18 @@ export function AppointmentDrawer({
         onClose={() => setMode(null)}
         onConfirm={() => cancel.mutate(appointment.id)}
         loading={cancel.isPending}
-        title="Cancelar consulta"
-        confirmLabel="Cancelar consulta"
+        title="Cancelar agendamento"
+        confirmLabel="Cancelar agendamento"
       >
         {appointment &&
-          `Cancelar a consulta de ${appointment.pet.name} em ${fmtDateTime(appointment.dateTime)}? O horário fica livre e o registro continua no histórico.`}
+          `Cancelar o agendamento de ${appointment.pet.name} em ${fmtDateTime(appointment.dateTime)}? O horário fica livre e o registro continua no histórico.`}
       </ConfirmDialog>
     </>
   );
 }
+
+const telHref = (phone = "") => `tel:${phone.replace(/\D/g, "")}`;
+const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function AppointmentDetails({
   appointment: a,
@@ -100,63 +121,152 @@ function AppointmentDetails({
   onReschedule,
   onCancel,
 }) {
+  const petQuery = usePet(a.pet.id);
+  const pet = petQuery.data;
+  const petOwnerQuery = usePetOwner(pet?.petOwnerId);
+  const petOwner = petOwnerQuery.data;
+  const loading =
+    petQuery.isPending || (!!pet?.petOwnerId && petOwnerQuery.isPending);
+  const when = dayjs(a.dateTime);
+  const species = SPECIES_LABEL[a.pet.species] ?? a.pet.species;
+
   return (
     <Stack gap="lg">
-      <Group justify="space-between" align="flex-start">
-        <Text fw={600} size="lg">
-          {a.pet.name}
-        </Text>
+      <Group justify="space-between" align="flex-start" wrap="nowrap">
+        <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
+          <SpeciesAvatar species={a.pet.species} size={44} />
+          <div style={{ minWidth: 0 }}>
+            <Text fw={600} size="lg" truncate>
+              {a.pet.name}
+            </Text>
+            <Text size="sm" c="dimmed" truncate>
+              {petOwner ? `${species} · Tutor: ${petOwner.name}` : species}
+            </Text>
+            {petHref && (
+              <Anchor component={Link} to={petHref} size="sm">
+                Ver ficha →
+              </Anchor>
+            )}
+          </div>
+        </Group>
         <Pill status={a.status} map={APPOINTMENT_STATUS} />
       </Group>
 
-      {petHref && (
-        <Button
-          component={Link}
-          to={petHref}
-          variant="light"
-          leftSection={<IconFileText size={14} />}
-        >
-          Ver ficha do pet
-        </Button>
-      )}
-
-      <Facts
-        items={[
-          ["Data e hora", fmtDateTime(a.dateTime)],
-          ["Tipo", PROCEDURE_LABEL[a.type]],
-          ["Veterinário", a.vet.name],
-          ["Observações", a.obs],
-        ]}
-      />
-
-      {a.status === "ACTIVE" && canManage && (
-        <Group justify="flex-end">
-          {canComplete && (
-            <Button
-              leftSection={<IconCheck size={14} />}
-              loading={completing}
-              onClick={onComplete}
+      {loading ? (
+        <DetailsSkeleton />
+      ) : (
+        <>
+          {pet?.alerts && (
+            <Alert
+              color="red"
+              variant="light"
+              icon={<IconAlertTriangle size={16} />}
+              p="xs"
             >
-              Marcar como concluída
-            </Button>
+              <strong>Alerta:</strong> {pet.alerts}
+            </Alert>
           )}
-          <Button
-            variant="default"
-            leftSection={<IconCalendarEvent size={14} />}
-            onClick={onReschedule}
-          >
-            Remarcar
-          </Button>
-          <Button
-            color="red"
-            variant="default"
-            leftSection={<IconX size={14} />}
-            onClick={onCancel}
-          >
-            Cancelar consulta
-          </Button>
-        </Group>
+
+          <div>
+            <Text fw={600} size="xl" className="tnum">
+              {capitalize(when.format("ddd, D [de] MMM · HH:mm"))}
+            </Text>
+            <Group gap="xs" mt="xs" wrap="nowrap">
+              <Badge
+                variant="light"
+                color={PROCEDURE_COLOR[a.type] ?? "gray"}
+                size="sm"
+              >
+                {PROCEDURE_LABEL[a.type] ?? a.type}
+              </Badge>
+              <Text size="sm" truncate>
+                {a.vet.name}
+              </Text>
+            </Group>
+          </div>
+
+          {a.obs && (
+            <div>
+              <div className="section-label">Observações</div>
+              <Text size="sm" mt={4} style={{ whiteSpace: "pre-line" }}>
+                {a.obs}
+              </Text>
+            </div>
+          )}
+
+          {petOwner && (
+            <div>
+              <div className="section-label">Tutor</div>
+              <Group gap="xs" mt={4} wrap="wrap">
+                <Text size="sm">{petOwner.name}</Text>
+                {petOwner.phone && (
+                  <Anchor
+                    href={telHref(petOwner.phone)}
+                    size="sm"
+                    className="tnum"
+                  >
+                    <Group gap={4} wrap="nowrap" component="span">
+                      <IconPhone size={14} />
+                      {petOwner.phone}
+                    </Group>
+                  </Anchor>
+                )}
+              </Group>
+            </div>
+          )}
+
+          {a.status === "ACTIVE" && canManage && (
+            <Stack gap="xs">
+              {canComplete && (
+                <Button
+                  fullWidth
+                  leftSection={<IconCheck size={14} />}
+                  loading={completing}
+                  onClick={onComplete}
+                >
+                  Marcar como concluído
+                </Button>
+              )}
+              <Group grow gap="xs">
+                <Button
+                  variant="default"
+                  leftSection={<IconCalendarEvent size={14} />}
+                  onClick={onReschedule}
+                >
+                  Remarcar
+                </Button>
+                <Button
+                  color="red"
+                  variant="default"
+                  leftSection={<IconX size={14} />}
+                  onClick={onCancel}
+                >
+                  Cancelar
+                </Button>
+              </Group>
+            </Stack>
+          )}
+        </>
       )}
+    </Stack>
+  );
+}
+
+function DetailsSkeleton() {
+  return (
+    <Stack gap="lg" aria-busy="true" aria-label="Carregando">
+      <Stack gap={8}>
+        <Skeleton height={24} width="70%" />
+        <Skeleton height={20} width="50%" mt={4} />
+      </Stack>
+      <Stack gap={8}>
+        <Skeleton height={12} width={50} />
+        <Skeleton height={16} width="60%" />
+      </Stack>
+      <Stack gap="xs">
+        <Skeleton height={36} />
+        <Skeleton height={36} />
+      </Stack>
     </Stack>
   );
 }
