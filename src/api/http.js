@@ -35,7 +35,6 @@ async function request(method, path, { body, query } = {}) {
 export const http = {
   get: (path, query) => request("GET", path, { query }),
   post: (path, body) => request("POST", path, { body }),
-  put: (path, body) => request("PUT", path, { body }),
   patch: (path, body) => request("PATCH", path, { body }),
   delete: (path) => request("DELETE", path),
 };

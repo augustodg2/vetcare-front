@@ -85,11 +85,6 @@ export const paymentHandlers = [
     });
   }),
 
-  http.get(`${API_URL}${ENDPOINTS.payments.byId(":id")}`, ({ params }) => {
-    const found = store.find((p) => p.id === params.id);
-    return found ? HttpResponse.json(found) : notFound();
-  }),
-
   http.post(`${API_URL}${ENDPOINTS.payments.create}`, async ({ request }) => {
     const body = await request.json();
     const items = body.items ?? [];

@@ -21,7 +21,7 @@ export function LoadingRows({ rows = 4 }) {
   );
 }
 
-export function ErrorState({ onRetry }) {
+function ErrorState({ onRetry }) {
   return (
     <Empty
       action={

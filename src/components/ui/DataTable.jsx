@@ -14,7 +14,6 @@ export function DataTable({
   onRowClick,
   empty = "Nada por aqui.",
   mobile,
-  footer,
   minWidth = 640,
   fixed = false,
 }) {
@@ -39,11 +38,6 @@ export function DataTable({
             {mobile.side && <div className="mrow-side">{mobile.side(r)}</div>}
           </Row>
         ))}
-        {footer && (
-          <div className="mrow" style={{ fontWeight: 600 }}>
-            {footer.mobile}
-          </div>
-        )}
       </div>
     );
   }
@@ -89,11 +83,6 @@ export function DataTable({
             </Table.Tr>
           ))}
         </Table.Tbody>
-        {footer && (
-          <Table.Tfoot>
-            <Table.Tr>{footer.cells}</Table.Tr>
-          </Table.Tfoot>
-        )}
       </Table>
     </Table.ScrollContainer>
   );

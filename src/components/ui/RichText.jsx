@@ -27,13 +27,3 @@ export function RichText({ html }) {
     <div className="rich-text" dangerouslySetInnerHTML={{ __html: clean }} />
   );
 }
-
-export function RichTextPreview({ html, lines = 2 }) {
-  const text = useMemo(() => htmlToText(html, { skipHeadings: true }), [html]);
-  if (!text) return null;
-  return (
-    <div className="rich-text-preview" style={{ WebkitLineClamp: lines }}>
-      {text}
-    </div>
-  );
-}

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api";
 
-export const vetKeys = {
+const vetKeys = {
   all: ["vets"],
   everyone: () => [...vetKeys.all, "all"],
 };

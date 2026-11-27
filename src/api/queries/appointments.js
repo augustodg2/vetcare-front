@@ -6,15 +6,14 @@ import {
 } from "@tanstack/react-query";
 import { api } from "@/api";
 
-export const appointmentKeys = {
+const appointmentKeys = {
   all: ["appointments"],
   list: (params) => [...appointmentKeys.all, "list", params],
   pet: (petId, params) => [...appointmentKeys.all, "pet", petId, params],
 };
 
-export const useAppointments = ({ from, to, vetId, petId, enabled = true }) =>
+export const useAppointments = ({ from, to, vetId, petId }) =>
   useQuery({
-    enabled,
     queryKey: appointmentKeys.list({ from, to, vetId, petId }),
     queryFn: () => api.appointments.list({ from, to, vetId, petId }),
     placeholderData: keepPreviousData,

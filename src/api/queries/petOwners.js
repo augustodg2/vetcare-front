@@ -13,11 +13,11 @@ export const petOwnerKeys = {
   detail: (id) => [...petOwnerKeys.all, "detail", id],
 };
 
-export const usePetOwners = ({ search = "", page = 1, enabled = true } = {}) =>
+export const usePetOwners = ({ search = "", enabled = true } = {}) =>
   useQuery({
     enabled,
-    queryKey: petOwnerKeys.list({ search, page }),
-    queryFn: () => api.petOwners.list({ search, page }),
+    queryKey: petOwnerKeys.list({ search }),
+    queryFn: () => api.petOwners.list({ search }),
     placeholderData: keepPreviousData,
   });
 

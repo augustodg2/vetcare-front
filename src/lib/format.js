@@ -7,11 +7,9 @@ export const ISO = "YYYY-MM-DD";
 export const todayISO = () => dayjs().format(ISO);
 export const toISO = (d) => (d ? dayjs(d).format(ISO) : null);
 
-export const int = (v) => (v ?? 0).toLocaleString("pt-BR");
 export const brl = (v) =>
   (v ?? 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 export const toCents = (v) => Math.round(Number(v || 0) * 100);
-export const pct = (v) => `${Math.round(v * 100)}%`;
 
 export const fmtDate = (d) => (d ? dayjs(d).format("DD/MM/YYYY") : "—");
 export const fmtDateTime = (d) =>
@@ -60,13 +58,6 @@ export const initials = (name = "") =>
     .map((s) => s[0])
     .join("")
     .toUpperCase();
-
-export const toMin = (t) => {
-  const [h, m] = t.split(":").map(Number);
-  return h * 60 + m;
-};
-export const fromMin = (m) =>
-  `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 
 export const onlyDigits = (v = "") => v.replace(/\D/g, "");
 

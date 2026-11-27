@@ -11,7 +11,7 @@ import { procedureKeys } from "@/api/queries/procedures";
 
 const CASH_REFRESH_MS = 60_000;
 
-export const paymentKeys = {
+const paymentKeys = {
   all: ["payments"],
   day: (iso) => [...paymentKeys.all, "day", iso],
   since: (iso) => [...paymentKeys.all, "since", iso],

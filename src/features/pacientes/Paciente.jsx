@@ -1,7 +1,6 @@
 import {
   ActionIcon,
   Anchor,
-  Avatar,
   Badge,
   Button,
   Chip,

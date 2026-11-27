@@ -44,7 +44,6 @@ export const ENDPOINTS = {
   payments: {
     list: "/payments",
     create: "/payments",
-    byId: (id) => `/payments/${id}`,
     cancel: (id) => `/payments/${id}/cancel`,
     refund: (id) => `/payments/${id}/refund`,
   },

@@ -164,7 +164,6 @@ export const fromApiPayment = (p) => ({
   id: p.id,
   method: p.paymentMethod,
   status: p.status,
-  subtotal: p.subtotal,
   discount: p.discount,
   total: p.total,
   notes: p.notes,

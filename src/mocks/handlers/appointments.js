@@ -66,7 +66,7 @@ const canManage = (request, appointment) => {
   return ownVet?.id === appointment.vet.id;
 };
 
-export const appointmentStore = {
+const appointmentStore = {
   appointments: [
     appt("a1", "v1", "p1", at(0, 9), "CONSULTATION", "DONE"),
     appt("a2", "v1", "p2", at(0, 10, 30), "VACCINATION"),

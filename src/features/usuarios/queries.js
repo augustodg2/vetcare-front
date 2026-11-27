@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { api } from "@/api";
 
-export const userKeys = {
+const userKeys = {
   all: ["users"],
   list: (params) => [...userKeys.all, "list", params],
 };

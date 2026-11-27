@@ -37,7 +37,7 @@ const fetchAllPages = async (fetchPage) => {
 
 // ============================== autenticação ==============================
 
-export const auth = {
+const auth = {
   login: ({ email, password }) =>
     http.post(ENDPOINTS.auth.login, { email, password }),
   me: () => http.get(ENDPOINTS.users.me),
@@ -48,7 +48,7 @@ export const auth = {
 };
 
 // ============================== usuários ==============================
-export const users = {
+const users = {
   list: async ({ search, page, status } = {}) =>
     fromApiPage(
       await http.get(ENDPOINTS.users.list, {
@@ -68,7 +68,7 @@ export const users = {
 };
 
 // ============================== veterinários ==============================
-export const vets = {
+const vets = {
   list: async ({ search, page } = {}) =>
     fromApiPage(
       await http.get(ENDPOINTS.vets.list, { search, page }),
@@ -90,7 +90,7 @@ export const vets = {
 };
 
 // ============================== tutores e pacientes ==============================
-export const petOwners = {
+const petOwners = {
   list: async ({ search, page } = {}) =>
     fromApiPage(
       await http.get(ENDPOINTS.petOwners.list, { search, page }),
@@ -109,7 +109,7 @@ export const petOwners = {
   remove: (id) => http.delete(ENDPOINTS.petOwners.byId(id)),
 };
 
-export const pets = {
+const pets = {
   list: async ({ search, page } = {}) =>
     fromApiPage(
       await http.get(ENDPOINTS.pets.list, { search, page }),
@@ -123,7 +123,7 @@ export const pets = {
   remove: (id) => http.delete(ENDPOINTS.pets.byId(id)),
 };
 
-export const appointments = {
+const appointments = {
   list: async ({ from, to, vetId, petId, status } = {}) => {
     const res = await http.get(ENDPOINTS.appointments.list, {
       from,
@@ -166,7 +166,7 @@ export const appointments = {
     ),
 };
 
-export const procedures = {
+const procedures = {
   list: async ({ petId, type, dateFrom, dateTo, page } = {}) =>
     fromApiMetaPage(
       await http.get(ENDPOINTS.procedures.list, {
@@ -194,7 +194,7 @@ export const procedures = {
     ),
 };
 
-export const prescriptions = {
+const prescriptions = {
   list: async ({ petId, vetId, page } = {}) =>
     fromApiMetaPage(
       await http.get(ENDPOINTS.prescriptions.list, { petId, vetId, page }),
@@ -211,7 +211,7 @@ export const prescriptions = {
     ),
 };
 
-export const payments = {
+const payments = {
   list: async ({ status, dateFrom, dateTo, page } = {}) =>
     fromApiMetaPage(
       await http.get(ENDPOINTS.payments.list, {

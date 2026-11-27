@@ -16,14 +16,3 @@ export const toast = {
     });
   },
 };
-
-export async function act(promise, okMessage) {
-  try {
-    await promise;
-    if (okMessage) toast.ok(okMessage);
-    return true;
-  } catch (error) {
-    toast.err(error);
-    return false;
-  }
-}

@@ -8,9 +8,7 @@ export function Kpis({ items }) {
         <div className="kpi" key={k.label}>
           <div className="kpi-label">{k.label}</div>
           <div className="kpi-value">{k.value}</div>
-          {k.hint && (
-            <div className={`kpi-hint ${k.trend ?? ""}`}>{k.hint}</div>
-          )}
+          {k.hint && <div className="kpi-hint">{k.hint}</div>}
         </div>
       ))}
     </div>

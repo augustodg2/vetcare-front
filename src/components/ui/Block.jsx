@@ -6,7 +6,6 @@ export function Block({
   actions,
   children,
   flush,
-  footer,
   className = "",
 }) {
   return (
@@ -25,7 +24,6 @@ export function Block({
         </div>
       )}
       {flush ? children : <div className="block-body">{children}</div>}
-      {footer && <div className="block-foot">{footer}</div>}
     </section>
   );
 }

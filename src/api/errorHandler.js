@@ -1,7 +1,7 @@
 import { ApiError } from "./errors";
 import { STATUS } from "./statusCodes";
 
-export function handleApiError(error, { navigate, logout }) {
+function handleApiError(error, { navigate, logout }) {
   if (!(error instanceof ApiError)) return;
 
   if (error.status === STATUS.UNAUTHORIZED) {

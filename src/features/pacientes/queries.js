@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { api } from "@/api";
 
-export const prescriptionKeys = {
+const prescriptionKeys = {
   all: ["prescriptions"],
   pet: (petId, page) => [...prescriptionKeys.all, "pet", petId, page],
   detail: (id) => [...prescriptionKeys.all, "detail", id],
