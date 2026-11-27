@@ -10,9 +10,7 @@ import { useAllVets } from "@/api/queries/vets";
 import { useSession } from "@/auth/session";
 import { toast } from "@/lib/notify";
 import { htmlToText, sanitizeHtml } from "@/components/ui/RichText";
-import { FormActions } from "@/components/ui";
-import { cx } from "@/lib/cx";
-import blockStyles from "@/components/ui/Block.module.css";
+import { BlockHead, FormActions } from "@/components/ui";
 import panelStyles from "./recordPanel.module.css";
 
 const GUIDANCE = "Orientações ao tutor";
@@ -38,7 +36,7 @@ function hintFor({ editor, node, pos }) {
 export function NewPrescription({ petId, onBack, onCreated }) {
   return (
     <>
-      <div className={cx(blockStyles.head, panelStyles.head)}>
+      <BlockHead className={panelStyles.head}>
         <Group gap="sm" wrap="nowrap">
           <ActionIcon
             variant="subtle"
@@ -50,7 +48,7 @@ export function NewPrescription({ petId, onBack, onCreated }) {
           </ActionIcon>
           <h2>Nova prescrição</h2>
         </Group>
-      </div>
+      </BlockHead>
       <div className={panelStyles.section}>
         <PrescriptionForm
           petId={petId}

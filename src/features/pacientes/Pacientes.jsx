@@ -4,7 +4,6 @@ import {
   Drawer,
   Group,
   Loader,
-  Pagination,
   Stack,
   Text,
   TextInput,
@@ -30,6 +29,9 @@ import { NewPatientModal, PetModal, PetOwnerModal } from "./PeopleForms";
 import {
   Async,
   Block,
+  BlockPagination,
+  CellMain,
+  CellSub,
   ConfirmDialog,
   Dash,
   DataTable,
@@ -41,8 +43,6 @@ import {
 import { age, hideCpf, kg } from "@/lib/format";
 import { SPECIES_LABEL } from "@/lib/status";
 import { toast } from "@/lib/notify";
-import blockStyles from "@/components/ui/Block.module.css";
-import tableStyles from "@/components/ui/DataTable.module.css";
 import layoutStyles from "@/styles/layout.module.css";
 import textStyles from "@/styles/text.module.css";
 
@@ -173,10 +173,10 @@ export default function Pacientes() {
                       <Group gap="sm" wrap="nowrap">
                         <SpeciesAvatar species={p.species} size={36} />
                         <div>
-                          <div className={tableStyles.cellMain}>{p.name}</div>
-                          <div className={tableStyles.cellSub}>
+                          <CellMain>{p.name}</CellMain>
+                          <CellSub>
                             {SPECIES_LABEL[p.species] ?? p.species} · {p.breed}
-                          </div>
+                          </CellSub>
                         </div>
                       </Group>
                     ),
@@ -208,20 +208,12 @@ export default function Pacientes() {
             )}
           </Async>
 
-          {total > pageSize && (
-            <div className={blockStyles.foot}>
-              <Text size="sm" c="dimmed">
-                {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)}{" "}
-                de {total}
-              </Text>
-              <Pagination
-                value={page}
-                onChange={setPage}
-                total={pages}
-                size="sm"
-              />
-            </div>
-          )}
+          <BlockPagination
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            onChange={setPage}
+          />
         </Block>
       </div>
 

@@ -6,7 +6,6 @@ import {
   Chip,
   Collapse,
   Group,
-  Pagination,
   Skeleton,
   Stack,
   Tabs,
@@ -55,6 +54,11 @@ import { NewProcedure } from "./ProcedureForm";
 import { htmlToText, RichText } from "@/components/ui/RichText";
 import {
   Async,
+  Block,
+  BlockBody,
+  BlockHead,
+  BlockPagination,
+  BlockSub,
   Dash,
   Empty,
   LoadingRows,
@@ -64,7 +68,6 @@ import { toast } from "@/lib/notify";
 import { age, ago, fmtDate, hideCpf, kg, relDay } from "@/lib/format";
 import { PROCEDURE_COLOR, PROCEDURE_LABEL, SPECIES_LABEL } from "@/lib/status";
 import { cx } from "@/lib/cx";
-import blockStyles from "@/components/ui/Block.module.css";
 import textStyles from "@/styles/text.module.css";
 import panelStyles from "./recordPanel.module.css";
 import styles from "./Paciente.module.css";
@@ -103,7 +106,7 @@ export default function Paciente() {
 function PacienteSkeleton() {
   return (
     <>
-      <section className={cx(blockStyles.block, styles.petHead)}>
+      <Block flush className={styles.petHead}>
         <div className={styles.petHeadMain}>
           <Skeleton height={56} width={56} radius="md" />
           <Stack gap={8} style={{ flex: 1 }}>
@@ -111,14 +114,14 @@ function PacienteSkeleton() {
             <Skeleton height={14} width={260} />
           </Stack>
         </div>
-      </section>
+      </Block>
       <div className={styles.gridAside}>
-        <section className={blockStyles.block}>
+        <Block flush>
           <LoadingRows rows={6} />
-        </section>
-        <section className={blockStyles.block}>
+        </Block>
+        <Block flush>
           <LoadingRows rows={4} />
-        </section>
+        </Block>
       </div>
     </>
   );
@@ -132,7 +135,7 @@ function PetHeader({ pet: p }) {
     .join(" · ");
 
   return (
-    <section className={cx(blockStyles.block, styles.petHead)}>
+    <Block flush className={styles.petHead}>
       <PetModal opened={editing} onClose={() => setEditing(false)} pet={p} />
       <div className={styles.petHeadMain}>
         <SpeciesAvatar species={p.species} size={56} />
@@ -177,7 +180,7 @@ function PetHeader({ pet: p }) {
           </span>
         </div>
       )}
-    </section>
+    </Block>
   );
 }
 
@@ -226,11 +229,7 @@ function PetMain({ pet }) {
   }, [procedureId, page, creating, prescriptionId, prescribing]);
 
   return (
-    <section
-      className={blockStyles.block}
-      ref={ref}
-      style={{ scrollMarginTop: 16 }}
-    >
+    <Block flush ref={ref} style={{ scrollMarginTop: 16 }}>
       {creating ? (
         <NewProcedure
           petId={petId}
@@ -320,7 +319,7 @@ function PetMain({ pet }) {
           </Tabs.Panel>
         </Tabs>
       )}
-    </section>
+    </Block>
   );
 }
 
@@ -378,20 +377,12 @@ function UpcomingAppointments({ pet, range, page, onPage }) {
                   <UpcomingItem key={a.id} appointment={a} />
                 ))}
               </div>
-              {total > pageSize && (
-                <div className={blockStyles.foot}>
-                  <Text size="sm" c="dimmed">
-                    {(page - 1) * pageSize + 1}–
-                    {Math.min(page * pageSize, total)} de {total}
-                  </Text>
-                  <Pagination
-                    value={page}
-                    onChange={onPage}
-                    total={Math.ceil(total / pageSize)}
-                    size="sm"
-                  />
-                </div>
-              )}
+              <BlockPagination
+                page={page}
+                pageSize={pageSize}
+                total={total}
+                onChange={onPage}
+              />
             </>
           )
         }
@@ -501,20 +492,12 @@ function ClinicalHistory({ petId, type, onType, page, onPage, onOpen, onNew }) {
                   );
                 })}
               </div>
-              {total > pageSize && (
-                <div className={blockStyles.foot}>
-                  <Text size="sm" c="dimmed">
-                    {(page - 1) * pageSize + 1}–
-                    {Math.min(page * pageSize, total)} de {total}
-                  </Text>
-                  <Pagination
-                    value={page}
-                    onChange={onPage}
-                    total={Math.ceil(total / pageSize)}
-                    size="sm"
-                  />
-                </div>
-              )}
+              <BlockPagination
+                page={page}
+                pageSize={pageSize}
+                total={total}
+                onChange={onPage}
+              />
             </>
           )
         }
@@ -567,7 +550,7 @@ function ProcedureDetail({ id, onBack }) {
 
   return (
     <>
-      <div className={cx(blockStyles.head, panelStyles.head)}>
+      <BlockHead className={panelStyles.head}>
         <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
           <ActionIcon
             variant="subtle"
@@ -590,15 +573,15 @@ function ProcedureDetail({ id, onBack }) {
                   {typeLabel(pr.type)} · {fmtDate(pr.dateTime)}
                 </h2>
               </Group>
-              <div className={blockStyles.sub}>
+              <BlockSub>
                 {dayjs(pr.dateTime).format("HH:mm")} · {pr.vet.name}
-              </div>
+              </BlockSub>
             </div>
           ) : (
             <h2>Histórico clínico</h2>
           )}
         </Group>
-      </div>
+      </BlockHead>
       <Async q={procedure} rows={6}>
         {(pr) => (
           <>
@@ -652,20 +635,12 @@ function Prescriptions({ petId, page, onPage, onOpen, onNew }) {
                   />
                 ))}
               </div>
-              {total > pageSize && (
-                <div className={blockStyles.foot}>
-                  <Text size="sm" c="dimmed">
-                    {(page - 1) * pageSize + 1}–
-                    {Math.min(page * pageSize, total)} de {total}
-                  </Text>
-                  <Pagination
-                    value={page}
-                    onChange={onPage}
-                    total={Math.ceil(total / pageSize)}
-                    size="sm"
-                  />
-                </div>
-              )}
+              <BlockPagination
+                page={page}
+                pageSize={pageSize}
+                total={total}
+                onChange={onPage}
+              />
             </>
           )
         }
@@ -716,7 +691,7 @@ function PrescriptionDetail({ id, pet, onBack }) {
           crmv={crmv}
         />
       )}
-      <div className={cx(blockStyles.head, panelStyles.head)}>
+      <BlockHead className={panelStyles.head}>
         <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
           <ActionIcon
             variant="subtle"
@@ -729,9 +704,9 @@ function PrescriptionDetail({ id, pet, onBack }) {
           <div style={{ minWidth: 0 }}>
             <h2>Prescrição{rx && ` · ${fmtDate(rx.createdAt)}`}</h2>
             {rx && (
-              <div className={blockStyles.sub}>
+              <BlockSub>
                 {dayjs(rx.createdAt).format("HH:mm")} · {rx.vet.name}
-              </div>
+              </BlockSub>
             )}
           </div>
         </Group>
@@ -745,7 +720,7 @@ function PrescriptionDetail({ id, pet, onBack }) {
         >
           Imprimir
         </Button>
-      </div>
+      </BlockHead>
       <Async q={prescription} rows={6}>
         {(rx) => (
           <div className={panelStyles.section}>
@@ -873,7 +848,7 @@ function TutorSummary({ id }) {
   if (!t) return null;
 
   return (
-    <section className={cx(blockStyles.block, styles.tutorSummary)}>
+    <Block flush className={styles.tutorSummary}>
       <UnstyledButton
         className={styles.tutorToggle}
         onClick={() => setOpen((v) => !v)}
@@ -914,7 +889,7 @@ function TutorSummary({ id }) {
         onClose={() => setEditing(false)}
         petOwner={t}
       />
-    </section>
+    </Block>
   );
 }
 
@@ -923,11 +898,11 @@ function PetOwnerAside({ id }) {
   const [editing, setEditing] = useState(false);
 
   return (
-    <section className={cx(blockStyles.block, styles.tutorAside)}>
+    <Block flush className={styles.tutorAside}>
       <Async q={petOwner} rows={4}>
         {(t) => (
           <>
-            <div className={blockStyles.head}>
+            <BlockHead>
               <div style={{ minWidth: 0 }}>
                 <div className={textStyles.sectionLabel}>Tutor</div>
                 <h2 style={{ overflowWrap: "anywhere" }}>{t.name}</h2>
@@ -936,8 +911,10 @@ function PetOwnerAside({ id }) {
                 onClick={() => setEditing(true)}
                 label="Editar dados do tutor"
               />
-            </div>
-            <PetOwnerInfo petOwner={t} className={blockStyles.body} />
+            </BlockHead>
+            <BlockBody>
+              <PetOwnerInfo petOwner={t} />
+            </BlockBody>
             <PetOwnerModal
               opened={editing}
               onClose={() => setEditing(false)}
@@ -946,7 +923,7 @@ function PetOwnerAside({ id }) {
           </>
         )}
       </Async>
-    </section>
+    </Block>
   );
 }
 

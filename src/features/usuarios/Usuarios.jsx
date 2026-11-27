@@ -6,7 +6,6 @@ import {
   Loader,
   Menu,
   Modal,
-  Pagination,
   Select,
   SimpleGrid,
   Stack,
@@ -50,6 +49,9 @@ import { USER_STATUS } from "@/lib/status";
 import {
   Async,
   Block,
+  BlockPagination,
+  CellMain,
+  CellSub,
   ConfirmDialog,
   Dash,
   DataTable,
@@ -58,8 +60,6 @@ import {
   PersonAvatar,
   Pill,
 } from "@/components/ui";
-import blockStyles from "@/components/ui/Block.module.css";
-import tableStyles from "@/components/ui/DataTable.module.css";
 import layoutStyles from "@/styles/layout.module.css";
 import styles from "./Usuarios.module.css";
 
@@ -228,11 +228,11 @@ export default function Usuarios() {
                           color={u.status === "inativo" ? "gray" : "teal"}
                         />
                         <div>
-                          <div className={tableStyles.cellMain}>
+                          <CellMain>
                             {u.name}
                             {u.id === me.id ? " (você)" : ""}
-                          </div>
-                          <div className={tableStyles.cellSub}>{u.email}</div>
+                          </CellMain>
+                          <CellSub>{u.email}</CellSub>
                         </div>
                       </Group>
                     ),
@@ -326,20 +326,12 @@ export default function Usuarios() {
             )}
           </Async>
 
-          {total > pageSize && (
-            <div className={blockStyles.foot}>
-              <Text size="sm" c="dimmed">
-                {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)}{" "}
-                de {total}
-              </Text>
-              <Pagination
-                value={page}
-                onChange={setPage}
-                total={pages}
-                size="sm"
-              />
-            </div>
-          )}
+          <BlockPagination
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            onChange={setPage}
+          />
         </Block>
       </div>
 

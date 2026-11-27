@@ -20,9 +20,7 @@ import { useSession } from "@/auth/session";
 import { toast } from "@/lib/notify";
 import { PROCEDURE_LABEL } from "@/lib/status";
 import { htmlToText, sanitizeHtml } from "@/components/ui/RichText";
-import { FormActions } from "@/components/ui";
-import { cx } from "@/lib/cx";
-import blockStyles from "@/components/ui/Block.module.css";
+import { BlockHead, FormActions } from "@/components/ui";
 import panelStyles from "./recordPanel.module.css";
 
 const TYPE_OPTIONS = Object.entries(PROCEDURE_LABEL).map(([value, label]) => ({
@@ -57,7 +55,7 @@ const toDateTime = (date, time) => {
 export function NewProcedure({ petId, onBack, onCreated }) {
   return (
     <>
-      <div className={cx(blockStyles.head, panelStyles.head)}>
+      <BlockHead className={panelStyles.head}>
         <Group gap="sm" wrap="nowrap">
           <ActionIcon
             variant="subtle"
@@ -69,7 +67,7 @@ export function NewProcedure({ petId, onBack, onCreated }) {
           </ActionIcon>
           <h2>Registrar procedimento</h2>
         </Group>
-      </div>
+      </BlockHead>
       <div className={panelStyles.section}>
         <ProcedureForm petId={petId} onClose={onBack} onCreated={onCreated} />
       </div>

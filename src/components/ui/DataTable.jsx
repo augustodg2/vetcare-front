@@ -4,6 +4,18 @@ import { Empty } from "./feedback";
 import { usePhone } from "./phone";
 import styles from "./DataTable.module.css";
 
+export function CellMain({ children }) {
+  return <div className={styles.cellMain}>{children}</div>;
+}
+
+export function CellSub({ children }) {
+  return <div className={styles.cellSub}>{children}</div>;
+}
+
+export function Num({ children }) {
+  return <span className={styles.num}>{children}</span>;
+}
+
 /**
  * Tabela que no celular vira lista de duas linhas.
  * columns: [{ key, label, render(row), num, width }]

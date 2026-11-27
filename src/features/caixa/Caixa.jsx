@@ -16,12 +16,14 @@ import { useState } from "react";
 import {
   Async,
   Block,
+  CellSub,
   ConfirmDialog,
   Dash,
   DataTable,
   Empty,
   Kpis,
   KpisLoading,
+  Num,
   PageHeader,
   Pill,
   SpeciesAvatar,
@@ -36,7 +38,6 @@ import {
   useProceduresById,
   useRefundPayment,
 } from "./queries";
-import tableStyles from "@/components/ui/DataTable.module.css";
 import layoutStyles from "@/styles/layout.module.css";
 import styles from "./Caixa.module.css";
 
@@ -327,9 +328,7 @@ export default function Caixa() {
                     render: (p) => (
                       <>
                         {itemsLabel(p)}
-                        {p.notes && (
-                          <div className={tableStyles.cellSub}>{p.notes}</div>
-                        )}
+                        {p.notes && <CellSub>{p.notes}</CellSub>}
                       </>
                     ),
                   },
@@ -342,9 +341,7 @@ export default function Caixa() {
                       <>
                         {brl(p.total)}
                         {p.discount > 0 && (
-                          <div className={tableStyles.cellSub}>
-                            desconto {brl(p.discount)}
-                          </div>
+                          <CellSub>desconto {brl(p.discount)}</CellSub>
                         )}
                       </>
                     ),
@@ -374,7 +371,7 @@ export default function Caixa() {
                     `${dayjs(p.createdAt).format("HH:mm")} · ${p.method} · ${itemsLabel(p)}`,
                   side: (p) => (
                     <>
-                      <span className={tableStyles.num}>{brl(p.total)}</span>
+                      <Num>{brl(p.total)}</Num>
                       {p.status === "PAID" ? (
                         <PaymentMenu
                           onAction={(type) => setAction({ type, payment: p })}
