@@ -1,6 +1,7 @@
 import { ActionIcon, Button, Group } from "@mantine/core";
 import { IconArrowLeft, IconPrinter } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { usePetOwner } from "@/api/queries/petOwners";
 import { useAllVets } from "@/api/queries/vets";
 import { Async, BlockHead, BlockSub } from "@/components/ui";
@@ -9,9 +10,13 @@ import { PrescriptionPrint } from "@/features/pacientes/PrescriptionPrint";
 import { usePrescription } from "@/features/pacientes/queries";
 import panelStyles from "@/features/pacientes/recordPanel.module.css";
 import { fmtDate } from "@/lib/format";
+import { usePatient } from "./patientRoute";
 
-export function PrescriptionDetail({ id, pet, onBack }) {
-  const prescription = usePrescription(id);
+export function PrescriptionDetail() {
+  const { prescriptionId } = useParams();
+  const { pet } = usePatient();
+  const { search } = useLocation();
+  const prescription = usePrescription(prescriptionId);
   const petOwner = usePetOwner(pet.petOwnerId);
   const vets = useAllVets();
   const rx = prescription.data;
@@ -32,7 +37,8 @@ export function PrescriptionDetail({ id, pet, onBack }) {
           <ActionIcon
             variant="subtle"
             color="gray"
-            onClick={onBack}
+            component={Link}
+            to={{ pathname: "../prescricoes", search }}
             aria-label="Voltar às prescrições"
           >
             <IconArrowLeft size={18} />

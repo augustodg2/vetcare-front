@@ -1,45 +1,24 @@
 import { Badge, Tabs } from "@mantine/core";
 import dayjs from "dayjs";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  parseAsBoolean,
-  parseAsInteger,
-  parseAsString,
-  useQueryState,
-} from "nuqs";
-import { lazy, useEffect, useRef, useState } from "react";
+  Outlet,
+  useLocation,
+  useNavigate,
+  useResolvedPath,
+  useSearchParams,
+} from "react-router-dom";
 import { usePetAppointments } from "@/api/queries/appointments";
 import { Block } from "@/components/ui";
 import PageBoundary from "@/layout/PageBoundary";
-import { ClinicalHistory } from "./ClinicalHistory";
-import { PrescriptionDetail } from "./PrescriptionDetail";
-import { Prescriptions } from "./Prescriptions";
-import { ProcedureDetail } from "./ProcedureDetail";
-import { UPCOMING_DAYS, UpcomingAppointments } from "./UpcomingAppointments";
+import { usePatient } from "./patientRoute";
+import { UPCOMING_DAYS } from "./UpcomingAppointments";
 import styles from "./records.module.css";
 
-const NewProcedure = lazy(() =>
-  import("@/features/pacientes/ProcedureForm").then((m) => ({
-    default: m.NewProcedure,
-  })),
-);
-const NewPrescription = lazy(() =>
-  import("@/features/pacientes/PrescriptionForm").then((m) => ({
-    default: m.NewPrescription,
-  })),
-);
-
 export function PetMain({ pet }) {
-  const petId = pet.id;
-  const [procedureId, setProcedureId] = useQueryState(
-    "procedimento",
-    parseAsString.withOptions({ history: "push" }),
-  );
-  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [type, setType] = useQueryState("tipo", parseAsString);
-  const [tab, setTab] = useQueryState(
-    "aba",
-    parseAsString.withDefault("historico"),
-  );
+  const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
+  const page = searchParams.get("page");
   const [upcomingRange] = useState(() => {
     const now = dayjs();
     return {
@@ -49,20 +28,7 @@ export function PetMain({ pet }) {
       order: "asc",
     };
   });
-  const upcomingTotal = usePetAppointments({ petId, ...upcomingRange }).data
-    ?.total;
-  const [creating, setCreating] = useQueryState(
-    "novo",
-    parseAsBoolean.withOptions({ history: "push" }),
-  );
-  const [prescriptionId, setPrescriptionId] = useQueryState(
-    "prescricao",
-    parseAsString.withOptions({ history: "push" }),
-  );
-  const [prescribing, setPrescribing] = useQueryState(
-    "novaPrescricao",
-    parseAsBoolean.withOptions({ history: "push" }),
-  );
+  const context = useMemo(() => ({ pet, upcomingRange }), [pet, upcomingRange]);
   const ref = useRef(null);
 
   useEffect(() => {
@@ -70,103 +36,52 @@ export function PetMain({ pet }) {
     if (el && el.getBoundingClientRect().top < 0) {
       el.scrollIntoView({ block: "start" });
     }
-  }, [procedureId, page, creating, prescriptionId, prescribing]);
+  }, [pathname, page]);
 
   return (
     <Block flush ref={ref} style={{ scrollMarginTop: 16 }}>
-      {creating ? (
-        <PageBoundary>
-          <NewProcedure
-            petId={petId}
-            onBack={() => setCreating(null)}
-            onCreated={(pr) => {
-              setCreating(null);
-              setType(null);
-              setPage(null);
-              setTab(null);
-              setProcedureId(pr.id);
-            }}
-          />
-        </PageBoundary>
-      ) : prescribing ? (
-        <PageBoundary>
-          <NewPrescription
-            petId={petId}
-            onBack={() => setPrescribing(null)}
-            onCreated={(rx) => {
-              setPrescribing(null);
-              setPage(null);
-              setTab("prescricoes");
-              setPrescriptionId(rx.id);
-            }}
-          />
-        </PageBoundary>
-      ) : procedureId ? (
-        <ProcedureDetail id={procedureId} onBack={() => setProcedureId(null)} />
-      ) : prescriptionId ? (
-        <PrescriptionDetail
-          id={prescriptionId}
-          pet={pet}
-          onBack={() => setPrescriptionId(null)}
-        />
-      ) : (
-        <Tabs
-          value={tab}
-          onChange={(t) => {
-            setTab(t === "historico" ? null : t);
-            setPage(null);
-          }}
-          keepMounted={false}
-        >
-          <Tabs.List className={styles.petTabs}>
-            <Tabs.Tab value="historico">Histórico clínico</Tabs.Tab>
-            <Tabs.Tab value="prescricoes">Prescrições</Tabs.Tab>
-            <Tabs.Tab
-              value="agendamentos"
-              rightSection={
-                upcomingTotal > 0 && (
-                  <Badge size="xs" circle variant="light">
-                    {upcomingTotal}
-                  </Badge>
-                )
-              }
-            >
-              Agendamentos
-            </Tabs.Tab>
-          </Tabs.List>
-          <Tabs.Panel value="historico">
-            <ClinicalHistory
-              petId={petId}
-              type={type}
-              onType={(t) => {
-                setType(t);
-                setPage(null);
-              }}
-              page={page}
-              onPage={setPage}
-              onOpen={(pr) => setProcedureId(pr.id)}
-              onNew={() => setCreating(true)}
-            />
-          </Tabs.Panel>
-          <Tabs.Panel value="agendamentos">
-            <UpcomingAppointments
-              pet={pet}
-              range={upcomingRange}
-              page={page}
-              onPage={setPage}
-            />
-          </Tabs.Panel>
-          <Tabs.Panel value="prescricoes">
-            <Prescriptions
-              petId={petId}
-              page={page}
-              onPage={setPage}
-              onOpen={(rx) => setPrescriptionId(rx.id)}
-              onNew={() => setPrescribing(true)}
-            />
-          </Tabs.Panel>
-        </Tabs>
-      )}
+      <PageBoundary>
+        <Outlet context={context} />
+      </PageBoundary>
     </Block>
+  );
+}
+
+export function PetTabs() {
+  const context = usePatient();
+  const { pet, upcomingRange } = context;
+  const base = useResolvedPath(".").pathname;
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const tab =
+    pathname.slice(base.length).replace(/^\/|\/$/g, "") || "historico";
+  const upcomingTotal = usePetAppointments({ petId: pet.id, ...upcomingRange })
+    .data?.total;
+
+  return (
+    <Tabs
+      value={tab}
+      onChange={(t) => navigate(t === "historico" ? "." : t, { replace: true })}
+    >
+      <Tabs.List className={styles.petTabs}>
+        <Tabs.Tab value="historico">Histórico clínico</Tabs.Tab>
+        <Tabs.Tab value="prescricoes">Prescrições</Tabs.Tab>
+        <Tabs.Tab
+          value="agendamentos"
+          rightSection={
+            upcomingTotal > 0 && (
+              <Badge size="xs" circle variant="light">
+                {upcomingTotal}
+              </Badge>
+            )
+          }
+        >
+          Agendamentos
+        </Tabs.Tab>
+      </Tabs.List>
+      <Tabs.Panel value={tab}>
+        <Outlet context={context} />
+      </Tabs.Panel>
+    </Tabs>
   );
 }

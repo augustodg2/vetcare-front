@@ -8,11 +8,14 @@ import {
 } from "@mantine/core";
 import { IconChevronRight, IconPlus } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { Fragment, useMemo } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { usePetProcedures } from "@/api/queries/procedures";
 import { Async, BlockPagination, Empty } from "@/components/ui";
 import { htmlToText } from "@/components/ui/RichText";
 import { ago, fmtDate } from "@/lib/format";
+import { usePatient } from "./patientRoute";
 import { typeColor, typeLabel } from "./procedureType";
 import styles from "./records.module.css";
 
@@ -24,16 +27,16 @@ const TYPE_FILTERS = [
   "RETURN",
 ];
 
-export function ClinicalHistory({
-  petId,
-  type,
-  onType,
-  page,
-  onPage,
-  onOpen,
-  onNew,
-}) {
-  const history = usePetProcedures({ petId, type, page });
+export function ClinicalHistory() {
+  const { pet } = usePatient();
+  const { search } = useLocation();
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [type, setType] = useQueryState("tipo", parseAsString);
+  const history = usePetProcedures({ petId: pet.id, type, page });
+  const onType = (t) => {
+    setType(t);
+    setPage(null);
+  };
 
   return (
     <>
@@ -66,7 +69,8 @@ export function ClinicalHistory({
         <Button
           size="xs"
           leftSection={<IconPlus size={14} />}
-          onClick={onNew}
+          component={Link}
+          to={{ pathname: "procedimentos/novo", search }}
           style={{ flexShrink: 0 }}
         >
           Novo registro
@@ -95,7 +99,7 @@ export function ClinicalHistory({
                       <ProcedureItem
                         procedure={pr}
                         sameDay={!!prev && prev.isSame(d, "day")}
-                        onOpen={onOpen}
+                        to={{ pathname: `procedimentos/${pr.id}`, search }}
                       />
                     </Fragment>
                   );
@@ -105,7 +109,7 @@ export function ClinicalHistory({
                 page={page}
                 pageSize={pageSize}
                 total={total}
-                onChange={onPage}
+                onChange={setPage}
               />
             </>
           )
@@ -115,7 +119,7 @@ export function ClinicalHistory({
   );
 }
 
-function ProcedureItem({ procedure: pr, sameDay, onOpen }) {
+function ProcedureItem({ procedure: pr, sameDay, to }) {
   const d = dayjs(pr.dateTime);
   const summary = useMemo(
     () => htmlToText(pr.notes, { skipHeadings: true }),
@@ -126,7 +130,8 @@ function ProcedureItem({ procedure: pr, sameDay, onOpen }) {
     <UnstyledButton
       className={styles.procedureRow}
       data-same-day={sameDay || undefined}
-      onClick={() => onOpen(pr)}
+      component={Link}
+      to={to}
       aria-label={`Abrir ${typeLabel(pr.type)} de ${fmtDate(pr.dateTime)}`}
     >
       <div className={styles.procedureWhen}>

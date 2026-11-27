@@ -1,16 +1,22 @@
 import { Button, Text, UnstyledButton } from "@mantine/core";
 import { IconChevronRight, IconPlus } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { parseAsInteger, useQueryState } from "nuqs";
 import { useMemo } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Async, BlockPagination, Empty } from "@/components/ui";
 import { htmlToText } from "@/components/ui/RichText";
 import { usePetPrescriptions } from "@/features/pacientes/queries";
 import { cx } from "@/lib/cx";
 import { ago, fmtDate } from "@/lib/format";
+import { usePatient } from "./patientRoute";
 import styles from "./records.module.css";
 
-export function Prescriptions({ petId, page, onPage, onOpen, onNew }) {
-  const list = usePetPrescriptions({ petId, page });
+export function Prescriptions() {
+  const { pet } = usePatient();
+  const { search } = useLocation();
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const list = usePetPrescriptions({ petId: pet.id, page });
   const total = list.data?.total;
 
   return (
@@ -23,7 +29,8 @@ export function Prescriptions({ petId, page, onPage, onOpen, onNew }) {
         <Button
           size="xs"
           leftSection={<IconPlus size={14} />}
-          onClick={onNew}
+          component={Link}
+          to={{ pathname: "nova", search }}
           style={{ flexShrink: 0 }}
         >
           Nova prescrição
@@ -40,7 +47,7 @@ export function Prescriptions({ petId, page, onPage, onOpen, onNew }) {
                   <PrescriptionItem
                     key={rx.id}
                     prescription={rx}
-                    onOpen={onOpen}
+                    to={{ pathname: `./${rx.id}`, search }}
                   />
                 ))}
               </div>
@@ -48,7 +55,7 @@ export function Prescriptions({ petId, page, onPage, onOpen, onNew }) {
                 page={page}
                 pageSize={pageSize}
                 total={total}
-                onChange={onPage}
+                onChange={setPage}
               />
             </>
           )
@@ -58,14 +65,15 @@ export function Prescriptions({ petId, page, onPage, onOpen, onNew }) {
   );
 }
 
-function PrescriptionItem({ prescription: rx, onOpen }) {
+function PrescriptionItem({ prescription: rx, to }) {
   const d = dayjs(rx.createdAt);
   const summary = useMemo(() => htmlToText(rx.content), [rx.content]);
 
   return (
     <UnstyledButton
       className={styles.procedureRow}
-      onClick={() => onOpen(rx)}
+      component={Link}
+      to={to}
       aria-label={`Abrir prescrição de ${fmtDate(rx.createdAt)}`}
     >
       <div className={styles.procedureWhen}>

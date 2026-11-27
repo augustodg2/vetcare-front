@@ -1,6 +1,7 @@
 import { Badge, Button, Group, Text } from "@mantine/core";
 import { IconCalendar, IconPlus } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { parseAsInteger, useQueryState } from "nuqs";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { usePetAppointments } from "@/api/queries/appointments";
@@ -9,12 +10,15 @@ import { Async, BlockPagination, Empty } from "@/components/ui";
 import { AppointmentModal } from "@/features/agenda/AppointmentModal";
 import { cx } from "@/lib/cx";
 import { relDay } from "@/lib/format";
+import { usePatient } from "./patientRoute";
 import { typeColor, typeLabel } from "./procedureType";
 import styles from "./records.module.css";
 
 export const UPCOMING_DAYS = 31;
 
-export function UpcomingAppointments({ pet, range, page, onPage }) {
+export function UpcomingAppointments() {
+  const { pet, upcomingRange: range } = usePatient();
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const upcoming = usePetAppointments({ petId: pet.id, ...range, page });
   const total = upcoming.data?.total;
   const [booking, setBooking] = useState(false);
@@ -70,7 +74,7 @@ export function UpcomingAppointments({ pet, range, page, onPage }) {
                 page={page}
                 pageSize={pageSize}
                 total={total}
-                onChange={onPage}
+                onChange={setPage}
               />
             </>
           )

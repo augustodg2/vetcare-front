@@ -10,8 +10,10 @@ const Agenda = lazy(() => import("@/features/agenda/Agenda"));
 const Atendimento = lazy(() => import("@/features/atendimento/Atendimento"));
 const Caixa = lazy(() => import("@/features/caixa/Caixa"));
 const Login = lazy(() => import("@/features/auth/Login"));
-const Paciente = lazy(() => import("@/features/pacientes/paciente/Paciente"));
 const Pacientes = lazy(() => import("@/features/pacientes/Pacientes"));
+const PatientRoutes = lazy(
+  () => import("@/features/pacientes/paciente/PatientRoutes"),
+);
 const ResetPassword = lazy(() => import("@/features/auth/ResetPassword"));
 const Usuarios = lazy(() => import("@/features/usuarios/Usuarios"));
 
@@ -63,7 +65,7 @@ export default function App() {
             <Route path="atendimento" element={<Atendimento />} />
             <Route path="agenda" element={<Agenda />} />
             <Route path="pacientes" element={<Pacientes />} />
-            <Route path="pacientes/:id" element={<Paciente />} />
+            <Route path="pacientes/:id/*" element={<PatientRoutes />} />
           </Route>
           <Route path={ROLES.ADMIN.base} element={<RoleGate role="ADMIN" />}>
             <Route path="agenda" element={<Agenda />} />

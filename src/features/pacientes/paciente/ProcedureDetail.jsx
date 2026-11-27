@@ -1,6 +1,7 @@
 import { ActionIcon, Group } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { useProcedure } from "@/api/queries/procedures";
 import { Async, BlockHead, BlockSub, Empty } from "@/components/ui";
 import { RichText } from "@/components/ui/RichText";
@@ -10,8 +11,10 @@ import { ExtraNotes } from "./ExtraNotes";
 import { typeColor, typeLabel } from "./procedureType";
 import styles from "./records.module.css";
 
-export function ProcedureDetail({ id, onBack }) {
-  const procedure = useProcedure(id);
+export function ProcedureDetail() {
+  const { procedureId } = useParams();
+  const { search } = useLocation();
+  const procedure = useProcedure(procedureId);
   const pr = procedure.data;
 
   return (
@@ -21,7 +24,8 @@ export function ProcedureDetail({ id, onBack }) {
           <ActionIcon
             variant="subtle"
             color="gray"
-            onClick={onBack}
+            component={Link}
+            to={{ pathname: "..", search }}
             aria-label="Voltar ao histórico clínico"
           >
             <IconArrowLeft size={18} />
