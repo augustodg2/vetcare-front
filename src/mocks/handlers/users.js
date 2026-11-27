@@ -152,7 +152,7 @@ export const userHandlers = [
     };
     store.users.push(user);
     console.info(
-      `[mock] convite para ${email}: ${window.location.origin}/convite/${user.inviteToken}`,
+      `[mock] invite for ${email}: ${window.location.origin}/convite/${user.inviteToken}`,
     );
     return HttpResponse.json(publicUser(user), { status: 201 });
   }),
@@ -229,7 +229,7 @@ export const userHandlers = [
       user.inviteToken = `convite-${user.id}-${Math.random().toString(36).slice(2, 10)}`;
       user.inviteSentAt = new Date().toISOString();
       console.info(
-        `[mock] convite reenviado para ${user.email}: ${window.location.origin}/convite/${user.inviteToken}`,
+        `[mock] invite resent to ${user.email}: ${window.location.origin}/convite/${user.inviteToken}`,
       );
       return HttpResponse.json(publicUser(user));
     },
@@ -248,7 +248,7 @@ export const userHandlers = [
 
       user.resetToken = `senha-${user.id}-${Math.random().toString(36).slice(2, 10)}`;
       console.info(
-        `[mock] nova senha para ${user.email}: ${window.location.origin}/redefinir-senha/${user.resetToken}`,
+        `[mock] new password for ${user.email}: ${window.location.origin}/redefinir-senha/${user.resetToken}`,
       );
       return HttpResponse.json(200);
     },

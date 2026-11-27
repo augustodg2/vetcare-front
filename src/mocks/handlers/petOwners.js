@@ -252,8 +252,11 @@ export const petHandlers = [
 
     const pet = { notes: "", ...data, id: `p${nextId++}` };
     petOwner.pets.push(pet);
-    const { pets, ...owner } = petOwner;
-    return HttpResponse.json({ ...pet, petOwner: owner }, { status: 201 });
+    const { pets, ...petOwnerData } = petOwner;
+    return HttpResponse.json(
+      { ...pet, petOwner: petOwnerData },
+      { status: 201 },
+    );
   }),
 
   http.get(`${API_URL}${ENDPOINTS.pets.byId(":id")}`, ({ params }) => {
@@ -282,8 +285,8 @@ export const petHandlers = [
   http.delete(`${API_URL}${ENDPOINTS.pets.byId(":id")}`, ({ params }) => {
     const found = findPet(params.id);
     if (!found) return notFound("Pet not found");
-    const owner = store.petOwners.find((o) => o.id === found.petOwner.id);
-    owner.pets = owner.pets.filter((p) => p.id !== params.id);
+    const petOwner = store.petOwners.find((o) => o.id === found.petOwner.id);
+    petOwner.pets = petOwner.pets.filter((p) => p.id !== params.id);
     return new HttpResponse(null, { status: 204 });
   }),
 
