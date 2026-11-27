@@ -129,7 +129,7 @@ src/features/
   appointments/ agenda de dia, semana e mês, painel do veterinário e detalhes da consulta
   auth/         login, convite e redefinição de senha
   payments/     movimentações do dia e pagamentos
-  pacientes/    pacientes, tutores, ficha clínica, procedimentos e receitas
+  pets/         pets, tutores, ficha clínica, procedimentos e receitas
   users/        gestão de usuários
 ```
 
@@ -141,7 +141,7 @@ src/features/
 
 ### Estilos
 
-- Os estilos ficam em CSS Modules, ao lado de quem os usa: `Paciente.jsx` e `Paciente.module.css`.
+- Os estilos ficam em CSS Modules, ao lado de quem os usa: `Pet.jsx` e `Pet.module.css`.
 - `src/styles/global.css` guarda só o que vale para a aplicação toda: variáveis, `body` e ajustes do
   Mantine.
 - Em `src/main.jsx`, o CSS do Mantine é importado antes do restante, para que os módulos possam

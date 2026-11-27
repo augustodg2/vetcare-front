@@ -11,7 +11,7 @@ import { IconChevronDown, IconEye, IconEyeOff } from "@tabler/icons-react";
 import { useState } from "react";
 import { usePetOwner } from "@/api/queries/petOwners";
 import { Async, Block, BlockBody, BlockHead, Dash } from "@/components/ui";
-import { PetOwnerModal } from "@/features/pacientes/PeopleForms";
+import { PetOwnerModal } from "@/features/pets/PetForms";
 import { hideCpf, maskCpf, maskPhone } from "@/lib/format";
 import textStyles from "@/styles/text.module.css";
 import { EditButton } from "./EditButton";
@@ -19,7 +19,7 @@ import styles from "./PetOwner.module.css";
 
 const telHref = (phone = "") => `tel:${phone.replace(/\D/g, "")}`;
 
-export function TutorSummary({ id }) {
+export function PetOwnerSummary({ id }) {
   const petOwner = usePetOwner(id);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -27,12 +27,12 @@ export function TutorSummary({ id }) {
   if (!t) return null;
 
   return (
-    <Block flush className={styles.tutorSummary}>
+    <Block flush className={styles.petOwnerSummary}>
       <UnstyledButton
-        className={styles.tutorToggle}
+        className={styles.petOwnerToggle}
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        aria-controls="tutor-details"
+        aria-controls="pet-owner-details"
       >
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className={textStyles.sectionLabel}>Tutor</div>
@@ -40,19 +40,19 @@ export function TutorSummary({ id }) {
             {t.name}
           </Text>
         </div>
-        <span className={styles.tutorToggleHint}>
+        <span className={styles.petOwnerToggleHint}>
           {open ? "Ocultar" : "Ver dados"}
           <IconChevronDown
             size={16}
-            className={styles.tutorChevron}
+            className={styles.petOwnerChevron}
             data-open={open || undefined}
           />
         </span>
       </UnstyledButton>
-      <Collapse in={open} id="tutor-details">
+      <Collapse in={open} id="pet-owner-details">
         <PetOwnerInfo
           petOwner={t}
-          className={styles.tutorSummaryBody}
+          className={styles.petOwnerSummaryBody}
           footer={
             <Group justify="flex-end">
               <EditButton
@@ -77,7 +77,7 @@ export function PetOwnerAside({ id }) {
   const [editing, setEditing] = useState(false);
 
   return (
-    <Block flush className={styles.tutorAside}>
+    <Block flush className={styles.petOwnerAside}>
       <Async q={petOwner} rows={4}>
         {(t) => (
           <>

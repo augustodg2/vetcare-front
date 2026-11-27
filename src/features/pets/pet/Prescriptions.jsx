@@ -6,14 +6,14 @@ import { useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Async, BlockPagination, Empty } from "@/components/ui";
 import { htmlToText } from "@/components/ui/RichText";
-import { usePetPrescriptions } from "@/features/pacientes/queries";
+import { usePetPrescriptions } from "@/features/pets/queries";
 import { cx } from "@/lib/cx";
 import { ago, fmtDate } from "@/lib/format";
-import { usePatient } from "./patientRoute";
+import { usePetContext } from "./petRoute";
 import styles from "./records.module.css";
 
 export function Prescriptions() {
-  const { pet } = usePatient();
+  const { pet } = usePetContext();
   const { search } = useLocation();
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const list = usePetPrescriptions({ petId: pet.id, page });

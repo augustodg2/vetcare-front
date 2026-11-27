@@ -6,15 +6,15 @@ import { usePetOwner } from "@/api/queries/petOwners";
 import { useAllVets } from "@/api/queries/vets";
 import { Async, BlockHead, BlockSub } from "@/components/ui";
 import { RichText } from "@/components/ui/RichText";
-import { PrescriptionPrint } from "@/features/pacientes/PrescriptionPrint";
-import { usePrescription } from "@/features/pacientes/queries";
-import panelStyles from "@/features/pacientes/recordPanel.module.css";
+import { PrescriptionPrint } from "@/features/pets/PrescriptionPrint";
+import { usePrescription } from "@/features/pets/queries";
+import panelStyles from "@/features/pets/recordPanel.module.css";
 import { fmtDate } from "@/lib/format";
-import { usePatient } from "./patientRoute";
+import { usePetContext } from "./petRoute";
 
 export function PrescriptionDetail() {
   const { prescriptionId } = useParams();
-  const { pet } = usePatient();
+  const { pet } = usePetContext();
   const { search } = useLocation();
   const prescription = usePrescription(prescriptionId);
   const petOwner = usePetOwner(pet.petOwnerId);

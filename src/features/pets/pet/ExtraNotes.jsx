@@ -3,7 +3,7 @@ import { IconPlus } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { useAddProcedureNote } from "@/api/queries/procedures";
-import panelStyles from "@/features/pacientes/recordPanel.module.css";
+import panelStyles from "@/features/pets/recordPanel.module.css";
 import { fmtDate } from "@/lib/format";
 import { toast } from "@/lib/notify";
 import textStyles from "@/styles/text.module.css";

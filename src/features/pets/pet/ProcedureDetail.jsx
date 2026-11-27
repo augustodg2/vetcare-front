@@ -5,7 +5,7 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { useProcedure } from "@/api/queries/procedures";
 import { Async, BlockHead, BlockSub, Empty } from "@/components/ui";
 import { RichText } from "@/components/ui/RichText";
-import panelStyles from "@/features/pacientes/recordPanel.module.css";
+import panelStyles from "@/features/pets/recordPanel.module.css";
 import { fmtDate } from "@/lib/format";
 import { ExtraNotes } from "./ExtraNotes";
 import { typeColor, typeLabel } from "./procedureType";

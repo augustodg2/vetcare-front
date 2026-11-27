@@ -2,17 +2,17 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { roleHome } from "@/auth/roles";
 import { ClinicalHistory } from "./ClinicalHistory";
 import { CreatePrescription, CreateProcedure } from "./NewRecord";
-import Paciente from "./Paciente";
+import Pet from "./Pet";
 import { PetTabs } from "./PetMain";
 import { PrescriptionDetail } from "./PrescriptionDetail";
 import { Prescriptions } from "./Prescriptions";
 import { ProcedureDetail } from "./ProcedureDetail";
 import { UpcomingAppointments } from "./UpcomingAppointments";
 
-export default function PatientRoutes() {
+export default function PetRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Paciente />}>
+      <Route path="/" element={<Pet />}>
         <Route element={<PetTabs />}>
           <Route index element={<ClinicalHistory />} />
           <Route path="prescricoes" element={<Prescriptions />} />

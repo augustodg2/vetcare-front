@@ -129,7 +129,7 @@ function PetFields({ form, prefix = "" }) {
   );
 }
 
-const ownerRules = (isEdit, on = () => true) => ({
+const petOwnerRules = (isEdit, on = () => true) => ({
   name: (v, values) =>
     on(values) && v.trim().split(" ").length < 2
       ? "Informe nome e sobrenome"
@@ -143,7 +143,7 @@ const ownerRules = (isEdit, on = () => true) => ({
   email: (v, values) => (on(values) && !isEmail(v) ? "E-mail inválido" : null),
 });
 
-function OwnerFields({ form, isEdit }) {
+function PetOwnerFields({ form, isEdit }) {
   return (
     <SimpleGrid cols={{ base: 1, sm: 2 }}>
       <TextInput
@@ -181,7 +181,7 @@ function OwnerFields({ form, isEdit }) {
   );
 }
 
-const ownerPayload = (v) => ({
+const petOwnerPayload = (v) => ({
   name: v.name.trim(),
   cpf: v.cpf,
   phone: v.phone,
@@ -206,12 +206,12 @@ function PetOwnerForm({ onClose, petOwner }) {
       email: petOwner?.email ?? "",
       address: petOwner?.address ?? "",
     },
-    validate: ownerRules(true),
+    validate: petOwnerRules(true),
   });
   const update = useUpdatePetOwner();
   const onSubmit = form.onSubmit((v) =>
     update.mutate(
-      { id: petOwner.id, ...ownerPayload(v) },
+      { id: petOwner.id, ...petOwnerPayload(v) },
       {
         onSuccess: () => {
           toast.ok("Cadastro atualizado.");
@@ -223,7 +223,7 @@ function PetOwnerForm({ onClose, petOwner }) {
 
   return (
     <form onSubmit={onSubmit} noValidate>
-      <OwnerFields form={form} isEdit />
+      <PetOwnerFields form={form} isEdit />
       <FormActions
         onCancel={onClose}
         loading={update.isPending}
@@ -233,7 +233,7 @@ function PetOwnerForm({ onClose, petOwner }) {
   );
 }
 
-export function NewPatientModal({ opened, onClose }) {
+export function NewPetModal({ opened, onClose }) {
   const [covered, setCovered] = useState(false);
 
   return (
@@ -244,12 +244,12 @@ export function NewPatientModal({ opened, onClose }) {
       size="xl"
       keepMounted
     >
-      {opened && <NewPatientForm onClose={onClose} onCovered={setCovered} />}
+      {opened && <NewPetForm onClose={onClose} onCovered={setCovered} />}
     </Modal>
   );
 }
 
-function ExistingOwnerPicker({ form, onCovered }) {
+function ExistingPetOwnerPicker({ form, onCovered }) {
   const [search, setSearch] = useState("");
   const [debounced] = useDebouncedValue(search, 300);
   const [editing, setEditing] = useState(false);
@@ -257,8 +257,8 @@ function ExistingOwnerPicker({ form, onCovered }) {
   const searching = debounced.trim().length > 0;
   const results = usePetOwners({ search: debounced, enabled: searching });
   const selected = usePetOwner(id);
-  const owner = selected.data;
-  const editOpen = editing && !!owner;
+  const petOwner = selected.data;
+  const editOpen = editing && !!petOwner;
 
   useEffect(() => {
     onCovered?.(editOpen);
@@ -338,14 +338,14 @@ function ExistingOwnerPicker({ form, onCovered }) {
             overflow: "hidden",
           }}
         >
-          {!owner ? (
+          {!petOwner ? (
             <Group p="md" justify="center">
               <Loader size="sm" />
             </Group>
           ) : (
             <>
               <Group justify="space-between" p="sm" wrap="nowrap">
-                <Text fw={600}>{owner.name}</Text>
+                <Text fw={600}>{petOwner.name}</Text>
                 <Group gap="xs" wrap="nowrap">
                   <Button
                     variant="default"
@@ -370,16 +370,16 @@ function ExistingOwnerPicker({ form, onCovered }) {
                   [
                     "CPF",
                     <span key="cpf" className={textStyles.tnum}>
-                      {hideCpf(owner.cpf)}
+                      {hideCpf(petOwner.cpf)}
                     </span>,
                   ],
-                  ["Telefone", maskPhone(owner.phone)],
+                  ["Telefone", maskPhone(petOwner.phone)],
                 ]}
               />
               <Facts
                 items={[
-                  ["E-mail", owner.email],
-                  ["Endereço", owner.address || null],
+                  ["E-mail", petOwner.email],
+                  ["Endereço", petOwner.address || null],
                 ]}
               />
             </>
@@ -390,13 +390,13 @@ function ExistingOwnerPicker({ form, onCovered }) {
       <PetOwnerModal
         opened={editOpen}
         onClose={() => setEditing(false)}
-        petOwner={owner}
+        petOwner={petOwner}
       />
     </Stack>
   );
 }
 
-function NewPatientForm({ onClose, onCovered }) {
+function NewPetForm({ onClose, onCovered }) {
   const form = useForm({
     initialValues: {
       mode: "new",
@@ -409,30 +409,30 @@ function NewPatientForm({ onClose, onCovered }) {
       pet: petInitial(),
     },
     validate: {
-      ...ownerRules(false, (values) => values.mode === "new"),
+      ...petOwnerRules(false, (values) => values.mode === "new"),
       petOwnerId: (v, values) =>
         values.mode === "existing" && !v ? "Selecione o tutor" : null,
       pet: petRules((values) => values.mode === "new" || !!values.petOwnerId),
     },
   });
-  const createOwner = useCreatePetOwner();
+  const createPetOwner = useCreatePetOwner();
   const createPet = useCreatePet();
-  const saving = createOwner.isPending || createPet.isPending;
+  const saving = createPetOwner.isPending || createPet.isPending;
 
   const onSubmit = form.onSubmit((v) => {
     const pet = petPayload(v.pet);
-    const done = (ownerName) => ({
+    const done = (petOwnerName) => ({
       onSuccess: () => {
         toast.ok(
-          `${pet.name} cadastrado${ownerName ? ` com ${ownerName}` : ""}.`,
+          `${pet.name} cadastrado${petOwnerName ? ` com ${petOwnerName}` : ""}.`,
         );
         onClose();
       },
     });
     if (v.mode === "existing")
       return createPet.mutate({ petOwnerId: v.petOwnerId, ...pet }, done());
-    const owner = ownerPayload(v);
-    createOwner.mutate({ ...owner, pet }, done(owner.name));
+    const petOwner = petOwnerPayload(v);
+    createPetOwner.mutate({ ...petOwner, pet }, done(petOwner.name));
   });
 
   return (
@@ -453,10 +453,10 @@ function NewPatientForm({ onClose, onCovered }) {
           </Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel value="new">
-          <OwnerFields form={form} />
+          <PetOwnerFields form={form} />
         </Tabs.Panel>
         <Tabs.Panel value="existing">
-          <ExistingOwnerPicker form={form} onCovered={onCovered} />
+          <ExistingPetOwnerPicker form={form} onCovered={onCovered} />
         </Tabs.Panel>
       </Tabs>
 

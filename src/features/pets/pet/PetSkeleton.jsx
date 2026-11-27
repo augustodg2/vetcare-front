@@ -1,9 +1,9 @@
 import { Skeleton, Stack } from "@mantine/core";
 import { Block, LoadingRows } from "@/components/ui";
 import headStyles from "./PetHeader.module.css";
-import styles from "./Paciente.module.css";
+import styles from "./Pet.module.css";
 
-export function PacienteSkeleton() {
+export function PetSkeleton() {
   return (
     <>
       <Block flush className={headStyles.petHead}>

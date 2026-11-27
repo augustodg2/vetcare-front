@@ -1,20 +1,20 @@
 import { lazy } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { usePatient } from "./patientRoute";
+import { usePetContext } from "./petRoute";
 
 const NewProcedure = lazy(() =>
-  import("@/features/pacientes/ProcedureForm").then((m) => ({
+  import("@/features/pets/ProcedureForm").then((m) => ({
     default: m.NewProcedure,
   })),
 );
 const NewPrescription = lazy(() =>
-  import("@/features/pacientes/PrescriptionForm").then((m) => ({
+  import("@/features/pets/PrescriptionForm").then((m) => ({
     default: m.NewPrescription,
   })),
 );
 
 export function CreateProcedure() {
-  const { pet } = usePatient();
+  const { pet } = usePetContext();
   const navigate = useNavigate();
   const { search } = useLocation();
 
@@ -30,7 +30,7 @@ export function CreateProcedure() {
 }
 
 export function CreatePrescription() {
-  const { pet } = usePatient();
+  const { pet } = usePetContext();
   const navigate = useNavigate();
   const { search } = useLocation();
 

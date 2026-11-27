@@ -15,7 +15,7 @@ import { usePetProcedures } from "@/api/queries/procedures";
 import { Async, BlockPagination, Empty } from "@/components/ui";
 import { htmlToText } from "@/components/ui/RichText";
 import { ago, fmtDate } from "@/lib/format";
-import { usePatient } from "./patientRoute";
+import { usePetContext } from "./petRoute";
 import { typeColor, typeLabel } from "./procedureType";
 import styles from "./records.module.css";
 
@@ -28,7 +28,7 @@ const TYPE_FILTERS = [
 ];
 
 export function ClinicalHistory() {
-  const { pet } = usePatient();
+  const { pet } = usePetContext();
   const { search } = useLocation();
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [type, setType] = useQueryState("tipo", parseAsString);

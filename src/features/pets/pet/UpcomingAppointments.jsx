@@ -10,14 +10,14 @@ import { Async, BlockPagination, Empty } from "@/components/ui";
 import { AppointmentModal } from "@/features/appointments/AppointmentModal";
 import { cx } from "@/lib/cx";
 import { relDay } from "@/lib/format";
-import { usePatient } from "./patientRoute";
+import { usePetContext } from "./petRoute";
 import { typeColor, typeLabel } from "./procedureType";
 import styles from "./records.module.css";
 
 export const UPCOMING_DAYS = 31;
 
 export function UpcomingAppointments() {
-  const { pet, upcomingRange: range } = usePatient();
+  const { pet, upcomingRange: range } = usePetContext();
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const upcoming = usePetAppointments({ petId: pet.id, ...range, page });
   const total = upcoming.data?.total;

@@ -25,7 +25,7 @@ import { rolePath } from "@/auth/roles";
 import { useSession } from "@/auth/session";
 import { useDeletePetOwner, usePetOwner } from "@/api/queries/petOwners";
 import { useDeletePet, usePets } from "@/api/queries/pets";
-import { NewPatientModal, PetModal, PetOwnerModal } from "./PeopleForms";
+import { NewPetModal, PetModal, PetOwnerModal } from "./PetForms";
 import {
   Async,
   Block,
@@ -48,7 +48,7 @@ import textStyles from "@/styles/text.module.css";
 
 const SEARCH_DEBOUNCE_MS = 500;
 
-export default function Pacientes() {
+export default function Pets() {
   const { user } = useSession();
   const navigate = useNavigate();
   const readOnly = user.role === "VET";
@@ -62,7 +62,7 @@ export default function Pacientes() {
   );
   const [debounced] = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [newPatient, setNewPatient] = useState(false);
+  const [newPet, setNewPet] = useState(false);
   const [petOwnerForm, setPetOwnerForm] = useState(null);
   const [petForm, setPetForm] = useState(null);
   const [openPetOwner, setOpenPetOwner] = useState(null);
@@ -115,7 +115,7 @@ export default function Pacientes() {
         {!readOnly && (
           <Button
             leftSection={<IconPlus size={16} />}
-            onClick={() => setNewPatient(true)}
+            onClick={() => setNewPet(true)}
           >
             Novo paciente
           </Button>
@@ -225,10 +225,7 @@ export default function Pacientes() {
         onEditPet={(p) => setPetForm({ pet: p })}
         onDelete={(kind, row) => setToDelete({ kind, row })}
       />
-      <NewPatientModal
-        opened={newPatient}
-        onClose={() => setNewPatient(false)}
-      />
+      <NewPetModal opened={newPet} onClose={() => setNewPet(false)} />
       <PetOwnerModal
         opened={!!petOwnerForm}
         onClose={() => setPetOwnerForm(null)}

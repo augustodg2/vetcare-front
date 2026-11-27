@@ -2,7 +2,7 @@ import { Text } from "@mantine/core";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { useState } from "react";
 import { Block, Dash, SpeciesAvatar } from "@/components/ui";
-import { PetModal } from "@/features/pacientes/PeopleForms";
+import { PetModal } from "@/features/pets/PetForms";
 import { age, fmtDate, kg } from "@/lib/format";
 import { SPECIES_LABEL } from "@/lib/status";
 import { EditButton } from "./EditButton";

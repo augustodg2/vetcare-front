@@ -14,10 +14,8 @@ const VetAppointmentDashboard = lazy(
 );
 const Payments = lazy(() => import("@/features/payments/Payments"));
 const Login = lazy(() => import("@/features/auth/Login"));
-const Pacientes = lazy(() => import("@/features/pacientes/Pacientes"));
-const PatientRoutes = lazy(
-  () => import("@/features/pacientes/paciente/PatientRoutes"),
-);
+const Pets = lazy(() => import("@/features/pets/Pets"));
+const PetRoutes = lazy(() => import("@/features/pets/pet/PetRoutes"));
 const ResetPassword = lazy(() => import("@/features/auth/ResetPassword"));
 const Users = lazy(() => import("@/features/users/Users"));
 
@@ -61,18 +59,18 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route path={ROLES.RECEP.base} element={<RoleGate role="RECEP" />}>
             <Route path="agenda" element={<AppointmentCalendar />} />
-            <Route path="pacientes" element={<Pacientes />} />
+            <Route path="pacientes" element={<Pets />} />
             <Route path="caixa" element={<Payments />} />
           </Route>
           <Route path={ROLES.VET.base} element={<RoleGate role="VET" />}>
             <Route path="atendimento" element={<VetAppointmentDashboard />} />
             <Route path="agenda" element={<AppointmentCalendar />} />
-            <Route path="pacientes" element={<Pacientes />} />
-            <Route path="pacientes/:id/*" element={<PatientRoutes />} />
+            <Route path="pacientes" element={<Pets />} />
+            <Route path="pacientes/:id/*" element={<PetRoutes />} />
           </Route>
           <Route path={ROLES.ADMIN.base} element={<RoleGate role="ADMIN" />}>
             <Route path="agenda" element={<AppointmentCalendar />} />
-            <Route path="pacientes" element={<Pacientes />} />
+            <Route path="pacientes" element={<Pets />} />
             <Route path="usuarios" element={<Users />} />
           </Route>
         </Route>

@@ -11,7 +11,7 @@ import {
 import { usePetAppointments } from "@/api/queries/appointments";
 import { Block } from "@/components/ui";
 import PageBoundary from "@/layout/PageBoundary";
-import { usePatient } from "./patientRoute";
+import { usePetContext } from "./petRoute";
 import { UPCOMING_DAYS } from "./UpcomingAppointments";
 import styles from "./records.module.css";
 
@@ -48,23 +48,22 @@ export function PetMain({ pet }) {
 }
 
 export function PetTabs() {
-  const context = usePatient();
+  const context = usePetContext();
   const { pet, upcomingRange } = context;
   const base = useResolvedPath(".").pathname;
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const tab =
-    pathname.slice(base.length).replace(/^\/|\/$/g, "") || "historico";
+  const tab = pathname.slice(base.length).replace(/^\/|\/$/g, "") || "history";
   const upcomingTotal = usePetAppointments({ petId: pet.id, ...upcomingRange })
     .data?.total;
 
   return (
     <Tabs
       value={tab}
-      onChange={(t) => navigate(t === "historico" ? "." : t, { replace: true })}
+      onChange={(t) => navigate(t === "history" ? "." : t, { replace: true })}
     >
       <Tabs.List className={styles.petTabs}>
-        <Tabs.Tab value="historico">Histórico clínico</Tabs.Tab>
+        <Tabs.Tab value="history">Histórico clínico</Tabs.Tab>
         <Tabs.Tab value="prescricoes">Prescrições</Tabs.Tab>
         <Tabs.Tab
           value="agendamentos"

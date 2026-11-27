@@ -3,13 +3,13 @@ import { Link, useParams } from "react-router-dom";
 import { usePet } from "@/api/queries/pets";
 import { rolePath } from "@/auth/roles";
 import { Async } from "@/components/ui";
-import { PacienteSkeleton } from "./PacienteSkeleton";
+import { PetSkeleton } from "./PetSkeleton";
 import { PetHeader } from "./PetHeader";
 import { PetMain } from "./PetMain";
-import { PetOwnerAside, TutorSummary } from "./PetOwner";
-import styles from "./Paciente.module.css";
+import { PetOwnerAside, PetOwnerSummary } from "./PetOwner";
+import styles from "./Pet.module.css";
 
-export default function Paciente() {
+export default function Pet() {
   const { id } = useParams();
   const pet = usePet(id);
 
@@ -19,11 +19,11 @@ export default function Paciente() {
         <IconChevronLeft size={14} />
         Pacientes
       </Link>
-      <Async q={pet} fallback={<PacienteSkeleton />}>
+      <Async q={pet} fallback={<PetSkeleton />}>
         {(p) => (
           <>
             <PetHeader pet={p} />
-            <TutorSummary id={p.petOwnerId} />
+            <PetOwnerSummary id={p.petOwnerId} />
             <div className={styles.gridAside}>
               <PetMain pet={p} />
               <PetOwnerAside id={p.petOwnerId} />
