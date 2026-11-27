@@ -1,40 +1,48 @@
 import {
   ActionIcon,
+  Anchor,
+  Avatar,
   Badge,
-  Box,
   Group,
   Pagination,
+  Skeleton,
   Stack,
-  Tabs,
   Text,
   UnstyledButton,
 } from "@mantine/core";
 import {
   IconAlertTriangle,
+  IconArrowLeft,
+  IconCat,
   IconChevronLeft,
   IconChevronRight,
+  IconDog,
   IconEye,
   IconEyeOff,
+  IconPaw,
+  IconPhone,
 } from "@tabler/icons-react";
+import dayjs from "dayjs";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { usePetOwner } from "../../api/queries/petOwners";
 import { usePet } from "../../api/queries/pets";
 import { usePetProcedures, useProcedure } from "../../api/queries/procedures";
 import { RichText, RichTextPreview } from "../../components/RichText";
+import { Async, Dash, Empty, LoadingRows } from "../../components/ui";
+import { age, fmtDate, hideCpf, kg } from "../../lib/format";
 import {
-  Async,
-  Block,
-  Dash,
-  Empty,
-  Facts,
-  PetAvatar,
-} from "../../components/ui";
-import { age, fmtDate, fmtDateTime, hideCpf, kg } from "../../lib/format";
-import { PROCEDURE_COLOR, PROCEDURE_LABEL, SPECIES_LABEL } from "../../lib/status";
+  PROCEDURE_COLOR,
+  PROCEDURE_LABEL,
+  SPECIES_LABEL,
+} from "../../lib/status";
 
 const SEX_LABEL = { M: "Macho", F: "Fêmea" };
+const SPECIES_ICON = { DOG: IconDog, CAT: IconCat };
+
+const typeLabel = (type) => PROCEDURE_LABEL[type] ?? type;
+const typeColor = (type) => PROCEDURE_COLOR[type] ?? "gray";
 
 export default function Paciente() {
   const { id } = useParams();
@@ -46,10 +54,11 @@ export default function Paciente() {
         <IconChevronLeft size={14} />
         Pacientes
       </Link>
-      <Async q={pet} rows={2}>
+      <Async q={pet} fallback={<PacienteSkeleton />}>
         {(p) => (
           <>
             <PetHeader pet={p} />
+            <TutorSummary id={p.petOwnerId} />
             <div className="grid-aside">
               <PetMain petId={p.id} />
               <PetOwnerAside id={p.petOwnerId} />
@@ -61,205 +70,370 @@ export default function Paciente() {
   );
 }
 
+function PacienteSkeleton() {
+  return (
+    <>
+      <section className="block pet-head">
+        <div className="pet-head-main">
+          <Skeleton height={56} width={56} radius="md" />
+          <Stack gap={8} style={{ flex: 1 }}>
+            <Skeleton height={22} width={160} />
+            <Skeleton height={14} width={260} />
+          </Stack>
+        </div>
+      </section>
+      <div className="grid-aside">
+        <section className="block">
+          <LoadingRows rows={6} />
+        </section>
+        <section className="block">
+          <LoadingRows rows={4} />
+        </section>
+      </div>
+    </>
+  );
+}
+
+function SpeciesAvatar({ species, size }) {
+  const Icon = SPECIES_ICON[species] ?? IconPaw;
+  return (
+    <Avatar
+      size={size}
+      radius="md"
+      variant="light"
+      color={species === "CAT" ? "grape" : "teal"}
+      style={{ flexShrink: 0 }}
+    >
+      <Icon size={size * 0.5} stroke={1.6} />
+    </Avatar>
+  );
+}
+
+function PetHeader({ pet: p }) {
+  const species = SPECIES_LABEL[p.species] ?? p.species;
+  const subtitle = [species, p.breed, SEX_LABEL[p.sex] ?? p.sex]
+    .filter(Boolean)
+    .join(" · ");
+
+  return (
+    <section className="block pet-head">
+      <div className="pet-head-main">
+        <SpeciesAvatar species={p.species} size={56} />
+        <div className="pet-head-name">
+          <h1>{p.name}</h1>
+          <Text size="sm" c="dimmed">
+            {subtitle}
+          </Text>
+          <dl className="pet-stats">
+            <div>
+              <dt>Idade</dt>
+              <dd>
+                {p.birth ? (
+                  <>
+                    {age(p.birth)}{" "}
+                    <span className="muted">nasc. {fmtDate(p.birth)}</span>
+                  </>
+                ) : (
+                  <Dash />
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>Peso</dt>
+              <dd>{p.weight != null ? kg(p.weight) : <Dash />}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+      {p.alerts && (
+        <div className="pet-alert" role="note">
+          <IconAlertTriangle size={16} style={{ flexShrink: 0 }} />
+          <span>
+            <strong>Alerta:</strong> {p.alerts}
+          </span>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function PetMain({ petId }) {
   const [procedureId, setProcedureId] = useQueryState(
     "procedimento",
     parseAsString.withOptions({ history: "push" }),
   );
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (el && el.getBoundingClientRect().top < 0) {
+      el.scrollIntoView({ block: "start" });
+    }
+  }, [procedureId, page]);
 
   return (
-    <div style={{ minWidth: 0 }}>
+    <section className="block" ref={ref} style={{ scrollMarginTop: 16 }}>
       {procedureId ? (
-        <>
-          <UnstyledButton
-            className="back-link"
-            onClick={() => setProcedureId(null)}
-          >
-            <IconChevronLeft size={14} />
-            Histórico clínico
-          </UnstyledButton>
-          <section className="block">
-            <ProcedureDetail id={procedureId} />
-          </section>
-        </>
+        <ProcedureDetail id={procedureId} onBack={() => setProcedureId(null)} />
       ) : (
-        <section className="block">
-          <Tabs defaultValue="historico">
-            <Tabs.List px="lg">
-              <Tabs.Tab value="historico">Histórico clínico</Tabs.Tab>
-            </Tabs.List>
-            <Tabs.Panel value="historico">
-              <ClinicalHistory
-                petId={petId}
-                page={page}
-                onPage={setPage}
-                onOpen={(pr) => setProcedureId(pr.id)}
-              />
-            </Tabs.Panel>
-          </Tabs>
-        </section>
+        <ClinicalHistory
+          petId={petId}
+          page={page}
+          onPage={setPage}
+          onOpen={(pr) => setProcedureId(pr.id)}
+        />
       )}
-    </div>
+    </section>
   );
 }
 
 function ClinicalHistory({ petId, page, onPage, onOpen }) {
   const history = usePetProcedures({ petId, page });
+  const total = history.data?.total;
 
   return (
-    <Async q={history} rows={4}>
-      {({ rows, total, pageSize }) =>
-        rows.length === 0 ? (
-          <Empty>Nenhum procedimento registrado para este pet.</Empty>
-        ) : (
-          <>
-            {rows.map((pr) => (
-              <ProcedureItem key={pr.id} procedure={pr} onOpen={onOpen} />
-            ))}
-            {total > pageSize && (
-              <div className="block-foot">
-                <Text size="sm" c="dimmed">
-                  {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)}{" "}
-                  de {total}
-                </Text>
-                <Pagination
-                  value={page}
-                  onChange={onPage}
-                  total={Math.ceil(total / pageSize)}
-                  size="sm"
-                />
+    <>
+      <div className="block-head">
+        <div>
+          <h2>Histórico clínico</h2>
+          {total > 0 && (
+            <div className="sub">
+              {total} {total === 1 ? "registro" : "registros"}
+            </div>
+          )}
+        </div>
+      </div>
+      <Async q={history} rows={4}>
+        {({ rows, total, pageSize }) =>
+          rows.length === 0 ? (
+            <Empty>Nenhum procedimento registrado para este pet.</Empty>
+          ) : (
+            <>
+              <div className="procedure-list">
+                {rows.map((pr) => (
+                  <ProcedureItem key={pr.id} procedure={pr} onOpen={onOpen} />
+                ))}
               </div>
-            )}
-          </>
-        )
-      }
-    </Async>
-  );
-}
-
-function ProcedureSummary({ procedure: pr }) {
-  return (
-    <Group gap="xs" align="baseline">
-      <Badge variant="light" color={PROCEDURE_COLOR[pr.type] ?? "gray"} size="sm">
-        {PROCEDURE_LABEL[pr.type] ?? pr.type}
-      </Badge>
-      <Text size="sm" fw={500}>
-        {fmtDateTime(pr.dateTime)}
-      </Text>
-      <Text size="xs" c="dimmed">
-        {pr.vet.name}
-      </Text>
-    </Group>
+              {total > pageSize && (
+                <div className="block-foot">
+                  <Text size="sm" c="dimmed">
+                    {(page - 1) * pageSize + 1}–
+                    {Math.min(page * pageSize, total)} de {total}
+                  </Text>
+                  <Pagination
+                    value={page}
+                    onChange={onPage}
+                    total={Math.ceil(total / pageSize)}
+                    size="sm"
+                  />
+                </div>
+              )}
+            </>
+          )
+        }
+      </Async>
+    </>
   );
 }
 
 function ProcedureItem({ procedure: pr, onOpen }) {
+  const d = dayjs(pr.dateTime);
   return (
     <UnstyledButton
       className="procedure-row"
       onClick={() => onOpen(pr)}
-      aria-label={`Abrir ${PROCEDURE_LABEL[pr.type] ?? pr.type} de ${fmtDateTime(pr.dateTime)}`}
+      aria-label={`Abrir ${typeLabel(pr.type)} de ${fmtDate(pr.dateTime)}`}
     >
-      <div style={{ minWidth: 0, flex: 1 }}>
-        <ProcedureSummary procedure={pr} />
+      <div className="procedure-when">
+        <span className="d">{d.format("DD/MM")}</span>
+        <span className="y">{d.format("YYYY")}</span>
+      </div>
+      <div className="procedure-body">
+        <Group gap="xs" wrap="nowrap">
+          <Badge variant="light" color={typeColor(pr.type)} size="sm">
+            {typeLabel(pr.type)}
+          </Badge>
+          <Text size="xs" c="dimmed" truncate>
+            {pr.vet.name}
+          </Text>
+        </Group>
         <RichTextPreview html={pr.notes} />
       </div>
-      <IconChevronRight
-        size={18}
-        color="var(--vc-muted)"
-        style={{ flexShrink: 0 }}
-      />
+      <IconChevronRight size={18} className="procedure-chevron" />
     </UnstyledButton>
   );
 }
 
-function ProcedureDetail({ id }) {
+function ProcedureDetail({ id, onBack }) {
   const procedure = useProcedure(id);
+  const pr = procedure.data;
 
   return (
-    <Async q={procedure} rows={6}>
-      {(pr) => (
-        <>
-          <Box
-            px="lg"
-            py="md"
-            style={{ borderBottom: "1px solid var(--vc-line)" }}
+    <>
+      <div className="block-head procedure-head">
+        <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            onClick={onBack}
+            aria-label="Voltar ao histórico clínico"
           >
-            <ProcedureSummary procedure={pr} />
-          </Box>
-          <Box px="lg" py="md">
-            {pr.notes ? (
-              <RichText html={pr.notes} />
-            ) : (
-              <Empty>Sem descrição registrada.</Empty>
-            )}
-          </Box>
-          {pr.extraNotes.length > 0 && (
-            <Box
-              px="lg"
-              py="md"
-              style={{ borderTop: "1px solid var(--vc-line)" }}
-            >
-              <div className="section-label">
-                Notas adicionais ({pr.extraNotes.length})
+            <IconArrowLeft size={18} />
+          </ActionIcon>
+          {pr ? (
+            <div style={{ minWidth: 0 }}>
+              <Group gap={8} wrap="nowrap">
+                <span
+                  className="type-dot"
+                  style={{
+                    background: `var(--mantine-color-${typeColor(pr.type)}-6)`,
+                  }}
+                />
+                <h2>
+                  {typeLabel(pr.type)} · {fmtDate(pr.dateTime)}
+                </h2>
+              </Group>
+              <div className="sub">
+                {dayjs(pr.dateTime).format("HH:mm")} · {pr.vet.name}
               </div>
-              <Stack gap="sm" mt="sm" className="note-list">
-                {pr.extraNotes.map((n) => (
-                  <div key={n.id} className="note">
-                    <Text size="xs" c="dimmed">
-                      {fmtDateTime(n.createdAt)}
-                    </Text>
-                    <Text size="sm" style={{ whiteSpace: "pre-line" }}>
-                      {n.content}
-                    </Text>
-                  </div>
-                ))}
-              </Stack>
-            </Box>
+            </div>
+          ) : (
+            <h2>Histórico clínico</h2>
           )}
-        </>
+        </Group>
+      </div>
+      <Async q={procedure} rows={6}>
+        {(pr) => (
+          <>
+            <div className="procedure-section">
+              {pr.notes ? (
+                <RichText html={pr.notes} />
+              ) : (
+                <Empty>Sem descrição registrada.</Empty>
+              )}
+            </div>
+            {pr.extraNotes.length > 0 && (
+              <div className="procedure-section">
+                <div className="section-label">
+                  Notas adicionais ({pr.extraNotes.length})
+                </div>
+                <Stack gap="sm" mt="sm" className="note-list">
+                  {pr.extraNotes.map((n) => (
+                    <div key={n.id} className="note">
+                      <Text size="xs" c="dimmed">
+                        {fmtDate(n.createdAt)} às{" "}
+                        {dayjs(n.createdAt).format("HH:mm")}
+                      </Text>
+                      <Text size="sm" style={{ whiteSpace: "pre-line" }}>
+                        {n.content}
+                      </Text>
+                    </div>
+                  ))}
+                </Stack>
+              </div>
+            )}
+          </>
+        )}
+      </Async>
+    </>
+  );
+}
+
+const telHref = (phone = "") => `tel:${phone.replace(/\D/g, "")}`;
+
+function TutorSummary({ id }) {
+  const petOwner = usePetOwner(id);
+  const t = petOwner.data;
+  if (!t) return null;
+
+  return (
+    <section className="block tutor-summary">
+      <div style={{ minWidth: 0 }}>
+        <div className="section-label">Tutor</div>
+        <Text fw={600} truncate>
+          {t.name}
+        </Text>
+        <Anchor href="#tutor" size="xs">
+          Ver dados do tutor
+        </Anchor>
+      </div>
+      {t.phone && (
+        <Anchor href={telHref(t.phone)} className="tutor-call">
+          <IconPhone size={16} />
+          <span className="tnum">{t.phone}</span>
+        </Anchor>
       )}
-    </Async>
+    </section>
   );
 }
 
 function PetOwnerAside({ id }) {
   const petOwner = usePetOwner(id);
   const [showCpf, setShowCpf] = useState(false);
+
   return (
-    <Block title="Tutor">
+    <section className="block" id="tutor" style={{ scrollMarginTop: 64 }}>
       <Async q={petOwner} rows={4}>
         {(t) => (
-          <Stack gap="sm">
-            <Text fw={600}>{t.name}</Text>
-            <Info
-              label="CPF"
-              value={
-                <Group gap={6} wrap="nowrap" component="span">
-                  <span className="tnum">
-                    {showCpf ? t.cpf : hideCpf(t.cpf)}
-                  </span>
-                  <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    size="sm"
-                    aria-label={showCpf ? "Ocultar CPF" : "Mostrar CPF"}
-                    aria-pressed={showCpf}
-                    onClick={() => setShowCpf((v) => !v)}
-                  >
-                    {showCpf ? <IconEyeOff size={16} /> : <IconEye size={16} />}
-                  </ActionIcon>
-                </Group>
-              }
-            />
-            <Info label="Telefone" value={t.phone} />
-            <Info label="E-mail" value={t.email} />
-            <Info label="Endereço" value={t.address} />
-          </Stack>
+          <>
+            <div className="block-head">
+              <div style={{ minWidth: 0 }}>
+                <div className="section-label">Tutor</div>
+                <h2 style={{ overflowWrap: "anywhere" }}>{t.name}</h2>
+              </div>
+            </div>
+            <Stack gap="sm" className="block-body">
+              <Info
+                label="CPF"
+                value={
+                  <Group gap={6} wrap="nowrap" component="span">
+                    <span className="tnum">
+                      {showCpf ? t.cpf : hideCpf(t.cpf)}
+                    </span>
+                    <ActionIcon
+                      variant="subtle"
+                      color="gray"
+                      size="sm"
+                      aria-label={showCpf ? "Ocultar CPF" : "Mostrar CPF"}
+                      aria-pressed={showCpf}
+                      onClick={() => setShowCpf((v) => !v)}
+                    >
+                      {showCpf ? (
+                        <IconEyeOff size={16} />
+                      ) : (
+                        <IconEye size={16} />
+                      )}
+                    </ActionIcon>
+                  </Group>
+                }
+              />
+              <Info
+                label="Telefone"
+                value={
+                  t.phone && (
+                    <Anchor href={telHref(t.phone)} size="sm" className="tnum">
+                      {t.phone}
+                    </Anchor>
+                  )
+                }
+              />
+              <Info
+                label="E-mail"
+                value={
+                  t.email && (
+                    <Anchor href={`mailto:${t.email}`} size="sm">
+                      {t.email}
+                    </Anchor>
+                  )
+                }
+              />
+              <Info label="Endereço" value={t.address} />
+            </Stack>
+          </>
         )}
       </Async>
-    </Block>
+    </section>
   );
 }
 
@@ -269,56 +443,9 @@ function Info({ label, value }) {
       <Text size="xs" c="dimmed">
         {label}
       </Text>
-      <Text size="sm" style={{ overflowWrap: "anywhere" }}>
+      <Text size="sm" component="div" style={{ overflowWrap: "anywhere" }}>
         {value || <Dash />}
       </Text>
     </div>
-  );
-}
-
-function PetHeader({ pet: p }) {
-  const species = SPECIES_LABEL[p.species] ?? p.species;
-  return (
-    <section className="block" style={{ marginBottom: "var(--vc-gutter)" }}>
-      <Group gap="md" wrap="nowrap" px="lg" py="md" align="center">
-        <PetAvatar pet={p} size={56} />
-        <div style={{ minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>{p.name}</h1>
-          <Text size="sm" c="dimmed">
-            {[species, p.breed, age(p.birth)].filter(Boolean).join(" · ")}
-          </Text>
-        </div>
-      </Group>
-      {p.alerts && (
-        <Group
-          gap={6}
-          wrap="nowrap"
-          px="lg"
-          py="xs"
-          style={{
-            borderTop: "1px solid var(--vc-line)",
-            background: "var(--mantine-color-red-0)",
-          }}
-        >
-          <IconAlertTriangle
-            size={16}
-            color="var(--mantine-color-red-8)"
-            style={{ flexShrink: 0 }}
-          />
-          <Text size="sm" c="red.8">
-            {p.alerts}
-          </Text>
-        </Group>
-      )}
-      <Facts
-        items={[
-          ["Espécie", species],
-          ["Raça", p.breed],
-          ["Sexo", SEX_LABEL[p.sex] ?? p.sex],
-          ["Nascimento", p.birth ? fmtDate(p.birth) : null],
-          ["Peso", p.weight != null ? kg(p.weight) : null],
-        ]}
-      />
-    </section>
   );
 }

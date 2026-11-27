@@ -1172,8 +1172,87 @@ button.mrow {
   line-height: 1.45;
   color: var(--vc-muted);
 }
-.procedure-row {
+/* ---------- página do paciente ---------- */
+.pet-head {
+  margin-bottom: var(--vc-gutter);
+  overflow: hidden;
+}
+.pet-head-main {
   display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+}
+.pet-head-name {
+  min-width: 0;
+  flex: 1;
+}
+.pet-head-name h1 {
+  margin: 0 0 2px;
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.pet-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 24px;
+  margin: 4px 0 0;
+}
+.pet-stats > div {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.pet-stats dt {
+  font-size: 13px;
+  color: var(--vc-muted);
+}
+.pet-stats dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pet-stats dd .muted {
+  margin-left: 2px;
+  font-size: 12px;
+  font-weight: 400;
+}
+.pet-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  border-top: 1px solid var(--mantine-color-red-2);
+  background: var(--mantine-color-red-0);
+  color: var(--mantine-color-red-8);
+  font-size: 14px;
+}
+.pet-alert strong {
+  font-weight: 600;
+}
+@media (max-width: 767px) {
+  .pet-head-main {
+    padding: 14px 16px;
+  }
+  .pet-alert {
+    padding: 9px 16px;
+    align-items: flex-start;
+  }
+  .pet-alert svg {
+    margin-top: 2px;
+  }
+}
+
+.procedure-list {
+  border-top: 1px solid var(--vc-line);
+}
+.procedure-row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
   align-items: center;
   gap: 16px;
   width: 100%;
@@ -1185,14 +1264,85 @@ button.mrow {
   border-top: 0;
 }
 .procedure-row:hover {
-  background: var(--mantine-color-gray-0);
+  background: var(--vc-hover);
 }
 .procedure-row:hover .rich-text-preview {
   color: var(--vc-ink);
 }
 .procedure-row:focus-visible {
-  outline: 2px solid var(--mantine-primary-color-filled);
+  outline: 2px solid var(--vc-teal);
   outline-offset: -2px;
+}
+.procedure-when {
+  display: grid;
+  align-self: start;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+}
+.procedure-when .d {
+  font-size: 15px;
+  font-weight: 600;
+}
+.procedure-when .y {
+  font-size: 12px;
+  color: var(--vc-muted);
+}
+.procedure-body {
+  min-width: 0;
+}
+.procedure-chevron {
+  color: var(--vc-muted);
+}
+.procedure-head h2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.type-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.procedure-section {
+  padding: 16px 20px;
+  border-top: 1px solid var(--vc-line);
+}
+
+.tutor-summary {
+  display: none;
+}
+@media (max-width: 1023px) {
+  .tutor-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    margin: calc(var(--vc-gutter) * -0.5) 0 var(--vc-gutter);
+  }
+  .tutor-call {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--vc-line);
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+@media (max-width: 767px) {
+  .procedure-row {
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  .procedure-section {
+    padding: 14px 16px;
+  }
 }
 .section-label {
   font-size: 12px;

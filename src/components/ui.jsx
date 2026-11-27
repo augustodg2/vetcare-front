@@ -139,11 +139,11 @@ export function ErrorState({ onRetry }) {
 }
 
 // Mostra carregando / erro / conteúdo de uma consulta do React Query
-export function Async({ q, rows, children }) {
+export function Async({ q, rows, fallback, children }) {
   if (q.error && q.data === undefined) {
     return <ErrorState onRetry={q.reload ?? q.refetch} />;
   }
-  if (q.data === undefined) return <LoadingRows rows={rows} />;
+  if (q.data === undefined) return fallback ?? <LoadingRows rows={rows} />;
   return children(q.data);
 }
 

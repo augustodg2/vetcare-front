@@ -2,6 +2,7 @@ import DOMPurify from "dompurify";
 import { useMemo } from "react";
 
 const BLOCK_END = /<\/(p|h[1-6]|li|div|blockquote)>|<br\s*\/?>/gi;
+const BREAK = String.fromCharCode(0x2063);
 const HEADING = /<h[1-6][^>]*>[\s\S]*?<\/h[1-6]>/gi;
 
 export const sanitizeHtml = (html = "") => DOMPurify.sanitize(html);
@@ -10,10 +11,14 @@ export function htmlToText(html = "", { skipHeadings = false } = {}) {
   let src = sanitizeHtml(html);
   if (skipHeadings) src = src.replace(HEADING, " ");
   const doc = new DOMParser().parseFromString(
-    src.replace(BLOCK_END, "$& "),
+    src.replace(BLOCK_END, `$&${BREAK}`),
     "text/html",
   );
-  return doc.body.textContent.replace(/\s+/g, " ").trim();
+  return doc.body.textContent
+    .split(BREAK)
+    .map((s) => s.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .join(" · ");
 }
 
 export function RichText({ html }) {
