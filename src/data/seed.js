@@ -64,7 +64,7 @@ export function buildSeed() {
   const today = dayjs().startOf("day");
   const d = (n) => today.add(n, "day").format("YYYY-MM-DD");
   const ts = (n, time) => `${d(n)}T${time}`;
-  const birth = (years, months = 0) =>
+  const birthDate = (years, months = 0) =>
     today
       .subtract(years, "year")
       .subtract(months, "month")
@@ -221,7 +221,7 @@ export function buildSeed() {
       species: "Cão",
       breed: "Golden Retriever",
       sex: "Macho",
-      birth: birth(4, 2),
+      birthDate: birthDate(4, 2),
       weight: 32,
       alerts: "",
     },
@@ -232,7 +232,7 @@ export function buildSeed() {
       species: "Gato",
       breed: "SRD",
       sex: "Fêmea",
-      birth: birth(2, 5),
+      birthDate: birthDate(2, 5),
       weight: 4.1,
       alerts: "",
     },
@@ -243,7 +243,7 @@ export function buildSeed() {
       species: "Cão",
       breed: "SRD",
       sex: "Macho",
-      birth: birth(6),
+      birthDate: birthDate(6),
       weight: 14.5,
       alerts: "",
     },
@@ -254,7 +254,7 @@ export function buildSeed() {
       species: "Cão",
       breed: "Shih-tzu",
       sex: "Fêmea",
-      birth: birth(3, 1),
+      birthDate: birthDate(3, 1),
       weight: 6.2,
       alerts: "",
     },
@@ -265,7 +265,7 @@ export function buildSeed() {
       species: "Gato",
       breed: "Maine Coon",
       sex: "Fêmea",
-      birth: birth(5, 4),
+      birthDate: birthDate(5, 4),
       weight: 6.8,
       alerts: "",
     },
@@ -276,7 +276,7 @@ export function buildSeed() {
       species: "Cão",
       breed: "Bulldog francês",
       sex: "Fêmea",
-      birth: birth(2, 8),
+      birthDate: birthDate(2, 8),
       weight: 11.3,
       alerts: "Alergia a dipirona",
     },
@@ -287,7 +287,7 @@ export function buildSeed() {
       species: "Cão",
       breed: "Beagle",
       sex: "Macho",
-      birth: birth(8, 3),
+      birthDate: birthDate(8, 3),
       weight: 13.9,
       alerts: "",
     },
@@ -298,7 +298,7 @@ export function buildSeed() {
       species: "Gato",
       breed: "SRD",
       sex: "Fêmea",
-      birth: birth(1, 2),
+      birthDate: birthDate(1, 2),
       weight: 3.2,
       alerts: "",
     },
@@ -309,7 +309,7 @@ export function buildSeed() {
       species: "Cão",
       breed: "Lhasa Apso",
       sex: "Macho",
-      birth: birth(10, 6),
+      birthDate: birthDate(10, 6),
       weight: 7.4,
       alerts: "Cardiopata: avaliar antes de qualquer sedação",
     },
