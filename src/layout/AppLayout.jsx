@@ -2,17 +2,16 @@
 import { IconLogout, IconMenu2 } from "@tabler/icons-react";
 import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { ROLES } from "../auth/roles";
 import { useSession } from "../auth/session";
 import { PersonAvatar } from "../components/ui";
-import { ROLE_LABEL } from "../lib/status";
-import { NAV } from "./nav";
 import Sidebar, { useSidebarCollapsed } from "./Sidebar";
 
 export default function AppLayout() {
   const { user, logout } = useSession();
   const navigate = useNavigate();
   const [menu, setMenu] = useState(false);
-  const items = NAV[user.role];
+  const { label: roleLabel, nav: items } = ROLES[user.role];
   const [collapsed, toggleCollapsed] = useSidebarCollapsed();
 
   const signOut = () => {
@@ -28,7 +27,7 @@ export default function AppLayout() {
           {user.name}
         </Text>
         <Text size="xs" c="dimmed">
-          {ROLE_LABEL[user.role]}
+          {roleLabel}
         </Text>
       </div>
       <ActionIcon

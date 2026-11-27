@@ -38,6 +38,7 @@ import {
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { usePetAppointments } from "../../api/queries/appointments";
+import { rolePath } from "../../auth/roles";
 import { usePetOwner } from "../../api/queries/petOwners";
 import { usePet } from "../../api/queries/pets";
 import {
@@ -82,7 +83,7 @@ export default function Paciente() {
 
   return (
     <>
-      <Link to="/vet/pacientes" className="back-link">
+      <Link to={rolePath("VET", "pacientes")} className="back-link">
         <IconChevronLeft size={14} />
         Pacientes
       </Link>
@@ -344,7 +345,7 @@ function UpcomingAppointments({ pet, range, page, onPage }) {
         <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
           <Button
             component={Link}
-            to={`/vet/agenda?v=semana&paciente=${pet.id}`}
+            to={`${rolePath("VET", "agenda")}?v=semana&paciente=${pet.id}`}
             variant="default"
             size="xs"
             leftSection={<IconCalendar size={14} />}

@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useAcceptInvite } from "../api/queries/users";
-import { ROLES } from "../auth/session";
+import { roleHome } from "../auth/roles";
 import { AuthCard, NewPasswordForm } from "../components/AuthCard";
 
 export default function AcceptInvite() {
@@ -11,7 +11,7 @@ export default function AcceptInvite() {
   const onSubmit = async (password) => {
     try {
       const user = await accept.mutateAsync({ token, password });
-      navigate(ROLES[user.role].home, { replace: true });
+      navigate(roleHome(user.role), { replace: true });
     } catch {
       // the global mutation handler already showed the API message
     }

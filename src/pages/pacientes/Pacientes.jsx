@@ -22,6 +22,7 @@ import {
 import { debounce, parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { rolePath } from "../../auth/roles";
 import { useSession } from "../../auth/session";
 import { useDeletePetOwner, usePetOwner } from "../../api/queries/petOwners";
 import { useDeletePet, usePets } from "../../api/queries/pets";
@@ -45,13 +46,12 @@ import { SPECIES_LABEL } from "../../lib/status";
 import { toast } from "../../lib/notify";
 
 const SEARCH_DEBOUNCE_MS = 500;
-const AGENDA_PATH = { RECEP: "/recepcao/agenda", ADMIN: "/admin/agenda" };
 
 export default function Pacientes() {
   const { user } = useSession();
   const navigate = useNavigate();
   const readOnly = user.role === "VET";
-  const agendaPath = AGENDA_PATH[user.role];
+  const agendaPath = readOnly ? undefined : rolePath(user.role, "agenda");
   const [search, setSearch] = useQueryState(
     "q",
     parseAsString.withDefault("").withOptions({
@@ -159,7 +159,7 @@ export default function Pacientes() {
                 }
                 onRowClick={(p) =>
                   readOnly
-                    ? navigate(`/vet/pacientes/${p.id}`)
+                    ? navigate(rolePath("VET", `pacientes/${p.id}`))
                     : setOpenPetOwner(p.petOwnerId)
                 }
                 fixed

@@ -12,7 +12,8 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { ApiError } from "../api/errors";
 import { useLogin } from "../api/queries/auth";
 import { STATUS } from "../api/statusCodes";
-import { ROLES, useSession } from "../auth/session";
+import { isKnownRole, roleHome } from "../auth/roles";
+import { SignOut, useSession } from "../auth/session";
 import { AuthCard } from "../components/AuthCard";
 import { isEmail } from "../lib/format";
 import { toast } from "../lib/notify";
@@ -31,13 +32,17 @@ export default function Login() {
   const loginMutation = useLogin();
 
   if (user) {
-    return <Navigate to={ROLES[user.role].home} replace />;
+    return isKnownRole(user.role) ? (
+      <Navigate to={roleHome(user.role)} replace />
+    ) : (
+      <SignOut />
+    );
   }
 
   const onSubmit = form.onSubmit(async (v) => {
     try {
       const { user } = await loginMutation.mutateAsync(v);
-      navigate(ROLES[user.role].home, { replace: true });
+      navigate(roleHome(user.role), { replace: true });
     } catch (e) {
       if (e instanceof ApiError && e.status === STATUS.UNAUTHORIZED) {
         toast.err(e, "E-mail ou senha incorretos.");

@@ -1,34 +1,38 @@
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
-import { ROLES, useSession } from "./auth/session";
+import { isKnownRole, ROLES, roleHome } from "./auth/roles";
+import { SignOut, useSession } from "./auth/session";
 import AppLayout from "./layout/AppLayout";
-import Usuarios from "./pages/admin/Usuarios";
 import AcceptInvite from "./pages/AcceptInvite";
+import Agenda from "./pages/agenda/Agenda";
+import Atendimento from "./pages/atendimento/Atendimento";
+import Caixa from "./pages/caixa/Caixa";
 import Login from "./pages/Login";
-import Agenda from "./pages/recepcao/Agenda";
-import Caixa from "./pages/recepcao/Caixa";
-import Pacientes from "./pages/recepcao/Pacientes";
+import Paciente from "./pages/pacientes/Paciente";
+import Pacientes from "./pages/pacientes/Pacientes";
 import ResetPassword from "./pages/ResetPassword";
-import Atendimento from "./pages/vet/Atendimento";
-import Paciente from "./pages/vet/Paciente";
+import Usuarios from "./pages/usuarios/Usuarios";
 
 function RequireAuth() {
   const { user } = useSession();
-  return user ? <Outlet /> : <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace />;
+  return isKnownRole(user.role) ? <Outlet /> : <SignOut />;
 }
 
 // cada perfil só entra nas próprias páginas
 function RoleGate({ role }) {
   const { user } = useSession();
+  if (!isKnownRole(user.role)) return <SignOut />;
   return user.role === role ? (
     <Outlet />
   ) : (
-    <Navigate to={ROLES[user.role].home} replace />
+    <Navigate to={roleHome(user.role)} replace />
   );
 }
 
 function Home() {
   const { user } = useSession();
-  return <Navigate to={user ? ROLES[user.role].home : "/login"} replace />;
+  if (user && !isKnownRole(user.role)) return <SignOut />;
+  return <Navigate to={user ? roleHome(user.role) : "/login"} replace />;
 }
 
 export default function App() {
@@ -39,18 +43,18 @@ export default function App() {
       <Route path="/redefinir-senha/:token" element={<ResetPassword />} />
       <Route element={<RequireAuth />}>
         <Route element={<AppLayout />}>
-          <Route path="recepcao" element={<RoleGate role="RECEP" />}>
+          <Route path={ROLES.RECEP.base} element={<RoleGate role="RECEP" />}>
             <Route path="agenda" element={<Agenda />} />
             <Route path="pacientes" element={<Pacientes />} />
             <Route path="caixa" element={<Caixa />} />
           </Route>
-          <Route path="vet" element={<RoleGate role="VET" />}>
+          <Route path={ROLES.VET.base} element={<RoleGate role="VET" />}>
             <Route path="atendimento" element={<Atendimento />} />
             <Route path="agenda" element={<Agenda />} />
             <Route path="pacientes" element={<Pacientes />} />
             <Route path="pacientes/:id" element={<Paciente />} />
           </Route>
-          <Route path="admin" element={<RoleGate role="ADMIN" />}>
+          <Route path={ROLES.ADMIN.base} element={<RoleGate role="ADMIN" />}>
             <Route path="agenda" element={<Agenda />} />
             <Route path="pacientes" element={<Pacientes />} />
             <Route path="usuarios" element={<Usuarios />} />

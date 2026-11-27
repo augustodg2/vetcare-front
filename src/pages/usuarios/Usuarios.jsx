@@ -33,6 +33,7 @@ import {
   useUpdateUser,
   useUsers,
 } from "../../api/queries/users";
+import { ROLE_OPTIONS, roleLabel } from "../../auth/roles";
 import { useSession } from "../../auth/session";
 import { toast } from "../../lib/notify";
 import {
@@ -45,7 +46,7 @@ import {
   relDay,
   UFS,
 } from "../../lib/format";
-import { ROLE_LABEL, USER_STATUS } from "../../lib/status";
+import { USER_STATUS } from "../../lib/status";
 import {
   Async,
   Block,
@@ -57,13 +58,8 @@ import {
   Pill,
 } from "../../components/ui";
 
-const STAFF_ROLES = ["RECEP", "VET", "ADMIN"].map((value) => ({
-  value,
-  label: ROLE_LABEL[value],
-}));
-
 // a vet has a CPF/CRMV record, so the role can't move to or from VET on edit
-const NON_VET_ROLES = STAFF_ROLES.filter((r) => r.value !== "VET");
+const NON_VET_ROLES = ROLE_OPTIONS.filter((r) => r.value !== "VET");
 
 // deactivated users are hidden by default; "todos" lists everyone
 const STATUS_FILTERS = [
@@ -239,7 +235,7 @@ export default function Usuarios() {
                   {
                     key: "r",
                     label: "Perfil",
-                    render: (u) => ROLE_LABEL[u.role],
+                    render: (u) => roleLabel(u.role),
                   },
                   {
                     key: "s",
@@ -315,7 +311,7 @@ export default function Usuarios() {
                 ]}
                 mobile={{
                   title: (u) => u.name,
-                  sub: (u) => `${ROLE_LABEL[u.role]} · ${u.email}`,
+                  sub: (u) => `${roleLabel(u.role)} · ${u.email}`,
                   side: (u) => (
                     <Pill status={u.status} map={USER_STATUS} size="sm" />
                   ),
@@ -438,7 +434,7 @@ function InviteForm({ onClose }) {
         />
         <Select
           label="Perfil de acesso"
-          data={STAFF_ROLES}
+          data={ROLE_OPTIONS}
           allowDeselect={false}
           {...form.getInputProps("role")}
         />
@@ -548,7 +544,7 @@ function EditUserForm({ user, onClose }) {
         <TextInput label="E-mail" value={user.email} disabled readOnly />
         <Select
           label="Perfil de acesso"
-          data={isVet ? STAFF_ROLES : NON_VET_ROLES}
+          data={isVet ? ROLE_OPTIONS : NON_VET_ROLES}
           allowDeselect={false}
           disabled={isVet}
           description={

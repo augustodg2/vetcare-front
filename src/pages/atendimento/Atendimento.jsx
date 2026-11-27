@@ -11,6 +11,7 @@ import {
 import dayjs from "dayjs";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { rolePath } from "../../auth/roles";
 import { useSession } from "../../auth/session";
 import {
   useAppointments,
@@ -34,7 +35,7 @@ import { APPOINTMENT_STATUS, PROCEDURE_LABEL } from "../../lib/status";
 const SLOT_MIN = 30;
 const CLOCK_TICK_MS = 60_000;
 
-const petHref = (pet) => `/vet/pacientes/${pet.id}`;
+const petHref = (pet) => rolePath("VET", `pacientes/${pet.id}`);
 
 function useNow() {
   const [now, setNow] = useState(() => dayjs());

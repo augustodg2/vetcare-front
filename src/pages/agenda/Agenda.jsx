@@ -17,6 +17,7 @@ import dayjs from "dayjs";
 import { parseAsString, parseAsStringLiteral, useQueryState } from "nuqs";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useState } from "react";
+import { rolePath } from "../../auth/roles";
 import { useSession } from "../../auth/session";
 import { useAppointments } from "../../api/queries/appointments";
 import { usePet, usePets } from "../../api/queries/pets";
@@ -157,7 +158,9 @@ export default function Agenda() {
         appointment={selected}
         onClose={() => setSelectedId(null)}
         onRescheduled={(a) => go(a.dateTime)}
-        petHref={isVet ? (pet) => `/vet/pacientes/${pet.id}` : undefined}
+        petHref={
+          isVet ? (pet) => rolePath("VET", `pacientes/${pet.id}`) : undefined
+        }
         canManage={(a) => !isVet || a.vet.id === user.vetId}
       />
       <Block flush className="fill-block">

@@ -6,12 +6,6 @@ export const USER_STATUS = {
   inativo: { label: "Desativado", color: "gray" },
 };
 
-export const ROLE_LABEL = {
-  RECEP: "Recepcionista",
-  VET: "Veterinário",
-  ADMIN: "Administrador",
-};
-
 export const APPOINTMENT_STATUS = {
   ACTIVE: { label: "Agendada", color: "blue" },
   DONE: { label: "Concluída", color: "gray" },
