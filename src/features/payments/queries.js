@@ -8,6 +8,7 @@ import {
 import dayjs from "dayjs";
 import { api } from "@/api";
 import { procedureKeys } from "@/api/queries/procedures";
+import { missingProcedureIds, summarizePaymentsDay } from "./paymentsDay";
 
 const PAYMENTS_REFRESH_MS = 60_000;
 
@@ -59,6 +60,26 @@ export const useProceduresById = (ids) =>
         results.filter((r) => r.data).map((r) => [r.data.id, r.data]),
       ),
   });
+
+const NO_ROWS = [];
+
+export const usePaymentsDaySummary = (day) => {
+  const query = usePaymentsDay(day);
+  const procedures = query.data?.procedures ?? NO_ROWS;
+  const payments = query.data?.payments ?? NO_ROWS;
+  const extraProcedures = useProceduresById(
+    missingProcedureIds({ procedures, payments, day }),
+  );
+  return {
+    query,
+    summary: summarizePaymentsDay({
+      procedures,
+      payments,
+      day,
+      extraProcedures,
+    }),
+  };
+};
 
 const usePaymentMutation = (mutationFn, { onSuccess, ...options } = {}) => {
   const queryClient = useQueryClient();

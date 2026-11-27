@@ -34,14 +34,11 @@ import { PAYMENT_STATUS, PROCEDURE_LABEL } from "@/lib/status";
 import { PaymentModal } from "./PaymentModal";
 import {
   useCancelPayment,
-  usePaymentsDay,
-  useProceduresById,
+  usePaymentsDaySummary,
   useRefundPayment,
 } from "./queries";
 import layoutStyles from "@/styles/layout.module.css";
 import styles from "./Payments.module.css";
-
-const SETTLED = ["PAID", "REFUNDED"];
 
 export default function Payments() {
   const [dateParam, setDate] = useQueryState(
@@ -57,36 +54,22 @@ export default function Payments() {
   const [action, setAction] = useState(null);
   const closeAction = () => setAction(null);
 
-  const paymentsDay = usePaymentsDay(day);
-  const procedures = paymentsDay.data?.procedures ?? [];
-  const allPayments = paymentsDay.data?.payments ?? [];
+  const { query: paymentsDay, summary } = usePaymentsDaySummary(day);
+  const {
+    procedureCount,
+    groups,
+    unpaidCount,
+    isSettled,
+    payments,
+    paid,
+    received,
+    discounts,
+    reversed,
+    reversedTotal,
+    petNames,
+  } = summary;
+  const petsOf = (payment) => petNames[payment.id];
 
-  const settledIds = new Set(
-    allPayments
-      .filter((p) => SETTLED.includes(p.status))
-      .flatMap((p) => p.items.map((i) => i.procedure.id)),
-  );
-  const dayGroups = groupByPet(procedures);
-  const unpaidCount = procedures.filter((p) => !settledIds.has(p.id)).length;
-  const payments = allPayments.filter((p) =>
-    dayjs(p.createdAt).isSame(day, "day"),
-  );
-  const paid = payments.filter((p) => p.status === "PAID");
-
-  const knownProcedures = Object.fromEntries(procedures.map((p) => [p.id, p]));
-  const missingIds = [
-    ...new Set(
-      payments
-        .flatMap((p) => p.items.map((i) => i.procedure.id))
-        .filter((id) => !knownProcedures[id]),
-    ),
-  ];
-  const fetchedProcedures = useProceduresById(missingIds);
-  const procedureById = (id) => knownProcedures[id] ?? fetchedProcedures[id];
-
-  const received = sum(paid, "total");
-  const discounts = sum(paid, "discount");
-  const reversed = payments.filter((p) => p.status !== "PAID");
   const cancel = useCancelPayment({
     onSuccess: (p) => {
       toast.ok(`Pagamento de ${brl(p.total)} cancelado.`);
@@ -104,13 +87,6 @@ export default function Payments() {
     if (!d) return;
     go(d);
     setPickerOpen(false);
-  };
-
-  const petsOf = (payment) => {
-    const names = payment.items
-      .map((i) => procedureById(i.procedure.id)?.pet?.name)
-      .filter(Boolean);
-    return [...new Set(names)].join(", ");
   };
 
   return (
@@ -213,7 +189,7 @@ export default function Payments() {
               },
               {
                 label: "Procedimentos do dia",
-                value: procedures.length,
+                value: procedureCount,
                 hint: `${unpaidCount} sem pagamento`,
               },
               {
@@ -223,7 +199,7 @@ export default function Payments() {
               {
                 label: "Cancelados e estornados",
                 value: reversed.length,
-                hint: reversed.length ? brl(sum(reversed, "total")) : undefined,
+                hint: reversed.length ? brl(reversedTotal) : undefined,
               },
             ]}
           />
@@ -232,13 +208,10 @@ export default function Payments() {
         <Block title="Procedimentos do dia" flush>
           <Async q={paymentsDay} rows={3}>
             {() =>
-              dayGroups.length === 0 ? (
+              groups.length === 0 ? (
                 <Empty>Nenhum procedimento registrado neste dia.</Empty>
               ) : (
-                dayGroups.map((g) => {
-                  const unpaid = g.procedures.filter(
-                    (p) => !settledIds.has(p.id),
-                  );
+                groups.map((g) => {
                   return (
                     <div className={styles.chargeRow} key={g.pet.id}>
                       <SpeciesAvatar species={g.pet.species} size={40} />
@@ -246,7 +219,7 @@ export default function Payments() {
                         <div className={styles.chargePet}>{g.pet.name}</div>
                         <div className={styles.chargeItems}>
                           {g.procedures.map((p) => {
-                            const paid = settledIds.has(p.id);
+                            const paid = isSettled(p.id);
                             return (
                               <Badge
                                 key={p.id}
@@ -266,13 +239,13 @@ export default function Payments() {
                           })}
                         </div>
                       </div>
-                      {unpaid.length > 0 ? (
+                      {g.unpaid.length > 0 ? (
                         <Button
                           size="xs"
                           variant="light"
                           onClick={() =>
                             setModal({
-                              charge: { pet: g.pet, procedures: unpaid },
+                              charge: { pet: g.pet, procedures: g.unpaid },
                             })
                           }
                         >
@@ -427,20 +400,5 @@ function PaymentMenu({ onAction }) {
   );
 }
 
-const sum = (rows, key) =>
-  rows.reduce((acc, r) => acc + Math.round(r[key] * 100), 0) / 100;
-
 const itemsLabel = (payment) =>
   payment.items.map((i) => PROCEDURE_LABEL[i.procedure.type]).join(", ");
-
-function groupByPet(procedures) {
-  const groups = new Map();
-  [...procedures]
-    .sort((a, b) => a.dateTime.localeCompare(b.dateTime))
-    .forEach((p) => {
-      const key = p.pet?.id ?? p.id;
-      if (!groups.has(key)) groups.set(key, { pet: p.pet, procedures: [] });
-      groups.get(key).procedures.push(p);
-    });
-  return [...groups.values()];
-}

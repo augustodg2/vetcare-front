@@ -24,13 +24,13 @@ import { Empty, FormActions } from "@/components/ui";
 import { brl, toCents } from "@/lib/format";
 import { toast } from "@/lib/notify";
 import { PAYMENT_METHODS, PROCEDURE_LABEL } from "@/lib/status";
+import { settledProcedureIds } from "./paymentsDay";
 import { useCreatePayment, usePaymentsSince } from "./queries";
 import styles from "./PaymentModal.module.css";
 
 const NOTES_MAX = 2000;
 const SEARCH_DEBOUNCE_MS = 300;
 const PROCEDURE_PAGE_SIZE = 10;
-const SETTLED = ["PAID", "REFUNDED"];
 
 const money = {
   prefix: "R$ ",
@@ -78,11 +78,7 @@ function PaymentForm({ charge, onClose }) {
       )
     : null;
   const payments = usePaymentsSince(oldest);
-  const settledIds = new Set(
-    (payments.data ?? [])
-      .filter((p) => SETTLED.includes(p.status))
-      .flatMap((p) => p.items.map((i) => i.procedure.id)),
-  );
+  const settledIds = settledProcedureIds(payments.data ?? []);
 
   const form = useForm({
     initialValues: {
