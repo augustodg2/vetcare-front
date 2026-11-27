@@ -4,6 +4,7 @@ import {
   Avatar,
   Badge,
   Chip,
+  Collapse,
   Group,
   Pagination,
   Skeleton,
@@ -15,13 +16,13 @@ import {
   IconAlertTriangle,
   IconArrowLeft,
   IconCat,
+  IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
   IconDog,
   IconEye,
   IconEyeOff,
   IconPaw,
-  IconPhone,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
@@ -413,36 +414,45 @@ const telHref = (phone = "") => `tel:${phone.replace(/\D/g, "")}`;
 
 function TutorSummary({ id }) {
   const petOwner = usePetOwner(id);
+  const [open, setOpen] = useState(false);
   const t = petOwner.data;
   if (!t) return null;
 
   return (
     <section className="block tutor-summary">
-      <div style={{ minWidth: 0 }}>
-        <div className="section-label">Tutor</div>
-        <Text fw={600} truncate>
-          {t.name}
-        </Text>
-        <Anchor href="#tutor" size="xs">
-          Ver dados do tutor
-        </Anchor>
-      </div>
-      {t.phone && (
-        <Anchor href={telHref(t.phone)} className="tutor-call">
-          <IconPhone size={16} />
-          <span className="tnum">{t.phone}</span>
-        </Anchor>
-      )}
+      <UnstyledButton
+        className="tutor-toggle"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-controls="tutor-details"
+      >
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div className="section-label">Tutor</div>
+          <Text fw={600} truncate>
+            {t.name}
+          </Text>
+        </div>
+        <span className="tutor-toggle-hint">
+          {open ? "Ocultar" : "Ver dados"}
+          <IconChevronDown
+            size={16}
+            className="tutor-chevron"
+            data-open={open || undefined}
+          />
+        </span>
+      </UnstyledButton>
+      <Collapse in={open} id="tutor-details">
+        <PetOwnerInfo petOwner={t} className="tutor-summary-body" />
+      </Collapse>
     </section>
   );
 }
 
 function PetOwnerAside({ id }) {
   const petOwner = usePetOwner(id);
-  const [showCpf, setShowCpf] = useState(false);
 
   return (
-    <section className="block" id="tutor" style={{ scrollMarginTop: 64 }}>
+    <section className="block tutor-aside">
       <Async q={petOwner} rows={4}>
         {(t) => (
           <>
@@ -452,57 +462,59 @@ function PetOwnerAside({ id }) {
                 <h2 style={{ overflowWrap: "anywhere" }}>{t.name}</h2>
               </div>
             </div>
-            <Stack gap="sm" className="block-body">
-              <Info
-                label="CPF"
-                value={
-                  <Group gap={6} wrap="nowrap" component="span">
-                    <span className="tnum">
-                      {showCpf ? t.cpf : hideCpf(t.cpf)}
-                    </span>
-                    <ActionIcon
-                      variant="subtle"
-                      color="gray"
-                      size="sm"
-                      aria-label={showCpf ? "Ocultar CPF" : "Mostrar CPF"}
-                      aria-pressed={showCpf}
-                      onClick={() => setShowCpf((v) => !v)}
-                    >
-                      {showCpf ? (
-                        <IconEyeOff size={16} />
-                      ) : (
-                        <IconEye size={16} />
-                      )}
-                    </ActionIcon>
-                  </Group>
-                }
-              />
-              <Info
-                label="Telefone"
-                value={
-                  t.phone && (
-                    <Anchor href={telHref(t.phone)} size="sm" className="tnum">
-                      {t.phone}
-                    </Anchor>
-                  )
-                }
-              />
-              <Info
-                label="E-mail"
-                value={
-                  t.email && (
-                    <Anchor href={`mailto:${t.email}`} size="sm">
-                      {t.email}
-                    </Anchor>
-                  )
-                }
-              />
-              <Info label="Endereço" value={t.address} />
-            </Stack>
+            <PetOwnerInfo petOwner={t} className="block-body" />
           </>
         )}
       </Async>
     </section>
+  );
+}
+
+function PetOwnerInfo({ petOwner: t, className }) {
+  const [showCpf, setShowCpf] = useState(false);
+
+  return (
+    <Stack gap="sm" className={className}>
+      <Info
+        label="CPF"
+        value={
+          <Group gap={6} wrap="nowrap" component="span">
+            <span className="tnum">{showCpf ? t.cpf : hideCpf(t.cpf)}</span>
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              size="sm"
+              aria-label={showCpf ? "Ocultar CPF" : "Mostrar CPF"}
+              aria-pressed={showCpf}
+              onClick={() => setShowCpf((v) => !v)}
+            >
+              {showCpf ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+            </ActionIcon>
+          </Group>
+        }
+      />
+      <Info
+        label="Telefone"
+        value={
+          t.phone && (
+            <Anchor href={telHref(t.phone)} size="sm" className="tnum">
+              {t.phone}
+            </Anchor>
+          )
+        }
+      />
+      <Info
+        label="E-mail"
+        value={
+          t.email && (
+            <Anchor href={`mailto:${t.email}`} size="sm">
+              {t.email}
+            </Anchor>
+          )
+        }
+      />
+      <Info label="Endereço" value={t.address} />
+    </Stack>
   );
 }
 
