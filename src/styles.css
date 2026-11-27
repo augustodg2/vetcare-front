@@ -1878,3 +1878,111 @@ button.mrow {
 .procedure-editor[data-error] {
   border-color: var(--mantine-color-error);
 }
+
+.print-sheet {
+  display: none;
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 16mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  body > *:not(.print-sheet) {
+    display: none !important;
+  }
+  .print-sheet {
+    display: flex;
+  }
+}
+.rx-sheet {
+  flex-direction: column;
+  min-height: calc(297mm - 28mm);
+  color: #000;
+  font-size: 10.5pt;
+  line-height: 1.45;
+}
+.rx-head {
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid #000;
+  text-align: center;
+}
+.rx-clinic {
+  font-size: 15pt;
+  font-weight: 700;
+}
+.rx-muted {
+  font-size: 9pt;
+  color: #444;
+}
+.rx-title {
+  margin: 14px 0 12px;
+  font-size: 13pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.rx-ids {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.rx-box {
+  padding: 8px 10px;
+  border: 1px solid #999;
+  border-radius: 4px;
+}
+.rx-label {
+  margin-bottom: 4px;
+  font-size: 8.5pt;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.rx-field {
+  display: flex;
+  gap: 4px;
+  overflow-wrap: anywhere;
+}
+.rx-field-label {
+  flex-shrink: 0;
+  font-weight: 600;
+}
+.rx-blank {
+  display: inline-block;
+  flex: 1;
+  min-width: 40mm;
+  border-bottom: 1px solid #999;
+}
+.rx-body {
+  flex: 1;
+  margin-top: 18px;
+}
+.rx-body .rich-text {
+  color: #000;
+  font-size: 10.5pt;
+}
+.rx-body .rich-text h3 {
+  color: #000;
+  font-size: 10pt;
+}
+.rx-foot {
+  margin-top: 24px;
+  break-inside: avoid;
+}
+.rx-sign {
+  width: 85mm;
+  margin: 22mm auto 0;
+  text-align: center;
+}
+.rx-sign-line {
+  border-top: 1px solid #000;
+  margin-bottom: 4px;
+}
+.rx-sign-name {
+  font-weight: 600;
+}

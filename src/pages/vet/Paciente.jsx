@@ -26,6 +26,7 @@ import {
   IconEyeOff,
   IconPencil,
   IconPlus,
+  IconPrinter,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import {
@@ -48,9 +49,11 @@ import {
   usePetProcedures,
   useProcedure,
 } from "../../api/queries/procedures";
+import { useAllVets } from "../../api/queries/vets";
 import { AppointmentModal } from "../../components/agenda/AppointmentModal";
 import { PetModal, PetOwnerModal } from "../../components/PeopleForms";
 import { NewPrescription } from "../../components/PrescriptionForm";
+import { PrescriptionPrint } from "../../components/PrescriptionPrint";
 import { NewProcedure } from "../../components/ProcedureForm";
 import { htmlToText, RichText } from "../../components/RichText";
 import {
@@ -252,6 +255,7 @@ function PetMain({ pet }) {
       ) : prescriptionId ? (
         <PrescriptionDetail
           id={prescriptionId}
+          pet={pet}
           onBack={() => setPrescriptionId(null)}
         />
       ) : (
@@ -691,12 +695,23 @@ function PrescriptionItem({ prescription: rx, onOpen }) {
   );
 }
 
-function PrescriptionDetail({ id, onBack }) {
+function PrescriptionDetail({ id, pet, onBack }) {
   const prescription = usePrescription(id);
+  const petOwner = usePetOwner(pet.petOwnerId);
+  const vets = useAllVets();
   const rx = prescription.data;
+  const crmv = rx && vets.data?.find((v) => v.id === rx.vet.id)?.crmv;
 
   return (
     <>
+      {rx && (
+        <PrescriptionPrint
+          prescription={rx}
+          pet={pet}
+          petOwner={petOwner.data}
+          crmv={crmv}
+        />
+      )}
       <div className="block-head procedure-head">
         <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
           <ActionIcon
@@ -716,6 +731,16 @@ function PrescriptionDetail({ id, onBack }) {
             )}
           </div>
         </Group>
+        <Button
+          variant="default"
+          size="xs"
+          leftSection={<IconPrinter size={14} />}
+          onClick={() => window.print()}
+          disabled={!rx || petOwner.isPending || vets.isPending}
+          style={{ flexShrink: 0 }}
+        >
+          Imprimir
+        </Button>
       </div>
       <Async q={prescription} rows={6}>
         {(rx) => (
