@@ -130,7 +130,7 @@ src/features/
   auth/         login, convite e redefinição de senha
   payments/     movimentações do dia e pagamentos
   pacientes/    pacientes, tutores, ficha clínica, procedimentos e receitas
-  usuarios/     gestão de usuários
+  users/        gestão de usuários
 ```
 
 - O que só uma funcionalidade usa fica na pasta dela, com as queries em `queries.js`.

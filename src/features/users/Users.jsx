@@ -43,7 +43,7 @@ import {
   maskCpf,
   onlyDigits,
   relDay,
-  UFS,
+  STATES,
 } from "@/lib/format";
 import { USER_STATUS } from "@/lib/status";
 import {
@@ -61,7 +61,7 @@ import {
   Pill,
 } from "@/components/ui";
 import layoutStyles from "@/styles/layout.module.css";
-import styles from "./Usuarios.module.css";
+import styles from "./Users.module.css";
 
 const NON_VET_ROLES = ROLE_OPTIONS.filter((r) => r.value !== "VET");
 
@@ -84,7 +84,7 @@ const DEFAULT_STATUS_FILTER = STATUS_FILTERS[0].value;
 
 const SEARCH_DEBOUNCE_MS = 500;
 
-export default function Usuarios() {
+export default function Users() {
   const { user: me } = useSession();
   const [invite, setInvite] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -385,7 +385,7 @@ function InviteForm({ onClose }) {
       role: "RECEP",
       cpf: "",
       crmv: "",
-      crmvUf: null,
+      crmvState: null,
     },
     validate: {
       name: (v) =>
@@ -397,7 +397,7 @@ function InviteForm({ onClose }) {
         values.role === "VET" && v.length < 1
           ? "Informe o número do CRMV"
           : null,
-      crmvUf: (v, values) =>
+      crmvState: (v, values) =>
         values.role === "VET" && !v ? "Selecione a UF" : null,
     },
   });
@@ -413,7 +413,7 @@ function InviteForm({ onClose }) {
             email: v.email.trim().toLowerCase(),
             role: v.role,
             ...(v.role === "VET" && {
-              vet: { cpf: v.cpf, crmv: formatCrmv(v.crmv, v.crmvUf) },
+              vet: { cpf: v.cpf, crmv: formatCrmv(v.crmv, v.crmvState) },
             }),
           });
         } catch {
@@ -455,11 +455,11 @@ function InviteForm({ onClose }) {
                 <Select
                   aria-label="UF do CRMV"
                   placeholder="UF"
-                  data={UFS}
+                  data={STATES}
                   searchable
                   w={85}
-                  {...form.getInputProps("crmvUf")}
-                  error={!!form.errors.crmvUf}
+                  {...form.getInputProps("crmvState")}
+                  error={!!form.errors.crmvState}
                 />
                 <TextInput
                   aria-label="Número do CRMV"
@@ -479,7 +479,7 @@ function InviteForm({ onClose }) {
                   }
                 />
               </Group>
-              {(form.errors.crmvUf || form.errors.crmv) && (
+              {(form.errors.crmvState || form.errors.crmv) && (
                 <Text size="xs" c="red" mt={4}>
                   Informe a UF e o número do CRMV
                 </Text>

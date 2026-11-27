@@ -19,7 +19,7 @@ const PatientRoutes = lazy(
   () => import("@/features/pacientes/paciente/PatientRoutes"),
 );
 const ResetPassword = lazy(() => import("@/features/auth/ResetPassword"));
-const Usuarios = lazy(() => import("@/features/usuarios/Usuarios"));
+const Users = lazy(() => import("@/features/users/Users"));
 
 function RequireAuth() {
   const { user } = useSession();
@@ -73,7 +73,7 @@ export default function App() {
           <Route path={ROLES.ADMIN.base} element={<RoleGate role="ADMIN" />}>
             <Route path="agenda" element={<AppointmentCalendar />} />
             <Route path="pacientes" element={<Pacientes />} />
-            <Route path="usuarios" element={<Usuarios />} />
+            <Route path="usuarios" element={<Users />} />
           </Route>
         </Route>
       </Route>

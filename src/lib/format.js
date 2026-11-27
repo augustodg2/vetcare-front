@@ -81,7 +81,7 @@ export function isCpf(v) {
   return check(9) === Number(d[9]) && check(10) === Number(d[10]);
 }
 
-export const UFS = [
+export const STATES = [
   "AC",
   "AL",
   "AP",
@@ -111,7 +111,7 @@ export const UFS = [
   "TO",
 ];
 
-export const formatCrmv = (number, uf) => `CRMV-${uf} ${number}`;
+export const formatCrmv = (number, state) => `CRMV-${state} ${number}`;
 
 export function hideCpf(v) {
   const d = onlyDigits(v);
