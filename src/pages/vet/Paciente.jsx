@@ -18,14 +18,12 @@ import {
 import {
   IconAlertTriangle,
   IconArrowLeft,
-  IconCat,
+  IconCalendar,
   IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
-  IconDog,
   IconEye,
   IconEyeOff,
-  IconPaw,
   IconPencil,
   IconPlus,
 } from "@tabler/icons-react";
@@ -46,10 +44,17 @@ import {
   usePetProcedures,
   useProcedure,
 } from "../../api/queries/procedures";
+import { AppointmentModal } from "../../components/agenda/AppointmentModal";
 import { PetModal, PetOwnerModal } from "../../components/PeopleForms";
 import { NewProcedure } from "../../components/ProcedureForm";
 import { htmlToText, RichText } from "../../components/RichText";
-import { Async, Dash, Empty, LoadingRows } from "../../components/ui";
+import {
+  Async,
+  Dash,
+  Empty,
+  LoadingRows,
+  SpeciesAvatar,
+} from "../../components/ui";
 import { toast } from "../../lib/notify";
 import { age, ago, fmtDate, hideCpf, kg, relDay } from "../../lib/format";
 import {
@@ -59,7 +64,6 @@ import {
 } from "../../lib/status";
 
 const SEX_LABEL = { M: "Macho", F: "Fêmea" };
-const SPECIES_ICON = { DOG: IconDog, CAT: IconCat };
 
 const typeLabel = (type) => PROCEDURE_LABEL[type] ?? type;
 const typeColor = (type) => PROCEDURE_COLOR[type] ?? "gray";
@@ -80,7 +84,7 @@ export default function Paciente() {
             <PetHeader pet={p} />
             <TutorSummary id={p.petOwnerId} />
             <div className="grid-aside">
-              <PetMain petId={p.id} />
+              <PetMain pet={p} />
               <PetOwnerAside id={p.petOwnerId} />
             </div>
           </>
@@ -111,21 +115,6 @@ function PacienteSkeleton() {
         </section>
       </div>
     </>
-  );
-}
-
-function SpeciesAvatar({ species, size }) {
-  const Icon = SPECIES_ICON[species] ?? IconPaw;
-  return (
-    <Avatar
-      size={size}
-      radius="md"
-      variant="light"
-      color={species === "CAT" ? "grape" : "teal"}
-      style={{ flexShrink: 0 }}
-    >
-      <Icon size={size * 0.5} stroke={1.6} />
-    </Avatar>
   );
 }
 
@@ -184,7 +173,8 @@ function PetHeader({ pet: p }) {
   );
 }
 
-function PetMain({ petId }) {
+function PetMain({ pet }) {
+  const petId = pet.id;
   const [procedureId, setProcedureId] = useQueryState(
     "procedimento",
     parseAsString.withOptions({ history: "push" }),
@@ -275,7 +265,7 @@ function PetMain({ petId }) {
           </Tabs.Panel>
           <Tabs.Panel value="agendamentos">
             <UpcomingAppointments
-              petId={petId}
+              pet={pet}
               range={upcomingRange}
               page={page}
               onPage={setPage}
@@ -289,16 +279,43 @@ function PetMain({ petId }) {
 
 const UPCOMING_DAYS = 31;
 
-function UpcomingAppointments({ petId, range, page, onPage }) {
-  const upcoming = usePetAppointments({ petId, ...range, page });
+function UpcomingAppointments({ pet, range, page, onPage }) {
+  const upcoming = usePetAppointments({ petId: pet.id, ...range, page });
   const total = upcoming.data?.total;
+  const [booking, setBooking] = useState(false);
 
   return (
     <>
-      <div className="tab-meta">
-        {total > 0
-          ? `${total} ${total === 1 ? "agendamento" : "agendamentos"} nos próximos ${UPCOMING_DAYS} dias`
-          : `Próximos ${UPCOMING_DAYS} dias`}
+      <AppointmentModal
+        opened={booking}
+        onClose={() => setBooking(false)}
+        pet={pet}
+        ownVet
+      />
+      <div className="tab-meta tab-toolbar">
+        <span>
+          {total > 0
+            ? `${total} ${total === 1 ? "agendamento" : "agendamentos"} nos próximos ${UPCOMING_DAYS} dias`
+            : `Próximos ${UPCOMING_DAYS} dias`}
+        </span>
+        <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
+          <Button
+            component={Link}
+            to={`/vet/agenda?v=semana&paciente=${pet.id}`}
+            variant="default"
+            size="xs"
+            leftSection={<IconCalendar size={14} />}
+          >
+            Ver na agenda
+          </Button>
+          <Button
+            size="xs"
+            leftSection={<IconPlus size={14} />}
+            onClick={() => setBooking(true)}
+          >
+            Novo agendamento
+          </Button>
+        </Group>
       </div>
       <Async q={upcoming} rows={3}>
         {({ rows, total, pageSize }) =>

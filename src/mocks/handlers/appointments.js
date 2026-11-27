@@ -166,6 +166,36 @@ export const appointmentHandlers = [
   ),
 
   http.patch(
+    `${API_URL}${ENDPOINTS.appointments.complete(":id")}`,
+    ({ params, request }) => {
+      const fail = (status, message) =>
+        HttpResponse.json({ message }, { status });
+      const found = appointmentStore.appointments.find(
+        (a) => a.id === params.id,
+      );
+      if (!found) return fail(STATUS.NOT_FOUND, "Consulta não encontrada");
+      if (!canManage(request, found))
+        return fail(STATUS.FORBIDDEN, FORBIDDEN_MESSAGE);
+      if (found.status === "DONE")
+        return fail(STATUS.BAD_REQUEST, "A consulta já está concluída");
+      if (found.status === "CANCELLED") {
+        return fail(
+          STATUS.BAD_REQUEST,
+          "Uma consulta cancelada não pode ser concluída",
+        );
+      }
+      if (new Date(found.dateTime).getTime() > Date.now()) {
+        return fail(
+          STATUS.BAD_REQUEST,
+          "Não é possível concluir uma consulta que ainda não começou",
+        );
+      }
+      found.status = "DONE";
+      return HttpResponse.json(found);
+    },
+  ),
+
+  http.patch(
     `${API_URL}${ENDPOINTS.appointments.byId(":id")}`,
     async ({ params, request }) => {
       const { dateTime, type, obs } = await request.json();

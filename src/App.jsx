@@ -6,6 +6,7 @@ import AcceptInvite from "./pages/AcceptInvite";
 import Login from "./pages/Login";
 import Agenda from "./pages/recepcao/Agenda";
 import Pacientes from "./pages/recepcao/Pacientes";
+import Atendimento from "./pages/vet/Atendimento";
 import Paciente from "./pages/vet/Paciente";
 
 function RequireAuth() {
@@ -40,6 +41,7 @@ export default function App() {
             <Route path="pacientes" element={<Pacientes />} />
           </Route>
           <Route path="vet" element={<RoleGate role="VET" />}>
+            <Route path="atendimento" element={<Atendimento />} />
             <Route path="agenda" element={<Agenda />} />
             <Route path="pacientes" element={<Pacientes />} />
             <Route path="pacientes/:id" element={<Paciente />} />

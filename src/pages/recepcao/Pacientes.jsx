@@ -39,7 +39,7 @@ import {
   Empty,
   Facts,
   PageHeader,
-  PetAvatar,
+  SpeciesAvatar,
 } from "../../components/ui";
 import { age, hideCpf, kg } from "../../lib/format";
 import { SPECIES_LABEL } from "../../lib/status";
@@ -172,7 +172,7 @@ export default function Pacientes() {
                     width: "32%",
                     render: (p) => (
                       <Group gap="sm" wrap="nowrap">
-                        <PetAvatar pet={p} size={30} />
+                        <SpeciesAvatar species={p.species} size={36} />
                         <div>
                           <div className="cell-main">{p.name}</div>
                           <div className="cell-sub">
@@ -398,7 +398,7 @@ function PetOwnerDetails({
                     }
                   >
                     <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
-                      <PetAvatar pet={p} size={34} />
+                      <SpeciesAvatar species={p.species} size={40} />
                       <div style={{ minWidth: 0 }}>
                         <Text size="sm" fw={500}>
                           {p.name}

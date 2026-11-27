@@ -10,7 +10,9 @@ import {
   Text,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
+import { IconCat, IconDog, IconPaw } from "@tabler/icons-react";
 import { initials } from "../lib/format";
+import { SPECIES_LABEL } from "../lib/status";
 
 export const PHONE = "(max-width: 767px)";
 export const usePhone = () => useMediaQuery(PHONE);
@@ -165,16 +167,6 @@ export function PersonAvatar({ name, size = 32, color = "teal" }) {
   );
 }
 
-export function PetAvatar({ pet, size = 36 }) {
-  return (
-    <PersonAvatar
-      name={pet?.name ?? "?"}
-      size={size}
-      color={pet?.species === "CAT" ? "grape" : "teal"}
-    />
-  );
-}
-
 /**
  * Tabela que no celular vira lista de duas linhas.
  * columns: [{ key, label, render(row), num, width }]
@@ -321,5 +313,24 @@ export function Facts({ items }) {
         </div>
       ))}
     </div>
+  );
+}
+
+const SPECIES_ICON = { DOG: IconDog, CAT: IconCat };
+
+export function SpeciesAvatar({ species, size }) {
+  const Icon = SPECIES_ICON[species] ?? IconPaw;
+  return (
+    <Avatar
+      size={size}
+      radius="md"
+      variant="light"
+      color={species === "CAT" ? "grape" : "teal"}
+      style={{ flexShrink: 0 }}
+      title={SPECIES_LABEL[species]}
+      aria-label={SPECIES_LABEL[species]}
+    >
+      <Icon size={size * 0.5} stroke={1.6} />
+    </Avatar>
   );
 }

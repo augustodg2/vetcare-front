@@ -1,8 +1,17 @@
 import { Button, Drawer, Group, Stack, Text } from "@mantine/core";
-import { IconCalendarEvent, IconFileText, IconX } from "@tabler/icons-react";
+import {
+  IconCalendarEvent,
+  IconCheck,
+  IconFileText,
+  IconX,
+} from "@tabler/icons-react";
+import dayjs from "dayjs";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useCancelAppointment } from "../../api/queries/appointments";
+import {
+  useCancelAppointment,
+  useCompleteAppointment,
+} from "../../api/queries/appointments";
 import { fmtDateTime } from "../../lib/format";
 import { toast } from "../../lib/notify";
 import { APPOINTMENT_STATUS, PROCEDURE_LABEL } from "../../lib/status";
@@ -14,6 +23,7 @@ export function AppointmentDrawer({
   onClose,
   onRescheduled,
   petHref,
+  canManage = () => true,
 }) {
   const [mode, setMode] = useState(null);
 
@@ -21,6 +31,13 @@ export function AppointmentDrawer({
     onSuccess: () => {
       toast.ok(`Consulta de ${appointment.pet.name} cancelada.`);
       setMode(null);
+      onClose();
+    },
+  });
+
+  const complete = useCompleteAppointment({
+    onSuccess: () => {
+      toast.ok(`Consulta de ${appointment.pet.name} concluída.`);
       onClose();
     },
   });
@@ -37,6 +54,10 @@ export function AppointmentDrawer({
           <AppointmentDetails
             appointment={appointment}
             petHref={petHref?.(appointment.pet)}
+            canManage={canManage(appointment)}
+            canComplete={!dayjs(appointment.dateTime).isAfter(dayjs())}
+            completing={complete.isPending}
+            onComplete={() => complete.mutate(appointment.id)}
             onReschedule={() => setMode("reschedule")}
             onCancel={() => setMode("cancel")}
           />
@@ -72,6 +93,10 @@ export function AppointmentDrawer({
 function AppointmentDetails({
   appointment: a,
   petHref,
+  canManage,
+  canComplete,
+  completing,
+  onComplete,
   onReschedule,
   onCancel,
 }) {
@@ -104,8 +129,17 @@ function AppointmentDetails({
         ]}
       />
 
-      {a.status === "ACTIVE" && (
+      {a.status === "ACTIVE" && canManage && (
         <Group justify="flex-end">
+          {canComplete && (
+            <Button
+              leftSection={<IconCheck size={14} />}
+              loading={completing}
+              onClick={onComplete}
+            >
+              Marcar como concluída
+            </Button>
+          )}
           <Button
             variant="default"
             leftSection={<IconCalendarEvent size={14} />}

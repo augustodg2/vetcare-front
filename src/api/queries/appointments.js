@@ -12,11 +12,11 @@ export const appointmentKeys = {
   pet: (petId, params) => [...appointmentKeys.all, "pet", petId, params],
 };
 
-export const useAppointments = ({ from, to, vetId, enabled = true }) =>
+export const useAppointments = ({ from, to, vetId, petId, enabled = true }) =>
   useQuery({
     enabled,
-    queryKey: appointmentKeys.list({ from, to, vetId }),
-    queryFn: () => api.appointments.list({ from, to, vetId }),
+    queryKey: appointmentKeys.list({ from, to, vetId, petId }),
+    queryFn: () => api.appointments.list({ from, to, vetId, petId }),
     placeholderData: keepPreviousData,
   });
 
@@ -43,6 +43,9 @@ export const useUpdateAppointment = (options) =>
 
 export const useCancelAppointment = (options) =>
   useAppointmentMutation(api.appointments.cancel, options);
+
+export const useCompleteAppointment = (options) =>
+  useAppointmentMutation(api.appointments.complete, options);
 
 export const usePetAppointments = ({
   petId,

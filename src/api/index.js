@@ -107,11 +107,12 @@ export const pets = {
 };
 
 export const appointments = {
-  list: async ({ from, to, vetId, status } = {}) => {
+  list: async ({ from, to, vetId, petId, status } = {}) => {
     const res = await http.get(ENDPOINTS.appointments.list, {
       from,
       to,
       vetId,
+      petId,
       status,
     });
     return res.data.map(fromApiAppointment);
@@ -137,6 +138,8 @@ export const appointments = {
     ),
   cancel: async (id) =>
     fromApiAppointment(await http.patch(ENDPOINTS.appointments.cancel(id))),
+  complete: async (id) =>
+    fromApiAppointment(await http.patch(ENDPOINTS.appointments.complete(id))),
   create: async (data) =>
     fromApiAppointment(
       await http.post(

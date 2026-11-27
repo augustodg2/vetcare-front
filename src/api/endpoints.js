@@ -15,6 +15,7 @@ export const ENDPOINTS = {
     create: "/appointments",
     byId: (id) => `/appointments/${id}`,
     cancel: (id) => `/appointments/${id}/cancel`,
+    complete: (id) => `/appointments/${id}/complete`,
   },
   vets: {
     list: "/vets",

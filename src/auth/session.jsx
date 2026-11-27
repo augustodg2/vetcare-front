@@ -7,7 +7,7 @@ import { authKeys, useMe } from "../api/queries/auth";
 export const ROLES = {
   RECEP: { label: "Recepcionista", home: "/recepcao/agenda" },
   ADMIN: { label: "Administrador", home: "/admin/agenda" },
-  VET: { label: "Veterinário", home: "/vet/agenda" },
+  VET: { label: "Veterinário", home: "/vet/atendimento" },
 };
 
 const SessionContext = createContext(null);
