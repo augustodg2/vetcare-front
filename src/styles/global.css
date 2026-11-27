@@ -10,8 +10,6 @@
   --vc-teal-ink: #066a62;
   --vc-teal-tint: #e4f7f5;
   --vc-gutter: 24px;
-  --mantine-color-default-border: var(--vc-line);
-  --mantine-color-dimmed: var(--vc-muted);
 }
 
 /* tons de texto das pílulas e textos secundários com contraste AA (ganham das variáveis do Mantine) */
